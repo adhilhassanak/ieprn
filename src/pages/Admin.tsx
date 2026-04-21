@@ -179,8 +179,7 @@ const Admin = () => {
           {/* EVENTS */}
           <TabsContent value="events" className="mt-4">
             <div className="text-sm text-muted-foreground mb-3">{events.length} events · {totalParticipants} participants</div>
-            <div class
-="grid gap-3">
+            <div className="grid gap-3">
               {events.map((e) => (
                 <div key={e.id} className="glass rounded-xl p-4 flex flex-wrap items-center gap-3">
                   {e.poster_url && <img src={e.poster_url} alt="" className="h-14 w-14 rounded-lg object-cover" />}
