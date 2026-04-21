@@ -8,25 +8,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { getCommunity } from "@/lib/communities";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Upload, CheckCircle2 } from "lucide-react";
 
-const PHOTO_MAX = 500 * 1024; // 500 KB per spec
+const PHOTO_MAX = 500 * 1024;
 
 const schema = z.object({
   full_name: z.string().trim().min(2).max(100),
-  gmail: z.string().trim().email().max(255).refine((v) => v.endsWith("@gmail.com"), "Must be a @gmail.com address"),
-  phone: z.string().trim().regex(/^\d{10}$/, "Phone must be 10 digits"),
-  current_semester: z.string().trim().min(1).max(20),
-  next_semester: z.string().trim().min(1).max(20),
-  branch: z.string().trim().min(1).max(50),
-  division: z.string().trim().min(1).max(20),
-  current_position: z.string().trim().min(2).max(100),
-  previous_position: z.string().trim().max(100).optional().or(z.literal("")),
+  gmail: z
+    .string()
+    .trim()
+    .email()
+    .max(255)
+    .refine((v) => v.endsWith("@gmail.com"), "Must be a @gmail.com address"),
+  phone: z.string().regex(/^\d{10}$/),
+  current_semester: z.string().min(1),
+  next_semester: z.string().min(1),
+  branch: z.string().min(1),
+  division: z.string().min(1),
+  current_position: z.string().min(2),
+  previous_position: z.string().optional().or(z.literal("")),
 });
 
 const Register = () => {
@@ -36,7 +47,7 @@ const Register = () => {
   const { user } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [positions, setPositions] = useState<{ id: string; role_name: string; description: string | null }[]>([]);
+  const [positions, setPositions] = useState<any[]>([]);
   const [form, setForm] = useState({
     full_name: "",
     gmail: "",
@@ -48,21 +59,23 @@ const Register = () => {
     current_position: "",
     previous_position: "",
   });
+
   const [photo, setPhoto] = useState<File | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string>("");
+  const [preview, setPreview] = useState("");
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
     if (!community) return;
+
     supabase
       .from("positions_needed")
       .select("id, role_name, description")
       .eq("community", community.short)
       .eq("is_active", true)
       .order("role_name")
-      .then(({ data }) => setPositions(data ?? []));
+      .then(({ data }) => setPositions(data || []));
   }, [community]);
 
   if (!community) {
@@ -70,83 +83,87 @@ const Register = () => {
       <Layout>
         <div className="container py-20 text-center">
           <h1 className="text-2xl font-bold">Community not found</h1>
-          <Button onClick={() => navigate("/")} className="mt-4">Go home</Button>
         </div>
       </Layout>
     );
   }
 
-  const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
+  const set = (k: any, v: string) =>
+    setForm((p) => ({ ...p, [k]: v }));
 
-  const onPhoto = (f: File | null) => {
+  const handlePhoto = (f: File | null) => {
     if (!f) return;
-    if (f.size > PHOTO_MAX) {
-      toast({ title: "Photo too large", description: "Max 500 KB", variant: "destructive" });
-      return;
-    }
+    if (f.size > PHOTO_MAX)
+      return toast({
+        title: "Photo too large (max 500KB)",
+        variant: "destructive",
+      });
+
     setPhoto(f);
-    setPhotoPreview(URL.createObjectURL(f));
+    setPreview(URL.createObjectURL(f));
   };
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+
     if (!user) return;
-    if (!agree) return toast({ title: "Please accept the declaration", variant: "destructive" });
-    if (!photo) return toast({ title: "Please upload your photo", variant: "destructive" });
+    if (!agree)
+      return toast({ title: "Accept declaration", variant: "destructive" });
+    if (!photo)
+      return toast({ title: "Upload photo", variant: "destructive" });
+    if (!form.current_position)
+      return toast({ title: "Select position", variant: "destructive" });
 
     const parsed = schema.safeParse(form);
-    if (!parsed.success) {
-      toast({ title: "Check your inputs", description: parsed.error.issues[0].message, variant: "destructive" });
-      return;
-    }
+    if (!parsed.success)
+      return toast({
+        title: "Invalid input",
+        description: parsed.error.issues[0].message,
+        variant: "destructive",
+      });
 
     setLoading(true);
-    try {
-      const ext = photo.name.split(".").pop() || "jpg";
-      const path = `${user.id}/${community.key}-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("profile-photos").upload(path, photo, { upsert: false });
-      if (upErr) throw upErr;
-      const { data: { publicUrl } } = supabase.storage.from("profile-photos").getPublicUrl(path);
 
-      const regPayload: any = {
+    try {
+      const ext = photo.name.split(".").pop();
+      const path = `${user.id}/${Date.now()}.${ext}`;
+
+      await supabase.storage.from("profile-photos").upload(path, photo);
+
+      const { data } = supabase.storage
+        .from("profile-photos")
+        .getPublicUrl(path);
+
+      await supabase.from("registrations").insert({
         user_id: user.id,
         community: community.short,
         ...parsed.data,
-        previous_position: parsed.data.previous_position || null,
-        photo_url: publicUrl,
-      };
-      const { error: insErr } = await supabase.from("registrations").insert(regPayload);
-      if (insErr) throw insErr;
-
-      await supabase.from("profiles").update({ community: community.short }).eq("user_id", user.id);
-
-      supabase.functions.invoke("sync-to-google", {
-        body: {
-          type: "registration",
-          community_name: community.short,
-          ...parsed.data,
-          photo_url: publicUrl,
-        },
-      }).catch(() => {});
+        photo_url: data.publicUrl,
+      });
 
       setDone(true);
     } catch (err: any) {
-      toast({ title: "Submission failed", description: err.message, variant: "destructive" });
-    } finally {
-      setLoading(false);
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive",
+      });
     }
+
+    setLoading(false);
   };
 
   if (done) {
     return (
       <Layout>
-        <div className="container py-20">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass-strong max-w-lg mx-auto rounded-2xl p-10 text-center shadow-glow-emerald">
-            <CheckCircle2 className="h-16 w-16 text-primary mx-auto" />
-            <h1 className="mt-4 text-2xl font-bold">Application submitted!</h1>
-            <p className="mt-2 text-muted-foreground">Your {community.short} ExeCom application is now pending admin approval.</p>
-            <Button onClick={() => navigate("/dashboard")} className="mt-6 bg-gradient-emerald text-primary-foreground">Go to dashboard</Button>
-          </motion.div>
+        <div className="container py-20 text-center">
+          <CheckCircle2 className="mx-auto h-16 text-green-500" />
+          <h1 className="text-2xl font-bold mt-4">
+            Application Submitted!
+          </h1>
+          <Button onClick={() => navigate("/dashboard")} className="mt-6">
+            Go Dashboard
+          </Button>
         </div>
       </Layout>
     );
@@ -156,66 +173,117 @@ const Register = () => {
     <Layout>
       <div className="container py-10 max-w-3xl">
         <BackButton />
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="text-xs uppercase tracking-widest text-gold">Apply to ExeCom · 2026–27</div>
-          <h1 className="mt-1 text-3xl md:text-4xl font-bold">{community.name}</h1>
-          <p className="text-muted-foreground mt-2">{community.tagline}</p>
-        </motion.div>
 
-        <form onSubmit={submit} className="mt-8 glass-strong rounded-2xl p-6 md:p-8 space-y-5">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div><Label>Full name</Label><Input value={form.full_name} onChange={(e) => set("full_name", e.target.value)} required /></div>
-            <div><Label>Gmail</Label><Input type="email" value={form.gmail} onChange={(e) => set("gmail", e.target.value)} required /></div>
-            <div><Label>Phone (10 digits)</Label><Input inputMode="numeric" maxLength={10} value={form.phone} onChange={(e) => set("phone", e.target.value)} required /></div>
-            <div><Label>Branch</Label><Input value={form.branch} onChange={(e) => set("branch", e.target.value)} required /></div>
-            <div><Label>Current semester</Label><Input value={form.current_semester} onChange={(e) => set("current_semester", e.target.value)} required /></div>
-            <div><Label>Next semester</Label><Input value={form.next_semester} onChange={(e) => set("next_semester", e.target.value)} required /></div>
-            <div><Label>Division</Label><Input value={form.division} onChange={(e) => set("division", e.target.value)} required /></div>
-            <div>
-              <Label>Position applying for (2026–27)</Label>
-              {positions.length > 0 ? (
-                <Select value={form.current_position} onValueChange={(v) => set("current_position", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select a position" /></SelectTrigger>
-                  <SelectContent>
-                    {positions.map((p) => (
-                      <SelectItem key={p.id} value={p.role_name}>{p.role_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <>
-                  <Input value={form.current_position} onChange={(e) => set("current_position", e.target.value)} placeholder="Type your desired position" required />
-                  <p className="mt-1 text-xs text-muted-foreground">No open positions configured by admin yet — type yours.</p>
-                </>
-              )}
-            </div>
-          </div>
+        <h1 className="text-3xl font-bold">{community.name}</h1>
 
+        <form onSubmit={submit} className="space-y-4 mt-6">
+          <Input
+            placeholder="Full Name"
+            value={form.full_name}
+            onChange={(e) => set("full_name", e.target.value)}
+          />
+
+          <Input
+            placeholder="Gmail"
+            value={form.gmail}
+            onChange={(e) => set("gmail", e.target.value)}
+          />
+
+          <Input
+            placeholder="Phone"
+            value={form.phone}
+            onChange={(e) => set("phone", e.target.value)}
+          />
+
+          <Input
+            placeholder="Branch"
+            value={form.branch}
+            onChange={(e) => set("branch", e.target.value)}
+          />
+
+          <Input
+            placeholder="Current Sem"
+            value={form.current_semester}
+            onChange={(e) => set("current_semester", e.target.value)}
+          />
+
+          <Input
+            placeholder="Next Sem"
+            value={form.next_semester}
+            onChange={(e) => set("next_semester", e.target.value)}
+          />
+
+          <Input
+            placeholder="Division"
+            value={form.division}
+            onChange={(e) => set("division", e.target.value)}
+          />
+
+          {/* ✅ POSITION DROPDOWN */}
           <div>
-            <Label>Previous role in 2025–26 ExeCom (optional)</Label>
-            <Input placeholder="e.g. Joint Secretary, or leave blank" value={form.previous_position} onChange={(e) => set("previous_position", e.target.value)} />
+            <Label>Position</Label>
+            <Select
+              value={form.current_position}
+              onValueChange={(v) => set("current_position", v)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Position" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {positions.length > 0 ? (
+                  positions.map((p) => (
+                    <SelectItem key={p.id} value={p.role_name}>
+                      {p.role_name}
+                      {p.description ? ` - ${p.description}` : ""}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem disabled value="none">
+                    No positions available
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div>
-            <Label>Profile photo (max 500 KB)</Label>
-            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => onPhoto(e.target.files?.[0] ?? null)} />
-            <button type="button" onClick={() => fileRef.current?.click()} className="mt-1 w-full glass rounded-xl p-6 border-2 border-dashed border-border hover:border-primary/60 transition-smooth flex items-center justify-center gap-3 text-sm text-muted-foreground">
-              {photoPreview ? (
-                <img src={photoPreview} alt="preview" className="h-20 w-20 rounded-lg object-cover" />
-              ) : (
-                <><Upload className="h-5 w-5" /> Click to upload</>
-              )}
-            </button>
-          </div>
+          <Input
+            placeholder="Previous Position (optional)"
+            value={form.previous_position}
+            onChange={(e) => set("previous_position", e.target.value)}
+          />
 
-          <label className="flex items-start gap-3 text-sm text-muted-foreground">
-            <Checkbox checked={agree} onCheckedChange={(v) => setAgree(!!v)} className="mt-0.5" />
-            <span>I declare that the above information is accurate and I commit to actively serving in the {community.short} ExeCom if selected.</span>
+          {/* PHOTO */}
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="border p-4 w-full rounded"
+          >
+            {preview ? (
+              <img src={preview} className="h-20 mx-auto" />
+            ) : (
+              "Upload Photo"
+            )}
+          </button>
+
+          <input
+            ref={fileRef}
+            type="file"
+            hidden
+            onChange={(e) => handlePhoto(e.target.files?.[0] || null)}
+          />
+
+          <label className="flex gap-2 text-sm">
+            <Checkbox
+              checked={agree}
+              onCheckedChange={(v) => setAgree(!!v)}
+            />
+            I agree
           </label>
 
-          <Button type="submit" disabled={loading} className="w-full bg-gradient-emerald text-primary-foreground shadow-glow-emerald">
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Submit application
+          <Button disabled={loading} className="w-full">
+            {loading && <Loader2 className="animate-spin mr-2" />}
+            Submit
           </Button>
         </form>
       </div>
