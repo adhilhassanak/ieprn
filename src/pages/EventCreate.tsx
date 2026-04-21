@@ -25,7 +25,7 @@ const schema = z.object({
   event_time: z.string().optional(),
   venue: z.string().trim().max(150).optional(),
   expected_participants: z.coerce.number().int().min(0).default(0),
-  status: z.enum(["draft", "published"]),
+  status: z.enum(["draft", "pending"]),
 });
 
 const EventCreate = () => {
@@ -46,7 +46,7 @@ const EventCreate = () => {
     event_time: "",
     venue: "",
     expected_participants: "0",
-    status: "draft" as "draft" | "published",
+    status: "pending" as "draft" | "pending",
   });
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
 
@@ -70,8 +70,8 @@ const EventCreate = () => {
       return toast({ title: "Not approved", description: "Only approved executive members can create events.", variant: "destructive" });
     }
     const validCoords = coordinators.map((c) => c.trim()).filter(Boolean);
-    if (form.status === "published" && validCoords.length < 2) {
-      return toast({ title: "Need 2 coordinators", description: "At least two coordinator names are required to publish.", variant: "destructive" });
+    if (validCoords.length < 2) {
+      return toast({ title: "Need 2 coordinators", description: "At least two coordinator names are required.", variant: "destructive" });
     }
 
     const parsed = schema.safeParse(form);
@@ -102,7 +102,7 @@ const EventCreate = () => {
         poster_url,
         pdf_url,
         coordinator_names: validCoords,
-        registration_open: parsed.data.status === "published",
+        registration_open: false,
       };
       const { data, error } = await supabase.from("events").insert(payload).select().single();
       if (error) throw error;
@@ -125,9 +125,13 @@ const EventCreate = () => {
       <div className="container py-10 max-w-2xl">
         <BackButton />
         <h1 className="text-3xl font-bold">Create <span className="text-gradient-emerald">event</span></h1>
-        {!isApprovedExecutive && (
+        {!isApprovedExecutive ? (
           <div className="mt-4 glass border border-destructive/40 rounded-xl p-4 text-sm">
-            Your executive application must be approved before you can publish events.
+            Your executive application must be approved before you can create events.
+          </div>
+        ) : (
+          <div className="mt-4 glass border border-gold/30 rounded-xl p-4 text-sm text-muted-foreground">
+            Your event will be saved as <span className="text-gold font-medium">pending</span>. An admin or co-admin will review and publish it.
           </div>
         )}
 
@@ -150,8 +154,8 @@ const EventCreate = () => {
               <Select value={form.status} onValueChange={(v) => set("status", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="published">Published (registrations open)</SelectItem>
+                  <SelectItem value="draft">Draft (only you see it)</SelectItem>
+                  <SelectItem value="pending">Submit for approval</SelectItem>
                 </SelectContent>
               </Select>
             </div>

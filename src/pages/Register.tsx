@@ -1,4 +1,4 @@
-import { useState, FormEvent, useRef } from "react";
+import { useState, FormEvent, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { z } from "zod";
 import { motion } from "framer-motion";
@@ -8,11 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { getCommunity } from "@/lib/communities";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Upload, CheckCircle2 } from "lucide-react";
+
+const PHOTO_MAX = 500 * 1024; // 500 KB per spec
 
 const schema = z.object({
   full_name: z.string().trim().min(2).max(100),
@@ -33,6 +36,7 @@ const Register = () => {
   const { user } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const [positions, setPositions] = useState<{ id: string; role_name: string; description: string | null }[]>([]);
   const [form, setForm] = useState({
     full_name: "",
     gmail: "",
@@ -50,6 +54,17 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
+  useEffect(() => {
+    if (!community) return;
+    supabase
+      .from("positions_needed")
+      .select("id, role_name, description")
+      .eq("community", community.short)
+      .eq("is_active", true)
+      .order("role_name")
+      .then(({ data }) => setPositions(data ?? []));
+  }, [community]);
+
   if (!community) {
     return (
       <Layout>
@@ -65,8 +80,8 @@ const Register = () => {
 
   const onPhoto = (f: File | null) => {
     if (!f) return;
-    if (f.size > 4 * 1024 * 1024) {
-      toast({ title: "File too large", description: "Max 4 MB", variant: "destructive" });
+    if (f.size > PHOTO_MAX) {
+      toast({ title: "Photo too large", description: "Max 500 KB", variant: "destructive" });
       return;
     }
     setPhoto(f);
@@ -103,10 +118,8 @@ const Register = () => {
       const { error: insErr } = await supabase.from("registrations").insert(regPayload);
       if (insErr) throw insErr;
 
-      // Save community on profile so co-admins can find them
       await supabase.from("profiles").update({ community: community.short }).eq("user_id", user.id);
 
-      // Fire-and-forget Sheets/Drive sync
       supabase.functions.invoke("sync-to-google", {
         body: {
           type: "registration",
@@ -158,7 +171,24 @@ const Register = () => {
             <div><Label>Current semester</Label><Input value={form.current_semester} onChange={(e) => set("current_semester", e.target.value)} required /></div>
             <div><Label>Next semester</Label><Input value={form.next_semester} onChange={(e) => set("next_semester", e.target.value)} required /></div>
             <div><Label>Division</Label><Input value={form.division} onChange={(e) => set("division", e.target.value)} required /></div>
-            <div><Label>Position applying for (2026–27)</Label><Input value={form.current_position} onChange={(e) => set("current_position", e.target.value)} required /></div>
+            <div>
+              <Label>Position applying for (2026–27)</Label>
+              {positions.length > 0 ? (
+                <Select value={form.current_position} onValueChange={(v) => set("current_position", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select a position" /></SelectTrigger>
+                  <SelectContent>
+                    {positions.map((p) => (
+                      <SelectItem key={p.id} value={p.role_name}>{p.role_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <>
+                  <Input value={form.current_position} onChange={(e) => set("current_position", e.target.value)} placeholder="Type your desired position" required />
+                  <p className="mt-1 text-xs text-muted-foreground">No open positions configured by admin yet — type yours.</p>
+                </>
+              )}
+            </div>
           </div>
 
           <div>
@@ -167,13 +197,13 @@ const Register = () => {
           </div>
 
           <div>
-            <Label>Profile photo</Label>
+            <Label>Profile photo (max 500 KB)</Label>
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => onPhoto(e.target.files?.[0] ?? null)} />
             <button type="button" onClick={() => fileRef.current?.click()} className="mt-1 w-full glass rounded-xl p-6 border-2 border-dashed border-border hover:border-primary/60 transition-smooth flex items-center justify-center gap-3 text-sm text-muted-foreground">
               {photoPreview ? (
                 <img src={photoPreview} alt="preview" className="h-20 w-20 rounded-lg object-cover" />
               ) : (
-                <><Upload className="h-5 w-5" /> Click to upload (max 4 MB)</>
+                <><Upload className="h-5 w-5" /> Click to upload</>
               )}
             </button>
           </div>

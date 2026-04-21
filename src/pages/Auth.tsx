@@ -59,12 +59,12 @@ const Auth = () => {
       return;
     }
     setLoading(true);
-    const redirectUrl = `${window.location.origin}/dashboard`;
     const { error } = await supabase.auth.signUp({
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
-        emailRedirectTo: redirectUrl,
+        // No email confirmation flow — user is auto-signed in.
+        emailRedirectTo: undefined,
         data: {
           full_name: parsed.data.full_name,
           phone: parsed.data.phone,
@@ -77,7 +77,7 @@ const Auth = () => {
       toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
       return;
     }
-    toast({ title: "Welcome!", description: "Account created successfully." });
+    toast({ title: "Welcome!", description: "Account created — you're signed in." });
     navigate("/dashboard");
   };
 
@@ -113,7 +113,7 @@ const Auth = () => {
           </Link>
           <h1 className="text-2xl font-bold text-center">{mode === "login" ? "Welcome back" : "Create your account"}</h1>
           <p className="text-sm text-muted-foreground text-center mt-1">
-            {mode === "login" ? "Sign in to continue" : "Join the community in seconds"}
+            {mode === "login" ? "Sign in to continue" : "No email verification — sign up and start in seconds"}
           </p>
 
           <form onSubmit={mode === "login" ? handleLogin : handleSignup} className="mt-6 space-y-4">

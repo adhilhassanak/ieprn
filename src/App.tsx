@@ -15,6 +15,8 @@ import EventManage from "./pages/EventManage";
 import EventDetails from "./pages/EventDetails";
 import Coordinator from "./pages/Coordinator";
 import Admin from "./pages/Admin";
+import Gallery from "./pages/Gallery";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,7 +32,9 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/gallery" element={<Gallery />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/register/:community" element={<ProtectedRoute><Register /></ProtectedRoute>} />
             <Route path="/events/new" element={<ProtectedRoute requireRole={["executive_member", "co_admin", "admin"]}><EventCreate /></ProtectedRoute>} />
             <Route path="/events/:id" element={<EventDetails />} />

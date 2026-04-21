@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Sparkles, LogOut, LayoutDashboard, ShieldCheck, CalendarPlus } from "lucide-react";
+import { Sparkles, LogOut, LayoutDashboard, ShieldCheck, CalendarPlus, Image as ImageIcon, UserCircle2 } from "lucide-react";
 
 export const Navbar = () => {
   const { user, isAdmin, isCoAdmin, isExecutive, signOut } = useAuth();
@@ -20,7 +20,11 @@ export const Navbar = () => {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-2">
+        <nav className="flex items-center gap-1 sm:gap-2">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/gallery")}>
+            <ImageIcon className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Gallery</span>
+          </Button>
           {user ? (
             <>
               <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
@@ -30,7 +34,7 @@ export const Navbar = () => {
               {isExecutive && (
                 <Button variant="ghost" size="sm" onClick={() => navigate("/events/new")}>
                   <CalendarPlus className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Create Event</span>
+                  <span className="hidden sm:inline">Create</span>
                 </Button>
               )}
               {(isAdmin || isCoAdmin) && (
@@ -39,6 +43,10 @@ export const Navbar = () => {
                   <span className="hidden sm:inline">{isAdmin ? "Admin" : "Co-admin"}</span>
                 </Button>
               )}
+              <Button variant="ghost" size="sm" onClick={() => navigate("/profile")}>
+                <UserCircle2 className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Profile</span>
+              </Button>
               <Button variant="outline" size="sm" onClick={async () => { await signOut(); navigate("/"); }}>
                 <LogOut className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Sign out</span>
