@@ -10,8 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Clock, Users, CheckCircle2, Instagram, Linkedin, Facebook } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, CheckCircle2, Instagram, Linkedin, Facebook, FileText, UserCircle2 } from "lucide-react";
 import { COMMUNITY_LIST } from "@/lib/communities";
+import { useAdminSettings } from "@/hooks/useAdminSettings";
 
 const schema = z.object({
   full_name: z.string().trim().min(2).max(100),
@@ -22,20 +23,28 @@ const schema = z.object({
 
 const EventDetails = () => {
   const { id } = useParams();
+  const { settings } = useAdminSettings();
   const [event, setEvent] = useState<any>(null);
+  const [participantCount, setParticipantCount] = useState(0);
   const [form, setForm] = useState({ full_name: "", gmail: "", phone: "", semester: "" });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
-    supabase.from("events").select("*").eq("id", id).maybeSingle().then(({ data }) => setEvent(data));
+    (async () => {
+      const { data } = await supabase.from("events").select("*").eq("id", id).maybeSingle();
+      setEvent(data);
+      const { count } = await supabase.from("event_participants").select("*", { count: "exact", head: true }).eq("event_id", id);
+      setParticipantCount(count ?? 0);
+    })();
   }, [id]);
 
   if (!event) return <Layout><div className="container py-20 text-center text-muted-foreground">Loading…</div></Layout>;
 
   const community = COMMUNITY_LIST.find((c) => c.short === event.community);
-  const canRegister = event.status === "published";
+  const globalOpen = settings?.registration_open_global ?? true;
+  const canRegister = event.status === "published" && event.registration_open && globalOpen;
 
   const register = async (e: FormEvent) => {
     e.preventDefault();
@@ -57,38 +66,66 @@ const EventDetails = () => {
     <Layout>
       <div className="container py-10 max-w-3xl">
         <BackButton />
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-strong rounded-2xl p-8">
-          <div className="flex items-center gap-2">
-            <Badge className="bg-gradient-gold text-gold-foreground">{event.community}</Badge>
-            <Badge variant="outline" className="capitalize">{event.status}</Badge>
-          </div>
-          <h1 className="mt-3 text-3xl md:text-4xl font-bold">{event.name}</h1>
-          {event.description && <p className="mt-3 text-muted-foreground whitespace-pre-wrap">{event.description}</p>}
-
-          <div className="mt-6 grid sm:grid-cols-3 gap-3 text-sm">
-            {event.event_date && <Info icon={Calendar} label={new Date(event.event_date).toLocaleDateString()} />}
-            {event.event_time && <Info icon={Clock} label={event.event_time} />}
-            {event.venue && <Info icon={MapPin} label={event.venue} />}
-            {event.expected_participants > 0 && <Info icon={Users} label={`${event.expected_participants} expected`} />}
-          </div>
-
-          {community && (
-            <div className="mt-6 flex items-center gap-3 text-sm text-muted-foreground">
-              <span>Hosted by {community.short} ·</span>
-              <div className="flex gap-2">
-                {community.social.instagram && <a href={community.social.instagram} target="_blank" rel="noreferrer" className="hover:text-primary"><Instagram className="h-4 w-4" /></a>}
-                {community.social.facebook && <a href={community.social.facebook} target="_blank" rel="noreferrer" className="hover:text-primary"><Facebook className="h-4 w-4" /></a>}
-                {community.social.linkedin && <a href={community.social.linkedin} target="_blank" rel="noreferrer" className="hover:text-primary"><Linkedin className="h-4 w-4" /></a>}
-              </div>
-            </div>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-strong rounded-2xl overflow-hidden">
+          {event.poster_url && (
+            <img src={event.poster_url} alt={event.name} className="w-full max-h-[420px] object-cover" />
           )}
+          <div className="p-8">
+            <div className="flex items-center gap-2">
+              <Badge className="bg-gradient-gold text-gold-foreground">{event.community}</Badge>
+              <Badge variant="outline" className="capitalize">{event.status}</Badge>
+            </div>
+            <h1 className="mt-3 text-3xl md:text-4xl font-bold">{event.name}</h1>
+            {event.description && <p className="mt-3 text-muted-foreground whitespace-pre-wrap">{event.description}</p>}
+
+            <div className="mt-6 grid sm:grid-cols-3 gap-3 text-sm">
+              {event.event_date && <Info icon={Calendar} label={new Date(event.event_date).toLocaleDateString()} />}
+              {event.event_time && <Info icon={Clock} label={event.event_time} />}
+              {event.venue && <Info icon={MapPin} label={event.venue} />}
+              <Info icon={Users} label={`${participantCount} registered`} />
+            </div>
+
+            {event.coordinator_names?.length > 0 && (
+              <div className="mt-6">
+                <div className="text-xs uppercase tracking-wide text-gold mb-2">Coordinators</div>
+                <div className="flex flex-wrap gap-2">
+                  {event.coordinator_names.map((n: string, i: number) => (
+                    <div key={i} className="flex items-center gap-2 rounded-full border border-border bg-background/40 px-3 py-1 text-sm">
+                      <UserCircle2 className="h-4 w-4 text-primary" /> {n}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {event.pdf_url && (
+              <div className="mt-6">
+                <Button asChild variant="outline" size="sm">
+                  <a href={event.pdf_url} target="_blank" rel="noreferrer"><FileText className="h-4 w-4 mr-1" />Download brochure</a>
+                </Button>
+              </div>
+            )}
+
+            {community && (
+              <div className="mt-6 flex items-center gap-3 text-sm text-muted-foreground">
+                <span>Hosted by {community.short} ·</span>
+                <div className="flex gap-2">
+                  {community.social.instagram && <a href={community.social.instagram} target="_blank" rel="noreferrer" className="hover:text-primary"><Instagram className="h-4 w-4" /></a>}
+                  {community.social.facebook && <a href={community.social.facebook} target="_blank" rel="noreferrer" className="hover:text-primary"><Facebook className="h-4 w-4" /></a>}
+                  {community.social.linkedin && <a href={community.social.linkedin} target="_blank" rel="noreferrer" className="hover:text-primary"><Linkedin className="h-4 w-4" /></a>}
+                </div>
+              </div>
+            )}
+          </div>
         </motion.div>
 
         {/* Registration */}
         <div className="mt-8 glass rounded-2xl p-6 md:p-8">
           <h2 className="text-xl font-semibold">Register</h2>
           {!canRegister ? (
-            <p className="mt-2 text-sm text-muted-foreground">Registration is not open for this event.</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {!globalOpen ? "Registrations are temporarily disabled by the admin." : "Registration is closed for this event."}
+            </p>
           ) : submitted ? (
             <div className="mt-4 flex items-center gap-2 text-primary">
               <CheckCircle2 className="h-5 w-5" /> You're registered! See you there.
