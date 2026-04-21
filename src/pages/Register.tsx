@@ -103,6 +103,9 @@ const Register = () => {
       const { error: insErr } = await supabase.from("registrations").insert(regPayload);
       if (insErr) throw insErr;
 
+      // Save community on profile so co-admins can find them
+      await supabase.from("profiles").update({ community: community.short }).eq("user_id", user.id);
+
       // Fire-and-forget Sheets/Drive sync
       supabase.functions.invoke("sync-to-google", {
         body: {

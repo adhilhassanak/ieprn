@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ThemeBootstrap } from "@/components/ThemeBootstrap";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -25,16 +26,17 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <ThemeBootstrap />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/register/:community" element={<ProtectedRoute><Register /></ProtectedRoute>} />
-            <Route path="/events/new" element={<ProtectedRoute requireRole={["executive_member", "admin"]}><EventCreate /></ProtectedRoute>} />
+            <Route path="/events/new" element={<ProtectedRoute requireRole={["executive_member", "co_admin", "admin"]}><EventCreate /></ProtectedRoute>} />
             <Route path="/events/:id" element={<EventDetails />} />
-            <Route path="/events/:id/manage" element={<ProtectedRoute requireRole={["executive_member", "admin"]}><EventManage /></ProtectedRoute>} />
-            <Route path="/events/:id/coordinator" element={<ProtectedRoute requireRole={["coordinator", "executive_member", "admin"]}><Coordinator /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute requireRole="admin"><Admin /></ProtectedRoute>} />
+            <Route path="/events/:id/manage" element={<ProtectedRoute requireRole={["executive_member", "co_admin", "admin"]}><EventManage /></ProtectedRoute>} />
+            <Route path="/events/:id/coordinator" element={<ProtectedRoute requireRole={["coordinator", "executive_member", "co_admin", "admin"]}><Coordinator /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute requireRole={["admin", "co_admin"]}><Admin /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

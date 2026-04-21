@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, LogOut, LayoutDashboard, ShieldCheck, CalendarPlus } from "lucide-react";
 
 export const Navbar = () => {
-  const { user, isAdmin, isExecutive, signOut } = useAuth();
+  const { user, isAdmin, isCoAdmin, isExecutive, signOut } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -33,10 +33,10 @@ export const Navbar = () => {
                   <span className="hidden sm:inline">Create Event</span>
                 </Button>
               )}
-              {isAdmin && (
+              {(isAdmin || isCoAdmin) && (
                 <Button variant="ghost" size="sm" onClick={() => navigate("/admin")}>
                   <ShieldCheck className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Admin</span>
+                  <span className="hidden sm:inline">{isAdmin ? "Admin" : "Co-admin"}</span>
                 </Button>
               )}
               <Button variant="outline" size="sm" onClick={async () => { await signOut(); navigate("/"); }}>
