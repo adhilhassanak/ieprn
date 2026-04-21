@@ -47,11 +47,12 @@ const EventCreate = () => {
     const parsed = schema.safeParse(form);
     if (!parsed.success) return toast({ title: "Check inputs", description: parsed.error.issues[0].message, variant: "destructive" });
     setLoading(true);
-    const { data, error } = await supabase.from("events").insert({
+    const payload: any = {
       ...parsed.data,
       event_date: parsed.data.event_date || null,
       created_by: user.id,
-    }).select().single();
+    };
+    const { data, error } = await supabase.from("events").insert(payload).select().single();
     setLoading(false);
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
     toast({ title: "Event created" });

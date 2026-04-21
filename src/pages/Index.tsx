@@ -7,9 +7,10 @@ import { Sparkles, Rocket, Users, Calendar, ArrowRight, Instagram, Facebook, Lin
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-const stats = [
+type Stat = { label: string; value: number | null; icon: any; suffix?: string; dynamic?: "events" };
+const stats: Stat[] = [
   { label: "Communities", value: 3, icon: Users },
-  { label: "Active Events", value: null as number | null, icon: Calendar, dynamic: "events" as const },
+  { label: "Active Events", value: null, icon: Calendar, dynamic: "events" },
   { label: "Innovation", value: 100, suffix: "%", icon: Rocket },
 ];
 

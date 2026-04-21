@@ -93,13 +93,14 @@ const Register = () => {
       if (upErr) throw upErr;
       const { data: { publicUrl } } = supabase.storage.from("profile-photos").getPublicUrl(path);
 
-      const { error: insErr } = await supabase.from("registrations").insert({
+      const regPayload: any = {
         user_id: user.id,
         community: community.short,
         ...parsed.data,
         previous_position: parsed.data.previous_position || null,
         photo_url: publicUrl,
-      });
+      };
+      const { error: insErr } = await supabase.from("registrations").insert(regPayload);
       if (insErr) throw insErr;
 
       // Fire-and-forget Sheets/Drive sync
