@@ -380,7 +380,12 @@ export type Database = {
         | "coordinator"
         | "admin"
         | "co_admin"
-      event_status: "draft" | "published" | "completed" | "cancelled"
+      event_status:
+        | "draft"
+        | "pending"
+        | "published"
+        | "completed"
+        | "cancelled"
       registration_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
@@ -516,7 +521,7 @@ export const Constants = {
         "admin",
         "co_admin",
       ],
-      event_status: ["draft", "published", "completed", "cancelled"],
+      event_status: ["draft", "pending", "published", "completed", "cancelled"],
       registration_status: ["pending", "approved", "rejected"],
     },
   },
