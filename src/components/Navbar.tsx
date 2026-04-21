@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, LogOut, LayoutDashboard, ShieldCheck, CalendarPlus } from "lucide-react";
 
 export const Navbar = () => {
-  const { user, isAdmin, isExecutive, signOut } = useAuth();
+  const { user, isAdmin, isCoAdmin, isExecutive, signOut } = useAuth();
   const navigate = useNavigate();
 
   return (
