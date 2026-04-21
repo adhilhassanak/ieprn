@@ -2,15 +2,19 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 
-export type AppRole = "student" | "executive_member" | "coordinator" | "admin";
+export type AppRole = "student" | "executive_member" | "coordinator" | "co_admin" | "admin";
 
 interface AuthContextValue {
   user: User | null;
   session: Session | null;
   roles: AppRole[];
+  community: string | null;
+  approved: boolean;
   loading: boolean;
   isAdmin: boolean;
+  isCoAdmin: boolean;
   isExecutive: boolean;
+  isApprovedExecutive: boolean;
   isCoordinator: boolean;
   signOut: () => Promise<void>;
   refreshRoles: () => Promise<void>;
@@ -22,11 +26,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
+  const [community, setCommunity] = useState<string | null>(null);
+  const [approved, setApproved] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const loadRoles = async (uid: string) => {
-    const { data } = await supabase.from("user_roles").select("role").eq("user_id", uid);
-    setRoles((data ?? []).map((r) => r.role as AppRole));
+  const loadAll = async (uid: string) => {
+    const [{ data: rs }, { data: prof }, { data: regs }] = await Promise.all([
+      supabase.from("user_roles").select("role").eq("user_id", uid),
+      supabase.from("profiles").select("community").eq("user_id", uid).maybeSingle(),
+      supabase.from("registrations").select("status").eq("user_id", uid).eq("status", "approved").limit(1),
+    ]);
+    setRoles((rs ?? []).map((r) => r.role as AppRole));
+    setCommunity(prof?.community ?? null);
+    setApproved((regs ?? []).length > 0);
   };
 
   useEffect(() => {
@@ -34,16 +46,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(s);
       setUser(s?.user ?? null);
       if (s?.user) {
-        setTimeout(() => loadRoles(s.user.id), 0);
+        setTimeout(() => loadAll(s.user.id), 0);
       } else {
         setRoles([]);
+        setCommunity(null);
+        setApproved(false);
       }
     });
 
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       setSession(s);
       setUser(s?.user ?? null);
-      if (s?.user) loadRoles(s.user.id).finally(() => setLoading(false));
+      if (s?.user) loadAll(s.user.id).finally(() => setLoading(false));
       else setLoading(false);
     });
 
@@ -53,25 +67,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     setRoles([]);
+    setCommunity(null);
+    setApproved(false);
   };
 
   const refreshRoles = async () => {
-    if (user) await loadRoles(user.id);
+    if (user) await loadAll(user.id);
   };
 
-  const value: AuthContextValue = {
-    user,
-    session,
-    roles,
-    loading,
-    isAdmin: roles.includes("admin"),
-    isExecutive: roles.includes("executive_member") || roles.includes("admin"),
-    isCoordinator: roles.includes("coordinator") || roles.includes("admin"),
-    signOut,
-    refreshRoles,
-  };
+  const isAdmin = roles.includes("admin");
+  const isCoAdmin = roles.includes("co_admin") || isAdmin;
+  const isExecutive = roles.includes("executive_member") || isCoAdmin;
+  const isApprovedExecutive = (roles.includes("executive_member") && approved) || isCoAdmin;
+  const isCoordinator = roles.includes("coordinator") || isExecutive;
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{
+        user, session, roles, community, approved, loading,
+        isAdmin, isCoAdmin, isExecutive, isApprovedExecutive, isCoordinator,
+        signOut, refreshRoles,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
