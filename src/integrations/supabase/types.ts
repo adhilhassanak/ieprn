@@ -41,6 +41,39 @@ export type Database = {
         }
         Relationships: []
       }
+      announcements: {
+        Row: {
+          active: boolean
+          community: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          message: string
+          title: string
+          type: string
+        }
+        Insert: {
+          active?: boolean
+          community?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message: string
+          title: string
+          type?: string
+        }
+        Update: {
+          active?: boolean
+          community?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message?: string
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           created_at: string
@@ -111,6 +144,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "event_coordinators_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_gallery: {
+        Row: {
+          caption: string | null
+          created_at: string
+          created_by: string | null
+          event_id: string
+          id: string
+          image_url: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          created_by?: string | null
+          event_id: string
+          id?: string
+          image_url: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          created_by?: string | null
+          event_id?: string
+          id?: string
+          image_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_gallery_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
@@ -213,6 +281,33 @@ export type Database = {
           registration_open?: boolean
           status?: Database["public"]["Enums"]["event_status"]
           venue?: string | null
+        }
+        Relationships: []
+      }
+      highlights: {
+        Row: {
+          caption: string | null
+          community: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          image_url: string
+        }
+        Insert: {
+          caption?: string | null
+          community?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url: string
+        }
+        Update: {
+          caption?: string | null
+          community?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url?: string
         }
         Relationships: []
       }
@@ -356,6 +451,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_public_execom: {
+        Args: never
+        Returns: {
+          community: string
+          current_position: string
+          full_name: string
+          id: string
+          photo_url: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
