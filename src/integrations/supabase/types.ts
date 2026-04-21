@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_settings: {
+        Row: {
+          accent_color: string
+          id: string
+          primary_color: string
+          registration_open_global: boolean
+          singleton: boolean
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string
+          id?: string
+          primary_color?: string
+          registration_open_global?: boolean
+          singleton?: boolean
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string
+          id?: string
+          primary_color?: string
+          registration_open_global?: boolean
+          singleton?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      attendance: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          marked_by: string
+          participant_gmail: string
+          participant_id: string | null
+          participant_name: string
+          present: boolean
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          marked_by: string
+          participant_gmail: string
+          participant_id?: string | null
+          participant_name: string
+          present?: boolean
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          marked_by?: string
+          participant_gmail?: string
+          participant_id?: string | null
+          participant_name?: string
+          present?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "event_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_coordinators: {
         Row: {
           created_at: string
@@ -85,6 +160,7 @@ export type Database = {
         Row: {
           actual_participants: number
           community: string
+          coordinator_names: string[]
           created_at: string
           created_by: string | null
           description: string | null
@@ -94,12 +170,16 @@ export type Database = {
           funds_received: number
           id: string
           name: string
+          pdf_url: string | null
+          poster_url: string | null
+          registration_open: boolean
           status: Database["public"]["Enums"]["event_status"]
           venue: string | null
         }
         Insert: {
           actual_participants?: number
           community: string
+          coordinator_names?: string[]
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -109,12 +189,16 @@ export type Database = {
           funds_received?: number
           id?: string
           name: string
+          pdf_url?: string | null
+          poster_url?: string | null
+          registration_open?: boolean
           status?: Database["public"]["Enums"]["event_status"]
           venue?: string | null
         }
         Update: {
           actual_participants?: number
           community?: string
+          coordinator_names?: string[]
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -124,13 +208,47 @@ export type Database = {
           funds_received?: number
           id?: string
           name?: string
+          pdf_url?: string | null
+          poster_url?: string | null
+          registration_open?: boolean
           status?: Database["public"]["Enums"]["event_status"]
           venue?: string | null
         }
         Relationships: []
       }
+      positions_needed: {
+        Row: {
+          community: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          role_name: string
+        }
+        Insert: {
+          community: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          role_name: string
+        }
+        Update: {
+          community?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          role_name?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          community: string | null
           created_at: string
           email: string | null
           full_name: string | null
@@ -139,6 +257,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          community?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -147,6 +266,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          community?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -243,13 +363,23 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_approved_executive: { Args: { _user_id: string }; Returns: boolean }
+      is_co_admin_of: {
+        Args: { _community: string; _user_id: string }
+        Returns: boolean
+      }
       is_event_coordinator: {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
       }
     }
     Enums: {
-      app_role: "student" | "executive_member" | "coordinator" | "admin"
+      app_role:
+        | "student"
+        | "executive_member"
+        | "coordinator"
+        | "admin"
+        | "co_admin"
       event_status: "draft" | "published" | "completed" | "cancelled"
       registration_status: "pending" | "approved" | "rejected"
     }
@@ -379,7 +509,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["student", "executive_member", "coordinator", "admin"],
+      app_role: [
+        "student",
+        "executive_member",
+        "coordinator",
+        "admin",
+        "co_admin",
+      ],
       event_status: ["draft", "published", "completed", "cancelled"],
       registration_status: ["pending", "approved", "rejected"],
     },
