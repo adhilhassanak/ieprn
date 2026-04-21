@@ -1,6 +1,9 @@
 // Mirrors registrations & event participants to a Google Sheets/Drive Apps Script webhook.
 // Set the secret GOOGLE_APPS_SCRIPT_URL in Lovable Cloud → Edge Functions to enable.
-import { corsHeaders } from "@supabase/supabase-js/cors";
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
