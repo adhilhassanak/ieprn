@@ -57,7 +57,7 @@ const EventCard = ({ e, faded = false, i = 0 }: { e: EventRow; faded?: boolean; 
         </p>
       )}
       <Button asChild size="sm" className={`mt-3 ${faded ? "" : "bg-gradient-emerald text-primary-foreground shadow-glow-emerald"}`} variant={faded ? "outline" : "default"}>
-        <Link to={`/events/${e.id}`}>{faded ? "View gallery" : "Register / View"} <ArrowRight className="ml-1 h-3 w-3" /></Link>
+        <Link to={`/events/${e.id}`}>{faded ? "Register / View" : "Register / View"} <ArrowRight className="ml-1 h-3 w-3" /></Link>
       </Button>
     </div>
   </motion.div>
