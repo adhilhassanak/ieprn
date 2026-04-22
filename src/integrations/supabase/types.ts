@@ -311,6 +311,24 @@ export type Database = {
         }
         Relationships: []
       }
+      notices: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+        }
+        Relationships: []
+      }
       positions_needed: {
         Row: {
           community: string
