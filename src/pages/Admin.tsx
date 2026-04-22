@@ -28,6 +28,7 @@ const Admin = () => {
   const [coAdminEmail, setCoAdminEmail] = useState("");
   const [coAdminCommunity, setCoAdminCommunity] = useState("IIC");
   const [newPos, setNewPos] = useState({ community: "IIC", role_name: "", description: "" });
+  const [glass, setGlass] = useState(() => loadGlassPrefs());
 
   const load = async () => {
     const [{ data: r }, { data: e }, { data: p }, { data: prof }, { data: rl }, { data: s }] = await Promise.all([
@@ -267,24 +268,67 @@ const Admin = () => {
           {/* SETTINGS */}
           <TabsContent value="settings" className="mt-4">
             {settings && (
-              <div className="glass rounded-xl p-6 space-y-4 max-w-xl">
-                <h3 className="font-semibold">Theme & global controls</h3>
+              <div className="glass rounded-xl p-6 space-y-6 max-w-xl">
+                <div>
+                  <h3 className="font-semibold">Theme presets</h3>
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    {(Object.keys(THEME_PRESETS) as ThemePresetKey[]).map((k) => {
+                      const p = THEME_PRESETS[k];
+                      return (
+                        <button
+                          key={k}
+                          type="button"
+                          onClick={() => {
+                            setSettings({ ...settings, primary_color: p.primary, accent_color: p.accent });
+                            applyTheme(p.primary, p.accent);
+                          }}
+                          className="glass rounded-lg p-3 text-left hover:border-primary/50 transition-smooth"
+                        >
+                          <div className="flex gap-1 mb-2">
+                            <span className="h-5 w-5 rounded-full border border-border" style={{ background: p.primary }} />
+                            <span className="h-5 w-5 rounded-full border border-border" style={{ background: p.accent }} />
+                          </div>
+                          <div className="text-xs font-medium">{p.label}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Primary color</Label>
                     <div className="flex gap-2 mt-1">
-                      <input type="color" value={settings.primary_color} onChange={(e) => setSettings({ ...settings, primary_color: e.target.value })} className="h-10 w-14 rounded cursor-pointer bg-transparent" />
+                      <input type="color" value={settings.primary_color} onChange={(e) => { setSettings({ ...settings, primary_color: e.target.value }); applyTheme(e.target.value, settings.accent_color); }} className="h-10 w-14 rounded cursor-pointer bg-transparent" />
                       <Input value={settings.primary_color} onChange={(e) => setSettings({ ...settings, primary_color: e.target.value })} />
                     </div>
                   </div>
                   <div>
                     <Label>Accent (gold) color</Label>
                     <div className="flex gap-2 mt-1">
-                      <input type="color" value={settings.accent_color} onChange={(e) => setSettings({ ...settings, accent_color: e.target.value })} className="h-10 w-14 rounded cursor-pointer bg-transparent" />
+                      <input type="color" value={settings.accent_color} onChange={(e) => { setSettings({ ...settings, accent_color: e.target.value }); applyTheme(settings.primary_color, e.target.value); }} className="h-10 w-14 rounded cursor-pointer bg-transparent" />
                       <Input value={settings.accent_color} onChange={(e) => setSettings({ ...settings, accent_color: e.target.value })} />
                     </div>
                   </div>
                 </div>
+
+                <div className="space-y-4 rounded-lg border border-border p-4">
+                  <h3 className="font-semibold">Glass effect</h3>
+                  <div>
+                    <div className="flex justify-between text-xs text-muted-foreground mb-2">
+                      <span>Opacity</span><span>{glass.alpha.toFixed(2)}</span>
+                    </div>
+                    <Slider min={0.1} max={0.95} step={0.05} value={[glass.alpha]} onValueChange={([v]) => { const next = { ...glass, alpha: v }; setGlass(next); saveGlassPrefs(next.alpha, next.blur); }} />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs text-muted-foreground mb-2">
+                      <span>Blur</span><span>{glass.blur}px</span>
+                    </div>
+                    <Slider min={0} max={40} step={2} value={[glass.blur]} onValueChange={([v]) => { const next = { ...glass, blur: v }; setGlass(next); saveGlassPrefs(next.alpha, next.blur); }} />
+                  </div>
+                  <p className="text-xs text-muted-foreground">Saved locally to this browser. Live preview applied as you slide.</p>
+                </div>
+
                 <div className="flex items-center justify-between rounded-lg border border-border p-3">
                   <div>
                     <div className="font-medium">Global registrations</div>
