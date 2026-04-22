@@ -65,7 +65,9 @@ const Dashboard = () => {
       setRegistrations(r ?? []);
       setMyEvents(e ?? []);
       setCoordinatedEvents(
-        (ec ?? []).map((x: any) => x.events).filter(Boolean)
+        (ec ?? [])
+          .map((x: any) => x.events)
+          .filter(Boolean)
       );
     })();
   }, [user]);
@@ -100,6 +102,7 @@ const Dashboard = () => {
   return (
     <Layout>
       <div className="container py-10">
+        {/* Welcome Section */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -124,20 +127,22 @@ const Dashboard = () => {
           </div>
         </motion.div>
 
-        {/* ExeCom Registration Quick Button */}
+        {/* ExeCom Registration Section */}
         <section className="mt-8">
           <div className="glass rounded-2xl p-6">
-            <div>
-              <h2 className="text-xl font-semibold">
-                ExeCom Registration
-              </h2>
+            <h2 className="text-xl font-semibold">
+              ExeCom Registration
+            </h2>
 
-              <p className="text-sm text-muted-foreground mt-1">
-                Apply for executive positions in IIC, E-Cell, and ED Club.
-              </p>
-            </div>
+            <p className="text-sm text-muted-foreground mt-1">
+              Apply for executive positions in IIC, E-Cell, and ED Club.
+            </p>
 
-            {/* Fixed: 3 working community buttons instead of broken /register */}
+            {/* IMPORTANT:
+               Use /register/{community}
+               NOT /register
+               This prevents 404 error
+            */}
             <div className="mt-5 grid gap-3 md:grid-cols-3">
               {COMMUNITY_LIST.map((c) => (
                 <Button
@@ -156,13 +161,11 @@ const Dashboard = () => {
           </div>
         </section>
 
-        {/* Executive Applications */}
+        {/* Your Applications */}
         <section className="mt-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">
-              Your ExeCom Applications
-            </h2>
-          </div>
+          <h2 className="text-xl font-semibold mb-4">
+            Your ExeCom Applications
+          </h2>
 
           {registrations.length === 0 ? (
             <div className="glass rounded-2xl p-8 text-center">
@@ -222,7 +225,7 @@ const Dashboard = () => {
           )}
         </section>
 
-        {/* Events I Created */}
+        {/* Events You Manage */}
         {isExecutive && (
           <section className="mt-12">
             <div className="flex items-center justify-between mb-4">
@@ -249,14 +252,18 @@ const Dashboard = () => {
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {myEvents.map((e) => (
-                  <EventCard key={e.id} e={e} manage />
+                  <EventCard
+                    key={e.id}
+                    e={e}
+                    manage
+                  />
                 ))}
               </div>
             )}
           </section>
         )}
 
-        {/* Events I Coordinate */}
+        {/* Events You Coordinate */}
         {coordinatedEvents.length > 0 && (
           <section className="mt-12">
             <h2 className="text-xl font-semibold mb-4">
@@ -265,13 +272,17 @@ const Dashboard = () => {
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {coordinatedEvents.map((e) => (
-                <EventCard key={e.id} e={e} coord />
+                <EventCard
+                  key={e.id}
+                  e={e}
+                  coord
+                />
               ))}
             </div>
           </section>
         )}
 
-        {/* Student Event Tracking */}
+        {/* Student Tabs */}
         <StudentTabs />
 
         {/* ExeCom Members */}
@@ -301,53 +312,69 @@ const EventCard = ({
   e: any;
   manage?: boolean;
   coord?: boolean;
-}) => (
-  <div className="glass rounded-xl p-5 hover:border-primary/40 transition-smooth">
-    <div className="flex items-center gap-2 text-xs text-gold uppercase">
-      <Calendar className="h-3 w-3" />
-      {e.community}
+}) => {
+  return (
+    <div className="glass rounded-xl p-5 hover:border-primary/40 transition-smooth">
+      <div className="flex items-center gap-2 text-xs text-gold uppercase">
+        <Calendar className="h-3 w-3" />
+        {e.community}
 
-      <span className="ml-auto rounded-full px-2 py-0.5 text-[10px] bg-secondary capitalize">
-        {e.status}
-      </span>
-    </div>
+        <span className="ml-auto rounded-full px-2 py-0.5 text-[10px] bg-secondary capitalize">
+          {e.status}
+        </span>
+      </div>
 
-    <h3 className="mt-2 font-semibold">{e.name}</h3>
+      <h3 className="mt-2 font-semibold">
+        {e.name}
+      </h3>
 
-    {e.event_date && (
-      <p className="text-xs text-muted-foreground mt-1">
-        {new Date(e.event_date).toLocaleDateString()} ·{" "}
-        {e.venue ?? "TBA"}
-      </p>
-    )}
-
-    <div className="mt-3 flex gap-2">
-      <Button
-        asChild
-        size="sm"
-        variant="ghost"
-        className="px-2 text-primary"
-      >
-        <Link to={`/events/${e.id}`}>View</Link>
-      </Button>
-
-      {manage && (
-        <Button asChild size="sm" variant="ghost" className="px-2">
-          <Link to={`/events/${e.id}/manage`}>
-            Manage
-          </Link>
-        </Button>
+      {e.event_date && (
+        <p className="text-xs text-muted-foreground mt-1">
+          {new Date(e.event_date).toLocaleDateString()} ·{" "}
+          {e.venue ?? "TBA"}
+        </p>
       )}
 
-      {coord && (
-        <Button asChild size="sm" variant="ghost" className="px-2">
-          <Link to={`/events/${e.id}/coordinator`}>
-            Participants
+      <div className="mt-3 flex gap-2">
+        <Button
+          asChild
+          size="sm"
+          variant="ghost"
+          className="px-2 text-primary"
+        >
+          <Link to={`/events/${e.id}`}>
+            View
           </Link>
         </Button>
-      )}
+
+        {manage && (
+          <Button
+            asChild
+            size="sm"
+            variant="ghost"
+            className="px-2"
+          >
+            <Link to={`/events/${e.id}/manage`}>
+              Manage
+            </Link>
+          </Button>
+        )}
+
+        {coord && (
+          <Button
+            asChild
+            size="sm"
+            variant="ghost"
+            className="px-2"
+          >
+            <Link to={`/events/${e.id}/coordinator`}>
+              Participants
+            </Link>
+          </Button>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default Dashboard;
