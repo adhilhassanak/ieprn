@@ -126,26 +126,33 @@ const Dashboard = () => {
 
         {/* ExeCom Registration Quick Button */}
         <section className="mt-8">
-          <div className="glass rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="glass rounded-2xl p-6">
             <div>
               <h2 className="text-xl font-semibold">
                 ExeCom Registration
               </h2>
+
               <p className="text-sm text-muted-foreground mt-1">
                 Apply for executive positions in IIC, E-Cell, and ED Club.
               </p>
             </div>
 
-            <Button
-              asChild
-              size="lg"
-              className="bg-gradient-emerald text-primary-foreground shadow-glow-emerald hover:scale-105 transition-smooth"
-            >
-              <Link to="/register">
-                Apply for ExeCom
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+            {/* Fixed: 3 working community buttons instead of broken /register */}
+            <div className="mt-5 grid gap-3 md:grid-cols-3">
+              {COMMUNITY_LIST.map((c) => (
+                <Button
+                  key={c.key}
+                  asChild
+                  variant="outline"
+                  className="border-primary/30 hover:border-primary hover:text-primary"
+                >
+                  <Link to={`/register/${c.key}`}>
+                    Apply for {c.short}
+                    <ArrowRight className="ml-1 h-3 w-3" />
+                  </Link>
+                </Button>
+              ))}
+            </div>
           </div>
         </section>
 
