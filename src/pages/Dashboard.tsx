@@ -65,9 +65,7 @@ const Dashboard = () => {
       setRegistrations(r ?? []);
       setMyEvents(e ?? []);
       setCoordinatedEvents(
-        (ec ?? [])
-          .map((x: any) => x.events)
-          .filter(Boolean)
+        (ec ?? []).map((x: any) => x.events).filter(Boolean)
       );
     })();
   }, [user]);
@@ -99,10 +97,25 @@ const Dashboard = () => {
     );
   };
 
+  /* --------------------------------------------------
+     SHOW ONLY COMMUNITIES NOT YET REGISTERED
+  -------------------------------------------------- */
+
+  const registeredCommunities = registrations.map((r) =>
+    String(r.community).toLowerCase().replace(/[^a-z]/g, "")
+  );
+
+  const availableCommunities = COMMUNITY_LIST.filter(
+    (c) =>
+      !registeredCommunities.includes(
+        c.short.toLowerCase().replace(/[^a-z]/g, "")
+      )
+  );
+
   return (
     <Layout>
       <div className="container py-10">
-        {/* Welcome Section */}
+        {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -128,53 +141,19 @@ const Dashboard = () => {
         </motion.div>
 
         {/* ExeCom Registration Section */}
-        <section className="mt-8">
-          <div className="glass rounded-2xl p-6">
-            <h2 className="text-xl font-semibold">
-              ExeCom Registration
-            </h2>
+        {availableCommunities.length > 0 && (
+          <section className="mt-8">
+            <div className="glass rounded-2xl p-6">
+              <h2 className="text-xl font-semibold">
+                ExeCom Registration
+              </h2>
 
-            <p className="text-sm text-muted-foreground mt-1">
-              Apply for executive positions in IIC, E-Cell, and ED Club.
-            </p>
-
-            {/* IMPORTANT:
-               Use /register/{community}
-               NOT /register
-               This prevents 404 error
-            */}
-            <div className="mt-5 grid gap-3 md:grid-cols-3">
-              {COMMUNITY_LIST.map((c) => (
-                <Button
-                  key={c.key}
-                  asChild
-                  variant="outline"
-                  className="border-primary/30 hover:border-primary hover:text-primary"
-                >
-                  <Link to={`/register/${c.key}`}>
-                    Apply for {c.short}
-                    <ArrowRight className="ml-1 h-3 w-3" />
-                  </Link>
-                </Button>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Your Applications */}
-        <section className="mt-10">
-          <h2 className="text-xl font-semibold mb-4">
-            Your ExeCom Applications
-          </h2>
-
-          {registrations.length === 0 ? (
-            <div className="glass rounded-2xl p-8 text-center">
-              <p className="text-muted-foreground">
-                You haven't applied for an executive position yet.
+              <p className="text-sm text-muted-foreground mt-1">
+                Apply only for communities you have not registered yet.
               </p>
 
               <div className="mt-5 grid gap-3 md:grid-cols-3">
-                {COMMUNITY_LIST.map((c) => (
+                {availableCommunities.map((c) => (
                   <Button
                     key={c.key}
                     asChild
@@ -188,6 +167,19 @@ const Dashboard = () => {
                   </Button>
                 ))}
               </div>
+            </div>
+          </section>
+        )}
+
+        {/* Already Applied */}
+        <section className="mt-10">
+          <h2 className="text-xl font-semibold mb-4">
+            Your ExeCom Applications
+          </h2>
+
+          {registrations.length === 0 ? (
+            <div className="glass rounded-2xl p-8 text-center text-muted-foreground">
+              No applications submitted yet.
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
@@ -247,7 +239,7 @@ const Dashboard = () => {
 
             {myEvents.length === 0 ? (
               <div className="glass rounded-2xl p-8 text-center text-muted-foreground">
-                No events yet. Create your first one.
+                No events yet.
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -324,9 +316,7 @@ const EventCard = ({
         </span>
       </div>
 
-      <h3 className="mt-2 font-semibold">
-        {e.name}
-      </h3>
+      <h3 className="mt-2 font-semibold">{e.name}</h3>
 
       {e.event_date && (
         <p className="text-xs text-muted-foreground mt-1">
@@ -348,12 +338,7 @@ const EventCard = ({
         </Button>
 
         {manage && (
-          <Button
-            asChild
-            size="sm"
-            variant="ghost"
-            className="px-2"
-          >
+          <Button asChild size="sm" variant="ghost">
             <Link to={`/events/${e.id}/manage`}>
               Manage
             </Link>
@@ -361,12 +346,7 @@ const EventCard = ({
         )}
 
         {coord && (
-          <Button
-            asChild
-            size="sm"
-            variant="ghost"
-            className="px-2"
-          >
+          <Button asChild size="sm" variant="ghost">
             <Link to={`/events/${e.id}/coordinator`}>
               Participants
             </Link>
