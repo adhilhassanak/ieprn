@@ -36,6 +36,31 @@ export const applyTheme = (primaryHex: string, accentHex: string) => {
   root.style.setProperty("--gold", hexToHsl(accentHex));
 };
 
+export const THEME_PRESETS = {
+  navy:    { primary: "#1d4ed8", accent: "#f5c542", label: "Navy" },
+  royal:   { primary: "#2563eb", accent: "#60a5fa", label: "Royal Blue" },
+  gold:    { primary: "#b8860b", accent: "#facc15", label: "Royal Gold" },
+} as const;
+export type ThemePresetKey = keyof typeof THEME_PRESETS;
+
+export const applyGlass = (alpha: number, blurPx: number) => {
+  const root = document.documentElement;
+  root.style.setProperty("--glass-alpha", String(alpha));
+  root.style.setProperty("--glass-blur", `${blurPx}px`);
+};
+
+export const loadGlassPrefs = () => {
+  const a = parseFloat(localStorage.getItem("glassAlpha") || "0.55");
+  const b = parseInt(localStorage.getItem("glassBlur") || "16", 10);
+  return { alpha: isNaN(a) ? 0.55 : a, blur: isNaN(b) ? 16 : b };
+};
+
+export const saveGlassPrefs = (alpha: number, blur: number) => {
+  localStorage.setItem("glassAlpha", String(alpha));
+  localStorage.setItem("glassBlur", String(blur));
+  applyGlass(alpha, blur);
+};
+
 export function useAdminSettings() {
   const [settings, setSettings] = useState<AdminSettings | null>(null);
 
