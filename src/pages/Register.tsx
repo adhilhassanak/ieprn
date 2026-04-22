@@ -40,8 +40,7 @@ const Register = () => {
     full_name: "",
     gmail: "",
     phone: "",
-    current_semester: "",
-    next_semester: "",
+    semester: "",
     branch: "",
     division: "",
     current_position: "",
@@ -167,8 +166,7 @@ const Register = () => {
             <div><Label>Gmail</Label><Input type="email" value={form.gmail} onChange={(e) => set("gmail", e.target.value)} required /></div>
             <div><Label>Phone (10 digits)</Label><Input inputMode="numeric" maxLength={10} value={form.phone} onChange={(e) => set("phone", e.target.value)} required /></div>
             <div><Label>Branch</Label><Input value={form.branch} onChange={(e) => set("branch", e.target.value)} required /></div>
-            <div><Label>Current semester</Label><Input value={form.current_semester} onChange={(e) => set("current_semester", e.target.value)} required /></div>
-            <div><Label>Next semester</Label><Input value={form.next_semester} onChange={(e) => set("next_semester", e.target.value)} required /></div>
+            <div><Label>Semester</Label><Input value={form.semester} onChange={(e) => set("semester", e.target.value)} required /></div>
             <div><Label>Division</Label><Input value={form.division} onChange={(e) => set("division", e.target.value)} required /></div>
             <div>
               <Label>Position applying for (2026–27)</Label>

@@ -161,7 +161,7 @@ const Admin = () => {
                   {r.photo_url && <img src={r.photo_url} alt="" className="h-14 w-14 rounded-lg object-cover" />}
                   <div className="flex-1 min-w-[200px]">
                     <div className="font-medium">{r.full_name} <Badge variant="outline" className="ml-2 text-xs">{r.community}</Badge></div>
-                    <div className="text-xs text-muted-foreground">{r.gmail} · {r.phone} · Sem {r.current_semester} · {r.branch}</div>
+                    <div className="text-xs text-muted-foreground">{r.gmail} · {r.phone} · Sem {r.semester} · {r.branch}</div>
                     <div className="text-xs mt-1">Position: <span className="text-foreground">{r.current_position}</span>{r.previous_position && <> · Previous: {r.previous_position}</>}</div>
                   </div>
                   <StatusPill status={r.status} />

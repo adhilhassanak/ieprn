@@ -78,7 +78,7 @@ const Dashboard = () => {
                     <div>
                       <div className="text-xs uppercase tracking-wide text-gold">{r.community}</div>
                       <h3 className="mt-1 font-semibold">{r.current_position}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">{r.full_name} · Sem {r.current_semester}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{r.full_name} · Sem {r.semester}</p>
                       {r.previous_position && <p className="text-xs text-muted-foreground mt-1">Previous: {r.previous_position}</p>}
                     </div>
                     {statusBadge(r.status)}
