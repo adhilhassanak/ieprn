@@ -4,11 +4,21 @@ import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { COMMUNITY_LIST } from "@/lib/communities";
 import { Sparkles, Rocket, Users, Calendar, ArrowRight, Instagram, Facebook, Linkedin, MapPin } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { HighlightsGrid } from "@/components/HighlightsGrid";
 import { PublicExecom } from "@/components/PublicExecom";
+
+type EventRow = {
+  id: string;
+  name: string;
+  community: string;
+  event_date: string | null;
+  venue: string | null;
+  poster_url: string | null;
+  status: string;
+};
 
 type Stat = { label: string; value: number | null; icon: any; suffix?: string; dynamic?: "events" };
 const stats: Stat[] = [
@@ -17,22 +27,69 @@ const stats: Stat[] = [
   { label: "Innovation", value: 100, suffix: "%", icon: Rocket },
 ];
 
+const EventCard = ({ e, faded = false, i = 0 }: { e: EventRow; faded?: boolean; i?: number }) => (
+  <motion.div
+    key={e.id}
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ delay: i * 0.05 }}
+    className={`group glass rounded-xl overflow-hidden hover:border-gold/40 hover:shadow-glow-gold transition-smooth flex flex-col ${faded ? "opacity-80 hover:opacity-100" : ""}`}
+  >
+    {e.poster_url ? (
+      <Link to={`/events/${e.id}`} className="block aspect-[4/3] overflow-hidden bg-secondary">
+        <img src={e.poster_url} alt={e.name} loading="lazy" className={`h-full w-full object-cover group-hover:scale-105 transition-transform duration-500 ${faded ? "grayscale-[30%] group-hover:grayscale-0" : ""}`} />
+      </Link>
+    ) : (
+      <Link to={`/events/${e.id}`} className="block aspect-[4/3] bg-gradient-emerald grid place-items-center text-primary-foreground">
+        <Calendar className="h-10 w-10 opacity-70" />
+      </Link>
+    )}
+    <div className="p-4 flex-1 flex flex-col">
+      <div className="flex items-center gap-2 text-xs text-gold uppercase tracking-wide">
+        <Calendar className="h-3 w-3" />{e.community}
+      </div>
+      <h3 className="mt-2 text-base font-semibold line-clamp-2">{e.name}</h3>
+      {e.event_date && (
+        <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+          {new Date(e.event_date).toLocaleDateString()}
+          {e.venue && <> · <MapPin className="h-3 w-3" /> {e.venue}</>}
+        </p>
+      )}
+      <Button asChild size="sm" className={`mt-3 ${faded ? "" : "bg-gradient-emerald text-primary-foreground shadow-glow-emerald"}`} variant={faded ? "outline" : "default"}>
+        <Link to={`/events/${e.id}`}>{faded ? "View gallery" : "Register / View"} <ArrowRight className="ml-1 h-3 w-3" /></Link>
+      </Button>
+    </div>
+  </motion.div>
+);
+
 const Index = () => {
-  const [eventCount, setEventCount] = useState<number>(0);
-  const [publishedEvents, setPublishedEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<EventRow[]>([]);
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase
         .from("events")
-        .select("*")
+        .select("id, name, community, event_date, venue, poster_url, status")
         .in("status", ["published", "completed"])
         .order("event_date", { ascending: false })
-        .limit(6);
-      setPublishedEvents(data ?? []);
-      setEventCount(data?.length ?? 0);
+        .limit(24);
+      setEvents((data ?? []) as EventRow[]);
     })();
   }, []);
+
+  const { upcoming, past } = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const upcoming: EventRow[] = [];
+    const past: EventRow[] = [];
+    for (const e of events) {
+      const isPast = e.status === "completed" || (e.event_date && new Date(e.event_date) < today);
+      if (isPast) past.push(e); else upcoming.push(e);
+    }
+    upcoming.sort((a, b) => (a.event_date ?? "").localeCompare(b.event_date ?? ""));
+    return { upcoming: upcoming.slice(0, 6), past: past.slice(0, 6) };
+  }, [events]);
 
   return (
     <Layout>
@@ -74,63 +131,52 @@ const Index = () => {
         </div>
       </section>
 
-      {/* EVENTS — first priority */}
-      <section className="py-12 md:py-16">
+      {/* UPCOMING EVENTS */}
+      <section className="py-10 md:py-14">
         <div className="container">
-          <div className="flex items-end justify-between mb-8">
+          <div className="flex items-end justify-between mb-6">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold">Upcoming & Past <span className="text-gradient-gold">Events</span></h2>
-              <p className="mt-2 text-muted-foreground">Join an event, learn, build, and connect.</p>
+              <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-primary shadow-glow-emerald" />
+                Upcoming <span className="text-gradient-emerald">Events</span>
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">Register now and join the next session.</p>
             </div>
-            <Button asChild variant="ghost" className="hidden md:inline-flex">
-              <Link to="/gallery">View gallery <ArrowRight className="ml-1 h-4 w-4" /></Link>
-            </Button>
           </div>
-          {publishedEvents.length === 0 ? (
-            <div className="glass rounded-2xl p-10 text-center text-muted-foreground">
-              No published events yet. Check back soon!
+          {upcoming.length === 0 ? (
+            <div className="glass rounded-2xl p-8 text-center text-muted-foreground text-sm">
+              No upcoming events right now. Check back soon!
             </div>
           ) : (
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {publishedEvents.map((e, i) => (
-                <motion.div
-                  key={e.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.05 }}
-                  className="group glass rounded-xl overflow-hidden hover:border-gold/40 hover:shadow-glow-gold transition-smooth flex flex-col"
-                >
-                  {e.poster_url ? (
-                    <Link to={`/events/${e.id}`} className="block aspect-[4/3] overflow-hidden bg-secondary">
-                      <img src={e.poster_url} alt={e.name} loading="lazy" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    </Link>
-                  ) : (
-                    <Link to={`/events/${e.id}`} className="block aspect-[4/3] bg-gradient-emerald grid place-items-center text-primary-foreground">
-                      <Calendar className="h-10 w-10 opacity-70" />
-                    </Link>
-                  )}
-                  <div className="p-5 flex-1 flex flex-col">
-                    <div className="flex items-center gap-2 text-xs text-gold uppercase tracking-wide">
-                      <Calendar className="h-3 w-3" />{e.community}
-                    </div>
-                    <h3 className="mt-2 text-lg font-semibold">{e.name}</h3>
-                    {e.event_date && (
-                      <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                        {new Date(e.event_date).toLocaleDateString()}
-                        {e.venue && <> · <MapPin className="h-3 w-3" /> {e.venue}</>}
-                      </p>
-                    )}
-                    <Button asChild className="mt-4 bg-gradient-emerald text-primary-foreground shadow-glow-emerald">
-                      <Link to={`/events/${e.id}`}>Register / View <ArrowRight className="ml-1 h-3 w-3" /></Link>
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
+            <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+              {upcoming.map((e, i) => <EventCard key={e.id} e={e} i={i} />)}
             </div>
           )}
         </div>
       </section>
+
+      {/* PAST EVENTS */}
+      {past.length > 0 && (
+        <section className="py-10 md:py-14">
+          <div className="container">
+            <div className="flex items-end justify-between mb-6">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-gold shadow-glow-gold" />
+                  Past <span className="text-gradient-gold">Events</span>
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">Browse past sessions and their galleries.</p>
+              </div>
+              <Button asChild variant="ghost" className="hidden md:inline-flex">
+                <Link to="/gallery">Open gallery <ArrowRight className="ml-1 h-4 w-4" /></Link>
+              </Button>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+              {past.map((e, i) => <EventCard key={e.id} e={e} faded i={i} />)}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* STATS + CTA */}
       <section className="py-12">
@@ -138,7 +184,7 @@ const Index = () => {
           <div className="grid grid-cols-3 gap-3 md:gap-6 max-w-3xl mx-auto">
             {stats.map((s, i) => {
               const Icon = s.icon;
-              const value = s.dynamic === "events" ? eventCount : s.value;
+              const value = s.dynamic === "events" ? events.length : s.value;
               return (
                 <motion.div
                   key={s.label}
@@ -211,6 +257,15 @@ const Index = () => {
 
       {/* PUBLIC EXECOM */}
       <PublicExecom />
+
+      {/* VIEW EXECOM CTA */}
+      <section className="pb-4">
+        <div className="container flex justify-center">
+          <Button asChild size="lg" variant="outline" className="border-primary/40 hover:border-primary hover:text-primary">
+            <a href="#execom">View ExeCom Members <ArrowRight className="ml-2 h-4 w-4" /></a>
+          </Button>
+        </div>
+      </section>
 
       {/* HIGHLIGHTS */}
       <HighlightsGrid />
