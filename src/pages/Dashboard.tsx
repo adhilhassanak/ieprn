@@ -7,12 +7,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { COMMUNITY_LIST } from "@/lib/communities";
-import { ArrowRight, CheckCircle2, Clock, XCircle, Calendar, Plus, Users } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  Calendar,
+  Plus,
+  Users,
+} from "lucide-react";
 import { StudentTabs } from "@/components/dashboard/StudentTabs";
 import { ExecomMembers } from "@/components/dashboard/ExecomMembers";
 
 const Dashboard = () => {
   const { user, roles, isExecutive, isAdmin } = useAuth();
+
   const [profile, setProfile] = useState<any>(null);
   const [registrations, setRegistrations] = useState<any[]>([]);
   const [myEvents, setMyEvents] = useState<any[]>([]);
@@ -20,54 +29,152 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!user) return;
+
     (async () => {
-      const [{ data: p }, { data: r }, { data: e }, { data: ec }] = await Promise.all([
-        supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
-        supabase.from("registrations").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-        supabase.from("events").select("*").eq("created_by", user.id).order("created_at", { ascending: false }),
-        supabase.from("event_coordinators").select("event_id, events(*)").eq("user_id", user.id),
+      const [
+        { data: p },
+        { data: r },
+        { data: e },
+        { data: ec },
+      ] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+
+        supabase
+          .from("registrations")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false }),
+
+        supabase
+          .from("events")
+          .select("*")
+          .eq("created_by", user.id)
+          .order("created_at", { ascending: false }),
+
+        supabase
+          .from("event_coordinators")
+          .select("event_id, events(*)")
+          .eq("user_id", user.id),
       ]);
+
       setProfile(p);
       setRegistrations(r ?? []);
       setMyEvents(e ?? []);
-      setCoordinatedEvents((ec ?? []).map((x: any) => x.events).filter(Boolean));
+      setCoordinatedEvents(
+        (ec ?? []).map((x: any) => x.events).filter(Boolean)
+      );
     })();
   }, [user]);
 
-  const statusBadge = (s: string) => {
-    if (s === "approved") return <Badge className="bg-primary/20 text-primary border-primary/40"><CheckCircle2 className="h-3 w-3 mr-1" />Approved</Badge>;
-    if (s === "rejected") return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Rejected</Badge>;
-    return <Badge className="bg-gold/20 text-gold border-gold/40"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
+  const statusBadge = (status: string) => {
+    if (status === "approved") {
+      return (
+        <Badge className="bg-primary/20 text-primary border-primary/40">
+          <CheckCircle2 className="h-3 w-3 mr-1" />
+          Approved
+        </Badge>
+      );
+    }
+
+    if (status === "rejected") {
+      return (
+        <Badge variant="destructive">
+          <XCircle className="h-3 w-3 mr-1" />
+          Rejected
+        </Badge>
+      );
+    }
+
+    return (
+      <Badge className="bg-gold/20 text-gold border-gold/40">
+        <Clock className="h-3 w-3 mr-1" />
+        Pending
+      </Badge>
+    );
   };
 
   return (
     <Layout>
       <div className="container py-10">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
           <h1 className="text-3xl md:text-4xl font-bold">
-            Welcome, <span className="text-gradient-gold">{profile?.full_name || user?.email}</span>
+            Welcome,{" "}
+            <span className="text-gradient-gold">
+              {profile?.full_name || user?.email}
+            </span>
           </h1>
+
           <div className="mt-2 flex flex-wrap gap-2">
-            {roles.map((r) => (
-              <Badge key={r} variant="outline" className="capitalize border-primary/40 text-primary">
-                {r.replace("_", " ")}
+            {roles.map((role) => (
+              <Badge
+                key={role}
+                variant="outline"
+                className="capitalize border-primary/40 text-primary"
+              >
+                {role.replace("_", " ")}
               </Badge>
             ))}
           </div>
         </motion.div>
 
-        {/* Executive applications */}
+        {/* ExeCom Registration Quick Button */}
+        <section className="mt-8">
+          <div className="glass rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold">
+                ExeCom Registration
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Apply for executive positions in IIC, E-Cell, and ED Club.
+              </p>
+            </div>
+
+            <Button
+              asChild
+              size="lg"
+              className="bg-gradient-emerald text-primary-foreground shadow-glow-emerald hover:scale-105 transition-smooth"
+            >
+              <Link to="/register">
+                Apply for ExeCom
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </section>
+
+        {/* Executive Applications */}
         <section className="mt-10">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Your ExeCom applications</h2>
+            <h2 className="text-xl font-semibold">
+              Your ExeCom Applications
+            </h2>
           </div>
+
           {registrations.length === 0 ? (
             <div className="glass rounded-2xl p-8 text-center">
-              <p className="text-muted-foreground">You haven't applied for an executive position yet.</p>
+              <p className="text-muted-foreground">
+                You haven't applied for an executive position yet.
+              </p>
+
               <div className="mt-5 grid gap-3 md:grid-cols-3">
                 {COMMUNITY_LIST.map((c) => (
-                  <Button key={c.key} asChild variant="outline" className="border-primary/30 hover:border-primary hover:text-primary">
-                    <Link to={`/register/${c.key}`}>Apply for {c.short} <ArrowRight className="ml-1 h-3 w-3" /></Link>
+                  <Button
+                    key={c.key}
+                    asChild
+                    variant="outline"
+                    className="border-primary/30 hover:border-primary hover:text-primary"
+                  >
+                    <Link to={`/register/${c.key}`}>
+                      Apply for {c.short}
+                      <ArrowRight className="ml-1 h-3 w-3" />
+                    </Link>
                   </Button>
                 ))}
               </div>
@@ -75,14 +182,31 @@ const Dashboard = () => {
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               {registrations.map((r) => (
-                <div key={r.id} className="glass rounded-xl p-5">
+                <div
+                  key={r.id}
+                  className="glass rounded-xl p-5"
+                >
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="text-xs uppercase tracking-wide text-gold">{r.community}</div>
-                      <h3 className="mt-1 font-semibold">{r.current_position}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">{r.full_name} · Sem {r.semester}</p>
-                      {r.previous_position && <p className="text-xs text-muted-foreground mt-1">Previous: {r.previous_position}</p>}
+                      <div className="text-xs uppercase tracking-wide text-gold">
+                        {r.community}
+                      </div>
+
+                      <h3 className="mt-1 font-semibold">
+                        {r.current_position}
+                      </h3>
+
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {r.full_name} · Sem {r.semester}
+                      </p>
+
+                      {r.previous_position && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Previous: {r.previous_position}
+                        </p>
+                      )}
                     </div>
+
                     {statusBadge(r.status)}
                   </div>
                 </div>
@@ -91,45 +215,69 @@ const Dashboard = () => {
           )}
         </section>
 
-        {/* Events I created */}
+        {/* Events I Created */}
         {isExecutive && (
           <section className="mt-12">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Events you manage</h2>
-              <Button asChild size="sm" className="bg-gradient-emerald text-primary-foreground">
-                <Link to="/events/new"><Plus className="h-4 w-4 mr-1" /> New event</Link>
+              <h2 className="text-xl font-semibold">
+                Events You Manage
+              </h2>
+
+              <Button
+                asChild
+                size="sm"
+                className="bg-gradient-emerald text-primary-foreground"
+              >
+                <Link to="/events/new">
+                  <Plus className="h-4 w-4 mr-1" />
+                  New Event
+                </Link>
               </Button>
             </div>
+
             {myEvents.length === 0 ? (
-              <div className="glass rounded-2xl p-8 text-center text-muted-foreground">No events yet. Create your first one.</div>
+              <div className="glass rounded-2xl p-8 text-center text-muted-foreground">
+                No events yet. Create your first one.
+              </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {myEvents.map((e) => <EventCard key={e.id} e={e} manage />)}
+                {myEvents.map((e) => (
+                  <EventCard key={e.id} e={e} manage />
+                ))}
               </div>
             )}
           </section>
         )}
 
-        {/* Events I coordinate */}
+        {/* Events I Coordinate */}
         {coordinatedEvents.length > 0 && (
           <section className="mt-12">
-            <h2 className="text-xl font-semibold mb-4">Events you coordinate</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              Events You Coordinate
+            </h2>
+
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {coordinatedEvents.map((e) => <EventCard key={e.id} e={e} coord />)}
+              {coordinatedEvents.map((e) => (
+                <EventCard key={e.id} e={e} coord />
+              ))}
             </div>
           </section>
         )}
 
-        {/* Student event tracking */}
+        {/* Student Event Tracking */}
         <StudentTabs />
 
-        {/* ExeCom members directory (executives + admins) */}
+        {/* ExeCom Members */}
         {isExecutive && (
           <section className="mt-12">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
-              ExeCom members{!isAdmin && profile?.community ? ` · ${profile.community}` : ""}
+              ExeCom Members
+              {!isAdmin && profile?.community
+                ? ` · ${profile.community}`
+                : ""}
             </h2>
+
             <ExecomMembers />
           </section>
         )}
@@ -138,26 +286,57 @@ const Dashboard = () => {
   );
 };
 
-const EventCard = ({ e, manage, coord }: { e: any; manage?: boolean; coord?: boolean }) => (
+const EventCard = ({
+  e,
+  manage,
+  coord,
+}: {
+  e: any;
+  manage?: boolean;
+  coord?: boolean;
+}) => (
   <div className="glass rounded-xl p-5 hover:border-primary/40 transition-smooth">
     <div className="flex items-center gap-2 text-xs text-gold uppercase">
-      <Calendar className="h-3 w-3" />{e.community}
-      <span className="ml-auto rounded-full px-2 py-0.5 text-[10px] bg-secondary capitalize">{e.status}</span>
+      <Calendar className="h-3 w-3" />
+      {e.community}
+
+      <span className="ml-auto rounded-full px-2 py-0.5 text-[10px] bg-secondary capitalize">
+        {e.status}
+      </span>
     </div>
+
     <h3 className="mt-2 font-semibold">{e.name}</h3>
-    {e.event_date && <p className="text-xs text-muted-foreground mt-1">{new Date(e.event_date).toLocaleDateString()} · {e.venue ?? "TBA"}</p>}
+
+    {e.event_date && (
+      <p className="text-xs text-muted-foreground mt-1">
+        {new Date(e.event_date).toLocaleDateString()} ·{" "}
+        {e.venue ?? "TBA"}
+      </p>
+    )}
+
     <div className="mt-3 flex gap-2">
-      <Button asChild size="sm" variant="ghost" className="px-2 text-primary">
+      <Button
+        asChild
+        size="sm"
+        variant="ghost"
+        className="px-2 text-primary"
+      >
         <Link to={`/events/${e.id}`}>View</Link>
       </Button>
+
       {manage && (
         <Button asChild size="sm" variant="ghost" className="px-2">
-          <Link to={`/events/${e.id}/manage`}>Manage</Link>
+          <Link to={`/events/${e.id}/manage`}>
+            Manage
+          </Link>
         </Button>
       )}
+
       {coord && (
         <Button asChild size="sm" variant="ghost" className="px-2">
-          <Link to={`/events/${e.id}/coordinator`}>Participants</Link>
+          <Link to={`/events/${e.id}/coordinator`}>
+            Participants
+          </Link>
         </Button>
       )}
     </div>
