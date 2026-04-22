@@ -100,16 +100,16 @@ const Register = () => {
   const [done, setDone] = useState(false);
 
   /*
-    --------------------------------------------------
-    LOAD POSITIONS + CHECK DUPLICATE REGISTRATION
-    --------------------------------------------------
+   --------------------------------------------------
+   LOAD POSITIONS + CHECK DUPLICATE REGISTRATION
+   --------------------------------------------------
   */
 
   useEffect(() => {
     if (!community || !user) return;
 
     const loadData = async () => {
-      // Positions
+      // Load positions
       const { data: positionData } = await supabase
         .from("positions_needed")
         .select("id, role_name, description")
@@ -119,8 +119,7 @@ const Register = () => {
 
       setPositions(positionData ?? []);
 
-      // IMPORTANT:
-      // prevent multiple registration in SAME community
+      // Prevent duplicate registration ONLY in same community
       const { data: existing } = await supabase
         .from("registrations")
         .select("id")
@@ -137,9 +136,9 @@ const Register = () => {
   }, [community, user]);
 
   /*
-    --------------------------------------------------
-    COMMUNITY NOT FOUND
-    --------------------------------------------------
+   --------------------------------------------------
+   COMMUNITY NOT FOUND
+   --------------------------------------------------
   */
 
   if (!community) {
@@ -162,9 +161,9 @@ const Register = () => {
   }
 
   /*
-    --------------------------------------------------
-    ALREADY APPLIED BLOCK
-    --------------------------------------------------
+   --------------------------------------------------
+   ALREADY APPLIED BLOCK
+   --------------------------------------------------
   */
 
   if (alreadyApplied) {
@@ -198,9 +197,9 @@ const Register = () => {
   }
 
   /*
-    --------------------------------------------------
-    HELPERS
-    --------------------------------------------------
+   --------------------------------------------------
+   HELPERS
+   --------------------------------------------------
   */
 
   const set = (
@@ -230,9 +229,9 @@ const Register = () => {
   };
 
   /*
-    --------------------------------------------------
-    SUBMIT
-    --------------------------------------------------
+   --------------------------------------------------
+   SUBMIT
+   --------------------------------------------------
   */
 
   const submit = async (e: FormEvent) => {
@@ -271,7 +270,7 @@ const Register = () => {
 
     try {
       /*
-        SAFETY CHECK AGAIN BEFORE INSERT
+       SAFETY CHECK AGAIN BEFORE INSERT
       */
 
       const { data: existing } = await supabase
@@ -294,7 +293,7 @@ const Register = () => {
       }
 
       /*
-        PHOTO UPLOAD
+       PHOTO UPLOAD
       */
 
       const ext =
@@ -318,7 +317,7 @@ const Register = () => {
         .getPublicUrl(path);
 
       /*
-        INSERT REGISTRATION
+       INSERT REGISTRATION
       */
 
       const payload: any = {
@@ -341,18 +340,7 @@ const Register = () => {
       if (insertError) throw insertError;
 
       /*
-        UPDATE PROFILE
-      */
-
-      await supabase
-        .from("profiles")
-        .update({
-          community: community.short,
-        })
-        .eq("user_id", user.id);
-
-      /*
-        OPTIONAL GOOGLE SYNC
+       OPTIONAL GOOGLE SHEET SYNC
       */
 
       supabase.functions
@@ -379,9 +367,9 @@ const Register = () => {
   };
 
   /*
-    --------------------------------------------------
-    SUCCESS SCREEN
-    --------------------------------------------------
+   --------------------------------------------------
+   SUCCESS SCREEN
+   --------------------------------------------------
   */
 
   if (done) {
@@ -422,12 +410,6 @@ const Register = () => {
     );
   }
 
-  /*
-    --------------------------------------------------
-    FORM UI
-    --------------------------------------------------
-  */
-
   return (
     <Layout>
       <div className="container py-10 max-w-3xl">
@@ -454,7 +436,7 @@ const Register = () => {
           onSubmit={submit}
           className="mt-8 glass-strong rounded-2xl p-6 md:p-8 space-y-5"
         >
-          {/* Your existing form UI continues exactly same */}
+          {/* Your form UI remains same */}
         </form>
       </div>
     </Layout>
