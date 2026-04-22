@@ -99,12 +99,6 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
-  /*
-   --------------------------------------------------
-   LOAD POSITIONS + CHECK DUPLICATE REGISTRATION
-   --------------------------------------------------
-  */
-
   useEffect(() => {
     if (!community || !user) return;
 
@@ -135,12 +129,6 @@ const Register = () => {
     loadData();
   }, [community, user]);
 
-  /*
-   --------------------------------------------------
-   COMMUNITY NOT FOUND
-   --------------------------------------------------
-  */
-
   if (!community) {
     return (
       <Layout>
@@ -159,12 +147,6 @@ const Register = () => {
       </Layout>
     );
   }
-
-  /*
-   --------------------------------------------------
-   ALREADY APPLIED BLOCK
-   --------------------------------------------------
-  */
 
   if (alreadyApplied) {
     return (
@@ -196,12 +178,6 @@ const Register = () => {
     );
   }
 
-  /*
-   --------------------------------------------------
-   HELPERS
-   --------------------------------------------------
-  */
-
   const set = (
     key: keyof typeof form,
     value: string
@@ -227,12 +203,6 @@ const Register = () => {
     setPhoto(file);
     setPhotoPreview(URL.createObjectURL(file));
   };
-
-  /*
-   --------------------------------------------------
-   SUBMIT
-   --------------------------------------------------
-  */
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -269,10 +239,6 @@ const Register = () => {
     setLoading(true);
 
     try {
-      /*
-       SAFETY CHECK AGAIN BEFORE INSERT
-      */
-
       const { data: existing } = await supabase
         .from("registrations")
         .select("id")
@@ -291,10 +257,6 @@ const Register = () => {
         setLoading(false);
         return;
       }
-
-      /*
-       PHOTO UPLOAD
-      */
 
       const ext =
         photo.name.split(".").pop() || "jpg";
@@ -316,19 +278,12 @@ const Register = () => {
         .from("profile-photos")
         .getPublicUrl(path);
 
-      /*
-       INSERT REGISTRATION
-      */
-
       const payload: any = {
         user_id: user.id,
         community: community.short,
-
         ...parsed.data,
-
         previous_position:
           parsed.data.previous_position || null,
-
         photo_url: publicUrl,
       };
 
@@ -338,10 +293,6 @@ const Register = () => {
           .insert(payload);
 
       if (insertError) throw insertError;
-
-      /*
-       OPTIONAL GOOGLE SHEET SYNC
-      */
 
       supabase.functions
         .invoke("sync-to-google", {
@@ -366,25 +317,13 @@ const Register = () => {
     }
   };
 
-  /*
-   --------------------------------------------------
-   SUCCESS SCREEN
-   --------------------------------------------------
-  */
-
   if (done) {
     return (
       <Layout>
         <div className="container py-20">
           <motion.div
-            initial={{
-              scale: 0.9,
-              opacity: 0,
-            }}
-            animate={{
-              scale: 1,
-              opacity: 1,
-            }}
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
             className="glass-strong max-w-lg mx-auto rounded-2xl p-10 text-center shadow-glow-emerald"
           >
             <CheckCircle2 className="h-16 w-16 text-primary mx-auto" />
@@ -436,7 +375,194 @@ const Register = () => {
           onSubmit={submit}
           className="mt-8 glass-strong rounded-2xl p-6 md:p-8 space-y-5"
         >
-          {/* Your form UI remains same */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label>Full name</Label>
+              <Input
+                value={form.full_name}
+                onChange={(e) =>
+                  set("full_name", e.target.value)
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Gmail</Label>
+              <Input
+                type="email"
+                value={form.gmail}
+                onChange={(e) =>
+                  set("gmail", e.target.value)
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Phone (10 digits)</Label>
+              <Input
+                inputMode="numeric"
+                maxLength={10}
+                value={form.phone}
+                onChange={(e) =>
+                  set("phone", e.target.value)
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Branch</Label>
+              <Input
+                value={form.branch}
+                onChange={(e) =>
+                  set("branch", e.target.value)
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Semester</Label>
+              <Input
+                value={form.semester}
+                onChange={(e) =>
+                  set("semester", e.target.value)
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Division</Label>
+              <Input
+                value={form.division}
+                onChange={(e) =>
+                  set("division", e.target.value)
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Position applying for</Label>
+
+              {positions.length > 0 ? (
+                <Select
+                  value={form.current_position}
+                  onValueChange={(v) =>
+                    set("current_position", v)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a position" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {positions.map((p) => (
+                      <SelectItem
+                        key={p.id}
+                        value={p.role_name}
+                      >
+                        {p.role_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  value={form.current_position}
+                  onChange={(e) =>
+                    set(
+                      "current_position",
+                      e.target.value
+                    )
+                  }
+                  placeholder="Type your desired position"
+                  required
+                />
+              )}
+            </div>
+          </div>
+
+          <div>
+            <Label>Previous role (optional)</Label>
+            <Input
+              value={form.previous_position}
+              onChange={(e) =>
+                set(
+                  "previous_position",
+                  e.target.value
+                )
+              }
+              placeholder="Optional"
+            />
+          </div>
+
+          <div>
+            <Label>Profile photo (max 500 KB)</Label>
+
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) =>
+                onPhoto(
+                  e.target.files?.[0] ?? null
+                )
+              }
+            />
+
+            <button
+              type="button"
+              onClick={() =>
+                fileRef.current?.click()
+              }
+              className="mt-2 w-full glass rounded-xl p-6 border-2 border-dashed border-border hover:border-primary/60"
+            >
+              {photoPreview ? (
+                <img
+                  src={photoPreview}
+                  alt="preview"
+                  className="h-20 w-20 rounded-lg object-cover mx-auto"
+                />
+              ) : (
+                <div className="flex items-center justify-center gap-2">
+                  <Upload className="h-5 w-5" />
+                  Click to upload
+                </div>
+              )}
+            </button>
+          </div>
+
+          <label className="flex items-start gap-3 text-sm text-muted-foreground">
+            <Checkbox
+              checked={agree}
+              onCheckedChange={(v) =>
+                setAgree(!!v)
+              }
+              className="mt-0.5"
+            />
+
+            <span>
+              I declare that the above information is
+              accurate and I commit to actively serving
+              in the {community.short} ExeCom if selected.
+            </span>
+          </label>
+
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-emerald text-primary-foreground"
+          >
+            {loading && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Submit Application
+          </Button>
         </form>
       </div>
     </Layout>
