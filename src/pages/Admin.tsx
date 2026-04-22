@@ -14,7 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { CheckCircle2, XCircle, Clock, Trash2, Search, Plus, ShieldPlus, Save } from "lucide-react";
 import { COMMUNITY_LIST } from "@/lib/communities";
-import { applyTheme } from "@/hooks/useAdminSettings";
+import { applyTheme, THEME_PRESETS, type ThemePresetKey, loadGlassPrefs, saveGlassPrefs } from "@/hooks/useAdminSettings";
+import { Slider } from "@/components/ui/slider";
 
 const Admin = () => {
   const [regs, setRegs] = useState<any[]>([]);

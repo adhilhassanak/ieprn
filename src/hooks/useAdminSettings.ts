@@ -65,6 +65,8 @@ export function useAdminSettings() {
   const [settings, setSettings] = useState<AdminSettings | null>(null);
 
   const load = async () => {
+    const { alpha, blur } = loadGlassPrefs();
+    applyGlass(alpha, blur);
     const { data } = await supabase.from("admin_settings").select("*").limit(1).maybeSingle();
     if (data) {
       setSettings(data as AdminSettings);
