@@ -16,6 +16,8 @@ import { CheckCircle2, XCircle, Clock, Trash2, Search, Plus, ShieldPlus, Save } 
 import { COMMUNITY_LIST } from "@/lib/communities";
 import { applyTheme, THEME_PRESETS, type ThemePresetKey, loadGlassPrefs, saveGlassPrefs } from "@/hooks/useAdminSettings";
 import { Slider } from "@/components/ui/slider";
+import { StorageMonitor } from "@/components/admin/StorageMonitor";
+import { ExecomMembers } from "@/components/dashboard/ExecomMembers";
 
 const Admin = () => {
   const [regs, setRegs] = useState<any[]>([]);
@@ -148,6 +150,8 @@ const Admin = () => {
             <TabsTrigger value="events">Events</TabsTrigger>
             <TabsTrigger value="roles">Roles & Co-admins</TabsTrigger>
             <TabsTrigger value="positions">Positions</TabsTrigger>
+            <TabsTrigger value="members">Members</TabsTrigger>
+            <TabsTrigger value="storage">Storage</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -263,6 +267,16 @@ const Admin = () => {
               ))}
               {positions.length === 0 && <div className="text-center text-muted-foreground py-10">No positions yet.</div>}
             </div>
+          </TabsContent>
+
+          {/* MEMBERS */}
+          <TabsContent value="members" className="mt-4">
+            <ExecomMembers />
+          </TabsContent>
+
+          {/* STORAGE */}
+          <TabsContent value="storage" className="mt-4">
+            <StorageMonitor />
           </TabsContent>
 
           {/* SETTINGS */}

@@ -7,7 +7,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { COMMUNITY_LIST } from "@/lib/communities";
-import { ArrowRight, CheckCircle2, Clock, XCircle, Calendar, Plus } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock, XCircle, Calendar, Plus, Users } from "lucide-react";
+import { StudentTabs } from "@/components/dashboard/StudentTabs";
+import { ExecomMembers } from "@/components/dashboard/ExecomMembers";
 
 const Dashboard = () => {
   const { user, roles, isExecutive, isAdmin } = useAuth();
@@ -115,6 +117,20 @@ const Dashboard = () => {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {coordinatedEvents.map((e) => <EventCard key={e.id} e={e} coord />)}
             </div>
+          </section>
+        )}
+
+        {/* Student event tracking */}
+        <StudentTabs />
+
+        {/* ExeCom members directory (executives + admins) */}
+        {isExecutive && (
+          <section className="mt-12">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              ExeCom members{!isAdmin && profile?.community ? ` · ${profile.community}` : ""}
+            </h2>
+            <ExecomMembers />
           </section>
         )}
       </div>

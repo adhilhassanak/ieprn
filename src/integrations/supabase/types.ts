@@ -466,6 +466,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_old_events: { Args: { _days: number }; Returns: number }
       get_public_execom: {
         Args: never
         Returns: {
@@ -474,6 +475,14 @@ export type Database = {
           full_name: string
           id: string
           photo_url: string
+        }[]
+      }
+      get_storage_stats: {
+        Args: never
+        Returns: {
+          bucket_id: string
+          file_count: number
+          total_bytes: number
         }[]
       }
       has_role: {
