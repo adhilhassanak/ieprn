@@ -67,8 +67,10 @@
 
     --shadow-elevated: 0 20px 60px -20px hsl(222 90% 2% / 0.8);
 
-    /* Glass */
-    --glass-bg: hsl(222 50% 8% / 0.55);
+    /* Glass — runtime-tunable */
+    --glass-blur: 16px;
+    --glass-alpha: 0.55;
+    --glass-bg: hsl(222 50% 8% / var(--glass-alpha));
     --glass-border: hsl(210 40% 92% / 0.08);
 
     --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
@@ -115,15 +117,15 @@
 
   .glass {
     background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--glass-border);
   }
 
   .glass-strong {
-    background: hsl(222 40% 8% / 0.8);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background: hsl(222 40% 8% / calc(var(--glass-alpha) + 0.25));
+    backdrop-filter: blur(calc(var(--glass-blur) + 8px));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 8px));
     border: 1px solid var(--glass-border);
   }
 

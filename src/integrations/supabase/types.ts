@@ -395,15 +395,14 @@ export type Database = {
           community: string
           created_at: string
           current_position: string | null
-          current_semester: string | null
           division: string | null
           full_name: string
           gmail: string
           id: string
-          next_semester: string | null
           phone: string
           photo_url: string | null
           previous_position: string | null
+          semester: string | null
           status: Database["public"]["Enums"]["registration_status"]
           user_id: string
         }
@@ -412,15 +411,14 @@ export type Database = {
           community: string
           created_at?: string
           current_position?: string | null
-          current_semester?: string | null
           division?: string | null
           full_name: string
           gmail: string
           id?: string
-          next_semester?: string | null
           phone: string
           photo_url?: string | null
           previous_position?: string | null
+          semester?: string | null
           status?: Database["public"]["Enums"]["registration_status"]
           user_id: string
         }
@@ -429,15 +427,14 @@ export type Database = {
           community?: string
           created_at?: string
           current_position?: string | null
-          current_semester?: string | null
           division?: string | null
           full_name?: string
           gmail?: string
           id?: string
-          next_semester?: string | null
           phone?: string
           photo_url?: string | null
           previous_position?: string | null
+          semester?: string | null
           status?: Database["public"]["Enums"]["registration_status"]
           user_id?: string
         }

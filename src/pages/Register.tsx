@@ -21,8 +21,7 @@ const schema = z.object({
   full_name: z.string().trim().min(2).max(100),
   gmail: z.string().trim().email().max(255).refine((v) => v.endsWith("@gmail.com"), "Must be a @gmail.com address"),
   phone: z.string().trim().regex(/^\d{10}$/, "Phone must be 10 digits"),
-  current_semester: z.string().trim().min(1).max(20),
-  next_semester: z.string().trim().min(1).max(20),
+  semester: z.string().trim().min(1).max(20),
   branch: z.string().trim().min(1).max(50),
   division: z.string().trim().min(1).max(20),
   current_position: z.string().trim().min(2).max(100),
@@ -41,8 +40,7 @@ const Register = () => {
     full_name: "",
     gmail: "",
     phone: "",
-    current_semester: "",
-    next_semester: "",
+    semester: "",
     branch: "",
     division: "",
     current_position: "",
@@ -168,8 +166,7 @@ const Register = () => {
             <div><Label>Gmail</Label><Input type="email" value={form.gmail} onChange={(e) => set("gmail", e.target.value)} required /></div>
             <div><Label>Phone (10 digits)</Label><Input inputMode="numeric" maxLength={10} value={form.phone} onChange={(e) => set("phone", e.target.value)} required /></div>
             <div><Label>Branch</Label><Input value={form.branch} onChange={(e) => set("branch", e.target.value)} required /></div>
-            <div><Label>Current semester</Label><Input value={form.current_semester} onChange={(e) => set("current_semester", e.target.value)} required /></div>
-            <div><Label>Next semester</Label><Input value={form.next_semester} onChange={(e) => set("next_semester", e.target.value)} required /></div>
+            <div><Label>Semester</Label><Input value={form.semester} onChange={(e) => set("semester", e.target.value)} required /></div>
             <div><Label>Division</Label><Input value={form.division} onChange={(e) => set("division", e.target.value)} required /></div>
             <div>
               <Label>Position applying for (2026–27)</Label>
