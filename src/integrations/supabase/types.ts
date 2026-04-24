@@ -631,6 +631,7 @@ export type Database = {
         Args: { _community: string; _user_id: string }
         Returns: boolean
       }
+      is_documentation_head: { Args: { _user_id: string }; Returns: boolean }
       is_event_coordinator: {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
