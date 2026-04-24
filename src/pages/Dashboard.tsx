@@ -146,6 +146,45 @@ const Dashboard = () => {
           </div>
         </motion.div>
 
+        {/* Role-specific tools */}
+        {(isDocumentationHead || isFinanceHead) && (
+          <section className="mt-6 grid gap-3 md:grid-cols-2">
+            {isDocumentationHead && (
+              <div className="glass rounded-xl p-5 flex items-center gap-4">
+                <div className="h-12 w-12 rounded-lg bg-primary/15 flex items-center justify-center">
+                  <FileUp className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold">Documentation Head</div>
+                  <div className="text-xs text-muted-foreground">Submit event documentation via the Zoho form.</div>
+                </div>
+                <Button asChild className="bg-gradient-emerald text-primary-foreground">
+                  <a href={DOC_HEAD_FORM_URL} target="_blank" rel="noreferrer">
+                    Upload Documentation
+                  </a>
+                </Button>
+              </div>
+            )}
+            {isFinanceHead && (
+              <div className="glass rounded-xl p-5 flex items-center gap-4">
+                <div className="h-12 w-12 rounded-lg bg-gold/15 flex items-center justify-center">
+                  <IndianRupee className="h-5 w-5 text-gold" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold">Finance Head</div>
+                  <div className="text-xs text-muted-foreground">Update the current finance balance below.</div>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {isFinanceHead && !isAdmin && (
+          <section className="mt-6">
+            <FinancePanel />
+          </section>
+        )}
+
         {/* ExeCom Registration Section */}
         {availableCommunities.length > 0 && (
           <section className="mt-8">
