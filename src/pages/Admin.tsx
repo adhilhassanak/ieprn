@@ -20,6 +20,7 @@ import { StorageMonitor } from "@/components/admin/StorageMonitor";
 import { ExecomMembers } from "@/components/dashboard/ExecomMembers";
 import { FeedbackList } from "@/components/admin/FeedbackList";
 import { FinancePanel } from "@/components/admin/FinancePanel";
+import { ImageUploadPanel } from "@/components/admin/ImageUploadPanel";
 
 const Admin = () => {
   const [regs, setRegs] = useState<any[]>([]);
