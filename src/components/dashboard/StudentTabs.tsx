@@ -58,12 +58,11 @@ export const StudentTabs = () => {
 
   const submitFeedback = async () => {
     if (!feedback.trim() || !user) return;
-    const { error } = await supabase.from("announcements").insert({
-      title: `Feedback from ${user.email}`,
+    const { error } = await (supabase as any).from("feedback").insert({
+      user_id: user.id,
+      user_name: user.user_metadata?.full_name ?? null,
+      user_email: user.email ?? null,
       message: feedback.trim(),
-      type: "feedback",
-      active: false,
-      created_by: user.id,
     });
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
     toast({ title: "Thanks for the feedback!" });
