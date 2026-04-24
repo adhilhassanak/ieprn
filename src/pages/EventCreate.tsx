@@ -104,6 +104,7 @@ const EventCreate = () => {
         pdf_url,
         coordinator_names: validCoords,
         registration_open: false,
+        whatsapp_link: form.whatsapp_link.trim() || null,
       };
       const { data, error } = await supabase.from("events").insert(payload).select().single();
       if (error) throw error;
