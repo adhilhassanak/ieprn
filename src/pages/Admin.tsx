@@ -74,6 +74,21 @@ const Admin = () => {
     await supabase.from("events").delete().eq("id", id);
     load();
   };
+  const approveEvent = async (e: any) => {
+    if ((e.coordinator_names?.length ?? 0) < 2) {
+      return toast({ title: "Need 2 coordinators", description: "Add at least 2 coordinator names before publishing.", variant: "destructive" });
+    }
+    const { error } = await supabase.from("events").update({ status: "published", registration_open: true }).eq("id", e.id);
+    if (error) return toast({ title: "Approve failed", description: error.message, variant: "destructive" });
+    toast({ title: "Event approved & published" });
+    load();
+  };
+  const rejectEvent = async (id: string) => {
+    const { error } = await supabase.from("events").update({ status: "cancelled", registration_open: false }).eq("id", id);
+    if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
+    toast({ title: "Event rejected" });
+    load();
+  };
 
   const promoteCoAdmin = async () => {
     const email = coAdminEmail.trim().toLowerCase();
