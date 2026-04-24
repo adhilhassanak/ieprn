@@ -20,11 +20,10 @@ export const ExecomMembers = () => {
 
   useEffect(() => {
     (async () => {
-      let q = supabase
-        .from("execom_sorted") // ✅ using your SQL view
+      let q = (supabase as any)
+        .from("execom_sorted")
         .select("id, full_name, community, current_position, photo_url, gmail, phone");
 
-      // Optional filter for non-admins
       if (!isAdmin && community) {
         q = q.eq("community", community);
       }

@@ -122,6 +122,33 @@ export type Database = {
           },
         ]
       }
+      dashboard_links: {
+        Row: {
+          button_link: string
+          button_text: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          title: string
+        }
+        Insert: {
+          button_link: string
+          button_text: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          title: string
+        }
+        Update: {
+          button_link?: string
+          button_text?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          title?: string
+        }
+        Relationships: []
+      }
       event_coordinators: {
         Row: {
           created_at: string
@@ -463,7 +490,60 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      execom_sorted: {
+        Row: {
+          branch: string | null
+          community: string | null
+          created_at: string | null
+          current_position: string | null
+          division: string | null
+          full_name: string | null
+          gmail: string | null
+          id: string | null
+          phone: string | null
+          photo_url: string | null
+          previous_position: string | null
+          priority: number | null
+          semester: string | null
+          status: Database["public"]["Enums"]["registration_status"] | null
+          user_id: string | null
+        }
+        Insert: {
+          branch?: string | null
+          community?: string | null
+          created_at?: string | null
+          current_position?: string | null
+          division?: string | null
+          full_name?: string | null
+          gmail?: string | null
+          id?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          previous_position?: string | null
+          priority?: never
+          semester?: string | null
+          status?: Database["public"]["Enums"]["registration_status"] | null
+          user_id?: string | null
+        }
+        Update: {
+          branch?: string | null
+          community?: string | null
+          created_at?: string | null
+          current_position?: string | null
+          division?: string | null
+          full_name?: string | null
+          gmail?: string | null
+          id?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          previous_position?: string | null
+          priority?: never
+          semester?: string | null
+          status?: Database["public"]["Enums"]["registration_status"] | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       delete_old_events: { Args: { _days: number }; Returns: number }
