@@ -15,9 +15,15 @@ import {
   Calendar,
   Plus,
   Users,
+  FileUp,
+  IndianRupee,
 } from "lucide-react";
 import { StudentTabs } from "@/components/dashboard/StudentTabs";
 import { ExecomMembers } from "@/components/dashboard/ExecomMembers";
+import { FinancePanel } from "@/components/admin/FinancePanel";
+
+const DOC_HEAD_FORM_URL =
+  "https://forms.zohopublic.in/adhilhassanakgm1/form/EventRegistrationForm/formperma/ekOxe5Agecbf8k9eF4-9xbYUWvUlbjxnOPMQAkZry8g";
 
 const Dashboard = () => {
   const { user, roles, isExecutive, isAdmin } = useAuth();
