@@ -26,7 +26,7 @@ const DOC_HEAD_FORM_URL =
   "https://forms.zohopublic.in/adhilhassanakgm1/form/EventRegistrationForm/formperma/ekOxe5Agecbf8k9eF4-9xbYUWvUlbjxnOPMQAkZry8g";
 
 const Dashboard = () => {
-  const { user, roles, isExecutive, isAdmin, isDocumentationHead, isFinanceHead } = useAuth();
+  const { user, roles, isExecutive, isAdmin, isDocumentationHead: roleDocHead, isFinanceHead: roleFinHead } = useAuth();
 
   const [profile, setProfile] = useState<any>(null);
   const [registrations, setRegistrations] = useState<any[]>([]);
