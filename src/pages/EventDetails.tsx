@@ -140,8 +140,17 @@ const EventDetails = () => {
               {!globalOpen ? "Registrations are temporarily disabled by the admin." : "Registration is closed for this event."}
             </p>
           ) : submitted ? (
-            <div className="mt-4 flex items-center gap-2 text-primary">
-              <CheckCircle2 className="h-5 w-5" /> You're registered! See you there.
+            <div className="mt-4 space-y-3">
+              <div className="flex items-center gap-2 text-primary">
+                <CheckCircle2 className="h-5 w-5" /> You're registered! See you there.
+              </div>
+              {event.whatsapp_link && (
+                <Button asChild className="bg-[#25D366] hover:bg-[#1ebe57] text-white">
+                  <a href={event.whatsapp_link} target="_blank" rel="noreferrer">
+                    <MessageCircle className="h-4 w-4 mr-2" /> Join our WhatsApp Group
+                  </a>
+                </Button>
+              )}
             </div>
           ) : (
             <form onSubmit={register} className="mt-4 grid gap-4 md:grid-cols-2">
