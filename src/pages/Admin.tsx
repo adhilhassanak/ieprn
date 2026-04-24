@@ -214,6 +214,12 @@ const Admin = () => {
                     <div className="font-medium">{e.name} <Badge variant="outline" className="ml-2 text-xs">{e.community}</Badge> <Badge variant="outline" className="ml-1 text-xs capitalize">{e.status}</Badge>{e.registration_open && <Badge className="ml-1 text-xs bg-primary/20 text-primary border-primary/40">reg open</Badge>}</div>
                     <div className="text-xs text-muted-foreground">{e.event_date ? new Date(e.event_date).toLocaleDateString() : "no date"} · {e.venue ?? "—"} · {e.coordinator_names?.length ?? 0} coordinators</div>
                   </div>
+                  {e.status !== "published" && e.status !== "completed" && (
+                    <Button size="sm" variant="outline" onClick={() => approveEvent(e)} className="border-primary/40 text-primary"><CheckCircle2 className="h-4 w-4 mr-1" />Approve</Button>
+                  )}
+                  {e.status !== "cancelled" && e.status !== "published" && (
+                    <Button size="sm" variant="outline" onClick={() => rejectEvent(e.id)}><XCircle className="h-4 w-4 mr-1" />Reject</Button>
+                  )}
                   <Button asChild size="sm" variant="ghost"><Link to={`/events/${e.id}/manage`}>Manage</Link></Button>
                   <Button size="sm" variant="ghost" onClick={() => deleteEvent(e.id)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
