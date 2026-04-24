@@ -46,6 +46,7 @@ const EventCreate = () => {
     event_time: "",
     venue: "",
     expected_participants: "0",
+    whatsapp_link: "",
     status: "pending" as "draft" | "pending",
   });
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
