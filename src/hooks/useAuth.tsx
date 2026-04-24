@@ -2,7 +2,14 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 
-export type AppRole = "student" | "executive_member" | "coordinator" | "co_admin" | "admin";
+export type AppRole =
+  | "student"
+  | "executive_member"
+  | "coordinator"
+  | "co_admin"
+  | "admin"
+  | "documentation_head"
+  | "finance_head";
 
 interface AuthContextValue {
   user: User | null;
@@ -16,6 +23,8 @@ interface AuthContextValue {
   isExecutive: boolean;
   isApprovedExecutive: boolean;
   isCoordinator: boolean;
+  isDocumentationHead: boolean;
+  isFinanceHead: boolean;
   signOut: () => Promise<void>;
   refreshRoles: () => Promise<void>;
 }
