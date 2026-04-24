@@ -283,6 +283,16 @@ const Admin = () => {
             <StorageMonitor />
           </TabsContent>
 
+          {/* FEEDBACK */}
+          <TabsContent value="feedback" className="mt-4">
+            <FeedbackList />
+          </TabsContent>
+
+          {/* FINANCE */}
+          <TabsContent value="finance" className="mt-4">
+            <FinancePanel />
+          </TabsContent>
+
           {/* SETTINGS */}
           <TabsContent value="settings" className="mt-4">
             {settings && (
