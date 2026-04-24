@@ -37,6 +37,19 @@ const EventDetails = () => {
       setEvent(data);
       const { count } = await supabase.from("event_participants").select("*", { count: "exact", head: true }).eq("event_id", id);
       setParticipantCount(count ?? 0);
+
+      // check existing registration by current user's email (if logged in)
+      const { data: auth } = await supabase.auth.getUser();
+      const email = auth?.user?.email;
+      if (email) {
+        const { data: existing } = await supabase
+          .from("event_participants")
+          .select("id")
+          .eq("event_id", id)
+          .eq("gmail", email)
+          .maybeSingle();
+        if (existing) setSubmitted(true);
+      }
     })();
   }, [id]);
 
