@@ -89,12 +89,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isExecutive = roles.includes("executive_member") || isCoAdmin;
   const isApprovedExecutive = (roles.includes("executive_member") && approved) || isCoAdmin;
   const isCoordinator = roles.includes("coordinator") || isExecutive;
+  const isDocumentationHead = roles.includes("documentation_head") || isAdmin;
+  const isFinanceHead = roles.includes("finance_head") || isAdmin;
 
   return (
     <AuthContext.Provider
       value={{
         user, session, roles, community, approved, loading,
         isAdmin, isCoAdmin, isExecutive, isApprovedExecutive, isCoordinator,
+        isDocumentationHead, isFinanceHead,
         signOut, refreshRoles,
       }}
     >
