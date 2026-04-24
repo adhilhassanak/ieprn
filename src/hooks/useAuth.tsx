@@ -2,7 +2,14 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 
-export type AppRole = "student" | "executive_member" | "coordinator" | "co_admin" | "admin";
+export type AppRole =
+  | "student"
+  | "executive_member"
+  | "coordinator"
+  | "co_admin"
+  | "admin"
+  | "documentation_head"
+  | "finance_head";
 
 interface AuthContextValue {
   user: User | null;
@@ -16,6 +23,8 @@ interface AuthContextValue {
   isExecutive: boolean;
   isApprovedExecutive: boolean;
   isCoordinator: boolean;
+  isDocumentationHead: boolean;
+  isFinanceHead: boolean;
   signOut: () => Promise<void>;
   refreshRoles: () => Promise<void>;
 }
@@ -80,12 +89,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isExecutive = roles.includes("executive_member") || isCoAdmin;
   const isApprovedExecutive = (roles.includes("executive_member") && approved) || isCoAdmin;
   const isCoordinator = roles.includes("coordinator") || isExecutive;
+  const isDocumentationHead = roles.includes("documentation_head") || isAdmin;
+  const isFinanceHead = roles.includes("finance_head") || isAdmin;
 
   return (
     <AuthContext.Provider
       value={{
         user, session, roles, community, approved, loading,
         isAdmin, isCoAdmin, isExecutive, isApprovedExecutive, isCoordinator,
+        isDocumentationHead, isFinanceHead,
         signOut, refreshRoles,
       }}
     >

@@ -18,6 +18,8 @@ import { applyTheme, THEME_PRESETS, type ThemePresetKey, loadGlassPrefs, saveGla
 import { Slider } from "@/components/ui/slider";
 import { StorageMonitor } from "@/components/admin/StorageMonitor";
 import { ExecomMembers } from "@/components/dashboard/ExecomMembers";
+import { FeedbackList } from "@/components/admin/FeedbackList";
+import { FinancePanel } from "@/components/admin/FinancePanel";
 
 const Admin = () => {
   const [regs, setRegs] = useState<any[]>([]);
@@ -152,6 +154,8 @@ const Admin = () => {
             <TabsTrigger value="positions">Positions</TabsTrigger>
             <TabsTrigger value="members">Members</TabsTrigger>
             <TabsTrigger value="storage">Storage</TabsTrigger>
+            <TabsTrigger value="feedback">Feedback</TabsTrigger>
+            <TabsTrigger value="finance">Finance</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -277,6 +281,16 @@ const Admin = () => {
           {/* STORAGE */}
           <TabsContent value="storage" className="mt-4">
             <StorageMonitor />
+          </TabsContent>
+
+          {/* FEEDBACK */}
+          <TabsContent value="feedback" className="mt-4">
+            <FeedbackList />
+          </TabsContent>
+
+          {/* FINANCE */}
+          <TabsContent value="finance" className="mt-4">
+            <FinancePanel />
           </TabsContent>
 
           {/* SETTINGS */}

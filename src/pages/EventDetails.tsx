@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Clock, Users, CheckCircle2, Instagram, Linkedin, Facebook, FileText, UserCircle2 } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, CheckCircle2, Instagram, Linkedin, Facebook, FileText, UserCircle2, MessageCircle } from "lucide-react";
 import { COMMUNITY_LIST } from "@/lib/communities";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
 
@@ -37,6 +37,19 @@ const EventDetails = () => {
       setEvent(data);
       const { count } = await supabase.from("event_participants").select("*", { count: "exact", head: true }).eq("event_id", id);
       setParticipantCount(count ?? 0);
+
+      // check existing registration by current user's email (if logged in)
+      const { data: auth } = await supabase.auth.getUser();
+      const email = auth?.user?.email;
+      if (email) {
+        const { data: existing } = await supabase
+          .from("event_participants")
+          .select("id")
+          .eq("event_id", id)
+          .eq("gmail", email)
+          .maybeSingle();
+        if (existing) setSubmitted(true);
+      }
     })();
   }, [id]);
 
@@ -127,8 +140,17 @@ const EventDetails = () => {
               {!globalOpen ? "Registrations are temporarily disabled by the admin." : "Registration is closed for this event."}
             </p>
           ) : submitted ? (
-            <div className="mt-4 flex items-center gap-2 text-primary">
-              <CheckCircle2 className="h-5 w-5" /> You're registered! See you there.
+            <div className="mt-4 space-y-3">
+              <div className="flex items-center gap-2 text-primary">
+                <CheckCircle2 className="h-5 w-5" /> You're registered! See you there.
+              </div>
+              {event.whatsapp_link && (
+                <Button asChild className="bg-[#25D366] hover:bg-[#1ebe57] text-white">
+                  <a href={event.whatsapp_link} target="_blank" rel="noreferrer">
+                    <MessageCircle className="h-4 w-4 mr-2" /> Join our WhatsApp Group
+                  </a>
+                </Button>
+              )}
             </div>
           ) : (
             <form onSubmit={register} className="mt-4 grid gap-4 md:grid-cols-2">

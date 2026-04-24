@@ -270,6 +270,7 @@ export type Database = {
           registration_open: boolean
           status: Database["public"]["Enums"]["event_status"]
           venue: string | null
+          whatsapp_link: string | null
         }
         Insert: {
           actual_participants?: number
@@ -289,6 +290,7 @@ export type Database = {
           registration_open?: boolean
           status?: Database["public"]["Enums"]["event_status"]
           venue?: string | null
+          whatsapp_link?: string | null
         }
         Update: {
           actual_participants?: number
@@ -308,6 +310,58 @@ export type Database = {
           registration_open?: boolean
           status?: Database["public"]["Enums"]["event_status"]
           venue?: string | null
+          whatsapp_link?: string | null
+        }
+        Relationships: []
+      }
+      feedback: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          user_email: string | null
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          user_email?: string | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          user_email?: string | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Relationships: []
+      }
+      finance: {
+        Row: {
+          amount: number
+          id: string
+          note: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          amount?: number
+          id?: string
+          note?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          amount?: number
+          id?: string
+          note?: string | null
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -577,6 +631,7 @@ export type Database = {
         Args: { _community: string; _user_id: string }
         Returns: boolean
       }
+      is_documentation_head: { Args: { _user_id: string }; Returns: boolean }
       is_event_coordinator: {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
@@ -589,6 +644,8 @@ export type Database = {
         | "coordinator"
         | "admin"
         | "co_admin"
+        | "documentation_head"
+        | "finance_head"
       event_status:
         | "draft"
         | "pending"
@@ -729,6 +786,8 @@ export const Constants = {
         "coordinator",
         "admin",
         "co_admin",
+        "documentation_head",
+        "finance_head",
       ],
       event_status: ["draft", "pending", "published", "completed", "cancelled"],
       registration_status: ["pending", "approved", "rejected"],

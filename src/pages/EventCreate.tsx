@@ -46,6 +46,7 @@ const EventCreate = () => {
     event_time: "",
     venue: "",
     expected_participants: "0",
+    whatsapp_link: "",
     status: "pending" as "draft" | "pending",
   });
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
@@ -103,6 +104,7 @@ const EventCreate = () => {
         pdf_url,
         coordinator_names: validCoords,
         registration_open: false,
+        whatsapp_link: form.whatsapp_link.trim() || null,
       };
       const { data, error } = await supabase.from("events").insert(payload).select().single();
       if (error) throw error;
@@ -163,6 +165,10 @@ const EventCreate = () => {
             <div><Label>Time</Label><Input value={form.event_time} placeholder="e.g. 10:00 AM" onChange={(e) => set("event_time", e.target.value)} /></div>
             <div className="col-span-2"><Label>Venue</Label><Input value={form.venue} onChange={(e) => set("venue", e.target.value)} /></div>
             <div><Label>Expected participants</Label><Input type="number" min={0} value={form.expected_participants} onChange={(e) => set("expected_participants", e.target.value)} /></div>
+            <div className="col-span-2">
+              <Label>WhatsApp group link <span className="text-muted-foreground text-xs">(shown only after registration)</span></Label>
+              <Input type="url" placeholder="https://chat.whatsapp.com/..." value={form.whatsapp_link} onChange={(e) => set("whatsapp_link", e.target.value)} />
+            </div>
           </div>
 
           {/* Coordinators */}
