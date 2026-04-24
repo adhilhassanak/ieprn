@@ -619,6 +619,10 @@ export type Database = {
           total_bytes: number
         }[]
       }
+      has_approved_position: {
+        Args: { _position: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

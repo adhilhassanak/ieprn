@@ -26,7 +26,7 @@ const DOC_HEAD_FORM_URL =
   "https://forms.zohopublic.in/adhilhassanakgm1/form/EventRegistrationForm/formperma/ekOxe5Agecbf8k9eF4-9xbYUWvUlbjxnOPMQAkZry8g";
 
 const Dashboard = () => {
-  const { user, roles, isExecutive, isAdmin, isDocumentationHead, isFinanceHead } = useAuth();
+  const { user, roles, isExecutive, isAdmin, isDocumentationHead: roleDocHead, isFinanceHead: roleFinHead } = useAuth();
 
   const [profile, setProfile] = useState<any>(null);
   const [registrations, setRegistrations] = useState<any[]>([]);
@@ -75,6 +75,12 @@ const Dashboard = () => {
       );
     })();
   }, [user]);
+
+  const approvedPositions = registrations
+    .filter((r) => r.status === "approved")
+    .map((r) => String(r.current_position ?? "").trim().toLowerCase());
+  const isDocumentationHead = roleDocHead || approvedPositions.includes("documentation head");
+  const isFinanceHead = roleFinHead || approvedPositions.includes("finance head");
 
   const statusBadge = (status: string) => {
     if (status === "approved") {
