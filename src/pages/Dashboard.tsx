@@ -76,6 +76,12 @@ const Dashboard = () => {
     })();
   }, [user]);
 
+  const approvedPositions = registrations
+    .filter((r) => r.status === "approved")
+    .map((r) => String(r.current_position ?? "").trim().toLowerCase());
+  const isDocumentationHead = roleDocHead || approvedPositions.includes("documentation head");
+  const isFinanceHead = roleFinHead || approvedPositions.includes("finance head");
+
   const statusBadge = (status: string) => {
     if (status === "approved") {
       return (
