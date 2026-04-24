@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Clock, Users, CheckCircle2, Instagram, Linkedin, Facebook, FileText, UserCircle2 } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, CheckCircle2, Instagram, Linkedin, Facebook, FileText, UserCircle2, MessageCircle } from "lucide-react";
 import { COMMUNITY_LIST } from "@/lib/communities";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
 
