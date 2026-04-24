@@ -157,6 +157,7 @@ const Admin = () => {
             <TabsTrigger value="storage">Storage</TabsTrigger>
             <TabsTrigger value="feedback">Feedback</TabsTrigger>
             <TabsTrigger value="finance">Finance</TabsTrigger>
+            <TabsTrigger value="gallery">Gallery Upload</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
