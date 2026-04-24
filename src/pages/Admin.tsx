@@ -18,6 +18,8 @@ import { applyTheme, THEME_PRESETS, type ThemePresetKey, loadGlassPrefs, saveGla
 import { Slider } from "@/components/ui/slider";
 import { StorageMonitor } from "@/components/admin/StorageMonitor";
 import { ExecomMembers } from "@/components/dashboard/ExecomMembers";
+import { FeedbackList } from "@/components/admin/FeedbackList";
+import { FinancePanel } from "@/components/admin/FinancePanel";
 
 const Admin = () => {
   const [regs, setRegs] = useState<any[]>([]);
