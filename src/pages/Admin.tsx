@@ -295,6 +295,11 @@ const Admin = () => {
             <FinancePanel />
           </TabsContent>
 
+          {/* GALLERY UPLOAD */}
+          <TabsContent value="gallery" className="mt-4">
+            <ImageUploadPanel />
+          </TabsContent>
+
           {/* SETTINGS */}
           <TabsContent value="settings" className="mt-4">
             {settings && (
