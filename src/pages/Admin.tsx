@@ -20,6 +20,7 @@ import { StorageMonitor } from "@/components/admin/StorageMonitor";
 import { ExecomMembers } from "@/components/dashboard/ExecomMembers";
 import { FeedbackList } from "@/components/admin/FeedbackList";
 import { FinancePanel } from "@/components/admin/FinancePanel";
+import { ImageUploadPanel } from "@/components/admin/ImageUploadPanel";
 
 const Admin = () => {
   const [regs, setRegs] = useState<any[]>([]);
@@ -156,6 +157,7 @@ const Admin = () => {
             <TabsTrigger value="storage">Storage</TabsTrigger>
             <TabsTrigger value="feedback">Feedback</TabsTrigger>
             <TabsTrigger value="finance">Finance</TabsTrigger>
+            <TabsTrigger value="gallery">Gallery Upload</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -291,6 +293,11 @@ const Admin = () => {
           {/* FINANCE */}
           <TabsContent value="finance" className="mt-4">
             <FinancePanel />
+          </TabsContent>
+
+          {/* GALLERY UPLOAD */}
+          <TabsContent value="gallery" className="mt-4">
+            <ImageUploadPanel />
           </TabsContent>
 
           {/* SETTINGS */}
