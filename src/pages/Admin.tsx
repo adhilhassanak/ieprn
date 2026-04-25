@@ -17,6 +17,7 @@ import { COMMUNITY_LIST } from "@/lib/communities";
 import { applyTheme, THEME_PRESETS, type ThemePresetKey, loadGlassPrefs, saveGlassPrefs } from "@/hooks/useAdminSettings";
 import { Slider } from "@/components/ui/slider";
 import { StorageMonitor } from "@/components/admin/StorageMonitor";
+import { DriveMonitor } from "@/components/admin/DriveMonitor";
 import { ExecomMembers } from "@/components/dashboard/ExecomMembers";
 import { FeedbackList } from "@/components/admin/FeedbackList";
 import { FinancePanel } from "@/components/admin/FinancePanel";
@@ -302,7 +303,8 @@ const Admin = () => {
           </TabsContent>
 
           {/* STORAGE */}
-          <TabsContent value="storage" className="mt-4">
+          <TabsContent value="storage" className="mt-4 space-y-8">
+            <DriveMonitor />
             <StorageMonitor />
           </TabsContent>
 
