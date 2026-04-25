@@ -28,9 +28,20 @@ Deno.serve(async (req) => {
     if (!url) {
       console.error("GOOGLE_APPS_SCRIPT_URL is not set");
       return json(
+        { ok: false, error: "GOOGLE_APPS_SCRIPT_URL not configured on the server" },
+        500,
+      );
+    }
+    try {
+      const parsed = new URL(url);
+      if (!/^https?:$/.test(parsed.protocol)) throw new Error("must be http(s)");
+    } catch {
+      console.error(`Invalid GOOGLE_APPS_SCRIPT_URL: '${url}'`);
+      return json(
         {
           ok: false,
-          error: "GOOGLE_APPS_SCRIPT_URL not configured on the server",
+          error:
+            "GOOGLE_APPS_SCRIPT_URL is not a valid URL. Set it to your Google Apps Script Web App URL (https://script.google.com/macros/s/.../exec).",
         },
         500,
       );
