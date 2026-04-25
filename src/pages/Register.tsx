@@ -294,16 +294,28 @@ const Register = () => {
 
       if (insertError) throw insertError;
 
-      supabase.functions
-        .invoke("sync-to-google", {
+      try {
+        const { error: syncErr } = await supabase.functions.invoke("sync-to-google", {
           body: {
-            type: "registration",
+            action: "sync_registration",
+            full_name: parsed.data.full_name,
+            gmail: parsed.data.gmail,
+            phone: parsed.data.phone,
             community_name: community.short,
-            ...parsed.data,
+            current_position: parsed.data.current_position,
+            previous_position: parsed.data.previous_position || "",
+            branch: parsed.data.branch,
+            semester: parsed.data.semester,
+            division: parsed.data.division,
+            status: "pending",
             photo_url: publicUrl,
+            created_at: new Date().toISOString(),
           },
-        })
-        .catch(() => {});
+        });
+        if (syncErr) console.warn("Google Sheet sync warning:", syncErr.message);
+      } catch (err) {
+        console.warn("Google Sheet sync failed:", err);
+      }
 
       setDone(true);
     } catch (err: any) {
