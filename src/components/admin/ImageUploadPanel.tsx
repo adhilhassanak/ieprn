@@ -70,11 +70,30 @@ export const ImageUploadPanel = () => {
         continue;
       }
       ok++;
+
+      // Mirror to Google Drive (non-blocking on failure, but logged)
+      const ev = events.find((e) => e.id === eventId);
+      try {
+        const { error: syncErr } = await supabase.functions.invoke("sync-to-google", {
+          body: {
+            action: "sync_gallery",
+            event_name: ev?.name ?? "Unknown event",
+            community_name: ev?.community ?? "",
+            uploaded_by: user?.email ?? user?.id ?? "unknown",
+            image_url: pub.publicUrl,
+            upload_date: new Date().toISOString(),
+            caption: caption || null,
+          },
+        });
+        if (syncErr) console.warn("Drive sync warning:", syncErr.message);
+      } catch (err) {
+        console.warn("Drive sync failed:", err);
+      }
     }
     setUploading(false);
     setCaption("");
     if (inputRef.current) inputRef.current.value = "";
-    if (ok) toast({ title: `Uploaded ${ok} image${ok > 1 ? "s" : ""}` });
+    if (ok) toast({ title: `Uploaded ${ok} image${ok > 1 ? "s" : ""}`, description: "Saved to Supabase + mirrored to Google Drive" });
     load();
   };
 
