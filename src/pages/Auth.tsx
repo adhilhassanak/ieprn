@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -101,6 +102,36 @@ const Auth = () => {
     navigate("/dashboard");
   };
 
+  const handleGoogle = async () => {
+    setLoading(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin + "/dashboard",
+    });
+    if (result.error) {
+      setLoading(false);
+      toast({ title: "Google sign-in failed", description: result.error.message ?? "Please try again", variant: "destructive" });
+      return;
+    }
+    if (result.redirected) return;
+    navigate("/dashboard");
+  };
+
+  const handleForgotPassword = async () => {
+    if (!form.email) {
+      toast({ title: "Enter your email first", description: "Type your email above, then click 'Forgot password?'", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) {
+      toast({ title: "Could not send reset email", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Check your email", description: "We sent a password reset link to your inbox." });
+  };
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4 py-12">
       <AnimatedBackground />
