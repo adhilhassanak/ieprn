@@ -171,7 +171,18 @@ const Auth = () => {
               <Input id="email" type="email" value={form.email} onChange={(e) => set("email", e.target.value)} required />
             </div>
             <div>
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                {mode === "login" && (
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-xs text-muted-foreground hover:text-primary transition-smooth"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
               <Input id="password" type="password" value={form.password} onChange={(e) => set("password", e.target.value)} required />
             </div>
             {mode === "signup" && (
@@ -185,6 +196,18 @@ const Auth = () => {
               {mode === "login" ? "Sign in" : "Create account"}
             </Button>
           </form>
+
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border/60" /></div>
+            <div className="relative flex justify-center text-xs"><span className="bg-background/40 px-2 text-muted-foreground">or</span></div>
+          </div>
+
+          <Button type="button" variant="outline" onClick={handleGoogle} disabled={loading} className="w-full">
+            <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.7 3.4 14.6 2.4 12 2.4 6.7 2.4 2.4 6.7 2.4 12S6.7 21.6 12 21.6c6.9 0 9.5-4.8 9.5-9 0-.6-.06-1.1-.16-1.4H12z"/>
+            </svg>
+            Continue with Google
+          </Button>
 
           <button
             type="button"
