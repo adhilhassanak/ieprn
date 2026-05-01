@@ -255,17 +255,9 @@ const Index = () => {
         </div>
       </section>
 
-      {/* PUBLIC EXECOM */}
-      <PublicExecom />
+      {/* PUBLIC EXECOM (preview with View More) */}
+      <PublicExecom preview />
 
-      {/* VIEW EXECOM CTA */}
-      <section className="pb-4">
-        <div className="container flex justify-center">
-          <Button asChild size="lg" variant="outline" className="border-primary/40 hover:border-primary hover:text-primary">
-            <a href="#execom">View ExeCom Members <ArrowRight className="ml-2 h-4 w-4" /></a>
-          </Button>
-        </div>
-      </section>
 
       {/* HIGHLIGHTS */}
       <HighlightsGrid />
