@@ -403,6 +403,13 @@ const Admin = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <EditApplicationDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        reg={editing}
+        onSaved={load}
+      />
     </Layout>
   );
 };
