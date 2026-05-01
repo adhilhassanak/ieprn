@@ -109,10 +109,6 @@ const EventCreate = () => {
       const { data, error } = await supabase.from("events").insert(payload).select().single();
       if (error) throw error;
 
-      supabase.functions.invoke("sync-to-google", {
-        body: { type: "event_created", event_name: data.name, community: data.community, event_date: data.event_date, venue: data.venue, coordinators: validCoords },
-      }).catch(() => {});
-
       toast({ title: "Event created" });
       navigate(`/events/${data.id}/manage`);
     } catch (err: any) {
