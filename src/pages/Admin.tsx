@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { CheckCircle2, XCircle, Clock, Trash2, Search, Plus, ShieldPlus, Save } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Trash2, Search, Plus, ShieldPlus, Save, Pencil } from "lucide-react";
+import { EditApplicationDialog } from "@/components/admin/EditApplicationDialog";
 import { COMMUNITY_LIST } from "@/lib/communities";
 import { applyTheme, THEME_PRESETS, type ThemePresetKey, loadGlassPrefs, saveGlassPrefs } from "@/hooks/useAdminSettings";
 import { Slider } from "@/components/ui/slider";
@@ -35,6 +36,8 @@ const Admin = () => {
   const [coAdminCommunity, setCoAdminCommunity] = useState("IIC");
   const [newPos, setNewPos] = useState({ community: "IIC", role_name: "", description: "" });
   const [glass, setGlass] = useState(() => loadGlassPrefs());
+  const [editing, setEditing] = useState<any>(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   const load = async () => {
     const [{ data: r }, { data: e }, { data: p }, { data: prof }, { data: rl }, { data: s }] = await Promise.all([
@@ -196,6 +199,7 @@ const Admin = () => {
                   <div className="flex gap-1">
                     {r.status !== "approved" && <Button size="sm" variant="outline" onClick={() => updateStatus(r, "approved")} className="border-primary/40 text-primary"><CheckCircle2 className="h-4 w-4" /></Button>}
                     {r.status !== "rejected" && <Button size="sm" variant="outline" onClick={() => updateStatus(r, "rejected")}><XCircle className="h-4 w-4" /></Button>}
+                    <Button size="sm" variant="outline" onClick={() => { setEditing(r); setEditOpen(true); }}><Pencil className="h-4 w-4" /></Button>
                     <Button size="sm" variant="ghost" onClick={() => deleteReg(r.id)}><Trash2 className="h-4 w-4" /></Button>
                   </div>
                 </div>
