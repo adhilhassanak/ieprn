@@ -2,15 +2,19 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { COMMUNITY_LIST } from "@/lib/communities";
-import { Mail, Phone, UserCircle2 } from "lucide-react";
+import { Mail, Phone, UserCircle2, ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Member = { id: string; full_name: string; community: string; photo_url: string | null; current_position: string | null };
 type Contact = { gmail: string; phone: string };
 
-export const PublicExecom = () => {
+const PREVIEW_PER_COMMUNITY = 3;
+
+export const PublicExecom = ({ preview = false }: { preview?: boolean }) => {
   const { user } = useAuth();
   const [members, setMembers] = useState<Member[]>([]);
   const [contacts, setContacts] = useState<Record<string, Contact>>({});
+  const [expanded, setExpanded] = useState(!preview);
 
   useEffect(() => {
     supabase.rpc("get_public_execom").then(({ data }) => setMembers((data ?? []) as Member[]));
