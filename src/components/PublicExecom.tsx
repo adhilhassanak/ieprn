@@ -56,14 +56,17 @@ export const PublicExecom = ({ preview = false }: { preview?: boolean }) => {
         </div>
 
         <div className="space-y-12">
-          {grouped.map(({ community, list }) => (
+          {grouped.map(({ community, list }) => {
+            const visible = expanded ? list : list.slice(0, PREVIEW_PER_COMMUNITY);
+            return (
             <div key={community.key}>
               <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <span className="h-8 w-8 rounded-lg bg-gradient-emerald grid place-items-center text-xs font-bold text-primary-foreground">{community.short.charAt(0)}</span>
                 {community.short}
+                <span className="text-xs text-muted-foreground font-normal">({list.length})</span>
               </h3>
               <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {list.map((m) => {
+                {visible.map((m) => {
                   const c = contacts[m.id];
                   return (
                     <div key={m.id} className="glass rounded-xl p-4 hover:border-primary/40 transition-smooth">
@@ -91,8 +94,26 @@ export const PublicExecom = ({ preview = false }: { preview?: boolean }) => {
                 })}
               </div>
             </div>
-          ))}
+          );
+          })}
         </div>
+
+        {preview && members.length > grouped.length * PREVIEW_PER_COMMUNITY && (
+          <div className="mt-10 flex justify-center">
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => setExpanded((v) => !v)}
+              className="border-primary/40 hover:border-primary hover:text-primary"
+            >
+              {expanded ? (
+                <>Show less <ChevronUp className="ml-2 h-4 w-4" /></>
+              ) : (
+                <>View More Members <ChevronDown className="ml-2 h-4 w-4" /></>
+              )}
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   );
