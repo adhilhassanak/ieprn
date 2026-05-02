@@ -299,7 +299,7 @@ const Admin = () => {
                   onChange={(e) => setNewPos({ ...newPos, max_count: Math.max(1, parseInt(e.target.value || "1", 10)) })}
                 />
                 <Button onClick={addPosition} className="bg-gradient-emerald text-primary-foreground md:col-span-1"><Plus className="h-4 w-4 mr-1" />Add</Button>
-                <Textarea placeholder="Optional description" value={newPos.description} onChange={(e) => setNewPos({ ...newPos, description: e.target.value })} className="md:col-span-4" rows={2} />
+                <Textarea placeholder="Optional description" value={newPos.description} onChange={(e) => setNewPos({ ...newPos, description: e.target.value })} className="md:col-span-5" rows={2} />
               </div>
             </div>
 
