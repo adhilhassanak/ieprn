@@ -280,7 +280,7 @@ const Register = () => {
       return;
     }
 
-    if (!photo) {
+    if (!photo && !savedPhotoUrl) {
       toast({
         title: "Please upload your photo",
         variant: "destructive",
