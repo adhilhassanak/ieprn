@@ -578,25 +578,21 @@ const Register = () => {
           </div>
 
           <div>
-            <Label>Profile photo (max 500 KB)</Label>
+            <Label>
+              Profile photo {savedPhotoUrl ? "(using saved photo)" : "(max 500 KB)"}
+            </Label>
 
             <input
               ref={fileRef}
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) =>
-                onPhoto(
-                  e.target.files?.[0] ?? null
-                )
-              }
+              onChange={(e) => onPhoto(e.target.files?.[0] ?? null)}
             />
 
             <button
               type="button"
-              onClick={() =>
-                fileRef.current?.click()
-              }
+              onClick={() => fileRef.current?.click()}
               className="mt-2 w-full glass rounded-xl p-6 border-2 border-dashed border-border hover:border-primary/60"
             >
               {photoPreview ? (
@@ -612,6 +608,11 @@ const Register = () => {
                 </div>
               )}
             </button>
+            {savedPhotoUrl && (
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                Your saved profile photo will be reused. Click above to replace it.
+              </p>
+            )}
           </div>
 
           <label className="flex items-start gap-3 text-sm text-muted-foreground">
