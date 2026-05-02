@@ -189,6 +189,28 @@ const Register = () => {
     );
   }
 
+  if (registrationClosed) {
+    return (
+      <Layout>
+        <div className="container py-20">
+          <div className="glass-strong max-w-lg mx-auto rounded-2xl p-10 text-center">
+            <h1 className="text-2xl font-bold">Registration Closed</h1>
+            <p className="mt-2 text-muted-foreground">
+              Applications for <strong>{community.short}</strong> ExeCom are
+              currently closed. Please check back later.
+            </p>
+            <Button
+              onClick={() => navigate("/dashboard")}
+              className="mt-6 bg-gradient-emerald text-primary-foreground"
+            >
+              Go to Dashboard
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   if (alreadyApplied) {
     return (
       <Layout>
