@@ -76,10 +76,14 @@ const Register = () => {
       id: string;
       role_name: string;
       description: string | null;
+      max_count: number;
+      approved_count: number;
     }[]
   >([]);
 
   const [alreadyApplied, setAlreadyApplied] = useState(false);
+  const [registrationClosed, setRegistrationClosed] = useState(false);
+  const [savedPhotoUrl, setSavedPhotoUrl] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     full_name: "",
@@ -103,15 +107,52 @@ const Register = () => {
     if (!community || !user) return;
 
     const loadData = async () => {
-      // Load positions
+      // Check global community-open toggle
+      const { data: settings } = await supabase
+        .from("admin_settings")
+        .select("registration_open_global, community_registration")
+        .limit(1)
+        .maybeSingle();
+      const cmap = (settings?.community_registration as Record<string, boolean> | null) ?? {};
+      const isOpen =
+        (settings?.registration_open_global ?? true) &&
+        (cmap[community.short] ?? true);
+      if (!isOpen) {
+        setRegistrationClosed(true);
+        return;
+      }
+
+      // Load positions with seat counts
       const { data: positionData } = await supabase
         .from("positions_needed")
-        .select("id, role_name, description")
+        .select("id, role_name, description, max_count")
         .eq("community", community.short)
         .eq("is_active", true)
         .order("role_name");
 
-      setPositions(positionData ?? []);
+      const withCounts = await Promise.all(
+        (positionData ?? []).map(async (p: any) => {
+          const { count } = await supabase
+            .from("registrations")
+            .select("id", { count: "exact", head: true })
+            .eq("community", community.short)
+            .eq("current_position", p.role_name)
+            .eq("status", "approved");
+          return { ...p, approved_count: count ?? 0 };
+        })
+      );
+      setPositions(withCounts);
+
+      // Saved photo (reuse across registrations)
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("photo_url")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (prof?.photo_url) {
+        setSavedPhotoUrl(prof.photo_url);
+        setPhotoPreview(prof.photo_url);
+      }
 
       // Prevent duplicate registration ONLY in same community
       const { data: existing } = await supabase
@@ -143,6 +184,28 @@ const Register = () => {
           >
             Go to Dashboard
           </Button>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (registrationClosed) {
+    return (
+      <Layout>
+        <div className="container py-20">
+          <div className="glass-strong max-w-lg mx-auto rounded-2xl p-10 text-center">
+            <h1 className="text-2xl font-bold">Registration Closed</h1>
+            <p className="mt-2 text-muted-foreground">
+              Applications for <strong>{community.short}</strong> ExeCom are
+              currently closed. Please check back later.
+            </p>
+            <Button
+              onClick={() => navigate("/dashboard")}
+              className="mt-6 bg-gradient-emerald text-primary-foreground"
+            >
+              Go to Dashboard
+            </Button>
+          </div>
         </div>
       </Layout>
     );
@@ -217,7 +280,7 @@ const Register = () => {
       return;
     }
 
-    if (!photo) {
+    if (!photo && !savedPhotoUrl) {
       toast({
         title: "Please upload your photo",
         variant: "destructive",
@@ -258,41 +321,61 @@ const Register = () => {
         return;
       }
 
-      const ext =
-        photo.name.split(".").pop() || "jpg";
+      // Position seat-limit check
+      const selectedPos = positions.find(
+        (p) => p.role_name === parsed.data.current_position
+      );
+      if (selectedPos && selectedPos.approved_count >= selectedPos.max_count) {
+        toast({
+          title: "Position full",
+          description: `${selectedPos.role_name} has reached its limit.`,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
 
-      const path = `${user.id}/${community.key}-${Date.now()}.${ext}`;
+      // Reuse existing photo if available, else upload new one
+      let publicUrl = savedPhotoUrl ?? "";
+      if (!publicUrl && photo) {
+        const ext = photo.name.split(".").pop() || "jpg";
+        const path = `${user.id}/${community.key}-${Date.now()}.${ext}`;
 
-      const { error: uploadError } =
-        await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from("profile-photos")
-          .upload(path, photo, {
-            upsert: false,
-          });
+          .upload(path, photo, { upsert: false });
 
-      if (uploadError) throw uploadError;
+        if (uploadError) throw uploadError;
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage
-        .from("profile-photos")
-        .getPublicUrl(path);
+        publicUrl = supabase.storage
+          .from("profile-photos")
+          .getPublicUrl(path).data.publicUrl;
+
+        // Save to profile for reuse
+        await supabase
+          .from("profiles")
+          .update({ photo_url: publicUrl })
+          .eq("user_id", user.id);
+      }
 
       const payload: any = {
         user_id: user.id,
         community: community.short,
         ...parsed.data,
-        previous_position:
-          parsed.data.previous_position || null,
+        previous_position: parsed.data.previous_position || null,
         photo_url: publicUrl,
       };
 
-      const { error: insertError } =
-        await supabase
-          .from("registrations")
-          .insert(payload);
+      const { error: insertError } = await supabase
+        .from("registrations")
+        .insert(payload);
 
       if (insertError) throw insertError;
+
+      // Auto-deactivate position if now full
+      if (selectedPos && selectedPos.approved_count + 1 >= selectedPos.max_count) {
+        // Note: we count approved only — keep active until admin approves more.
+      }
 
       setDone(true);
     } catch (err: any) {
@@ -449,14 +532,19 @@ const Register = () => {
                   </SelectTrigger>
 
                   <SelectContent>
-                    {positions.map((p) => (
-                      <SelectItem
-                        key={p.id}
-                        value={p.role_name}
-                      >
-                        {p.role_name}
-                      </SelectItem>
-                    ))}
+                    {positions.map((p) => {
+                      const full = p.approved_count >= p.max_count;
+                      return (
+                        <SelectItem
+                          key={p.id}
+                          value={p.role_name}
+                          disabled={full}
+                        >
+                          {p.role_name} ({p.approved_count}/{p.max_count})
+                          {full ? " — Full" : ""}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               ) : (
@@ -490,25 +578,21 @@ const Register = () => {
           </div>
 
           <div>
-            <Label>Profile photo (max 500 KB)</Label>
+            <Label>
+              Profile photo {savedPhotoUrl ? "(using saved photo)" : "(max 500 KB)"}
+            </Label>
 
             <input
               ref={fileRef}
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) =>
-                onPhoto(
-                  e.target.files?.[0] ?? null
-                )
-              }
+              onChange={(e) => onPhoto(e.target.files?.[0] ?? null)}
             />
 
             <button
               type="button"
-              onClick={() =>
-                fileRef.current?.click()
-              }
+              onClick={() => fileRef.current?.click()}
               className="mt-2 w-full glass rounded-xl p-6 border-2 border-dashed border-border hover:border-primary/60"
             >
               {photoPreview ? (
@@ -524,6 +608,11 @@ const Register = () => {
                 </div>
               )}
             </button>
+            {savedPhotoUrl && (
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                Your saved profile photo will be reused. Click above to replace it.
+              </p>
+            )}
           </div>
 
           <label className="flex items-start gap-3 text-sm text-muted-foreground">

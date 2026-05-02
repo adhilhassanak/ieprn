@@ -34,7 +34,7 @@ const Admin = () => {
   const [search, setSearch] = useState("");
   const [coAdminEmail, setCoAdminEmail] = useState("");
   const [coAdminCommunity, setCoAdminCommunity] = useState("IIC");
-  const [newPos, setNewPos] = useState({ community: "IIC", role_name: "", description: "" });
+  const [newPos, setNewPos] = useState({ community: "IIC", role_name: "", description: "", max_count: 1 });
   const [glass, setGlass] = useState(() => loadGlassPrefs());
   const [editing, setEditing] = useState<any>(null);
   const [editOpen, setEditOpen] = useState(false);
@@ -117,7 +117,7 @@ const Admin = () => {
     if (!newPos.role_name.trim()) return;
     const { error } = await supabase.from("positions_needed").insert(newPos);
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
-    setNewPos({ community: "IIC", role_name: "", description: "" });
+    setNewPos({ community: "IIC", role_name: "", description: "", max_count: 1 });
     load();
   };
   const togglePosition = async (p: any) => {
@@ -135,11 +135,22 @@ const Admin = () => {
       primary_color: settings.primary_color,
       accent_color: settings.accent_color,
       registration_open_global: settings.registration_open_global,
+      community_registration: settings.community_registration ?? {},
       updated_at: new Date().toISOString(),
     }).eq("id", settings.id);
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
     applyTheme(settings.primary_color, settings.accent_color);
     toast({ title: "Settings saved" });
+  };
+
+  const setCommunityOpen = (short: string, open: boolean) => {
+    setSettings({
+      ...settings,
+      community_registration: {
+        ...(settings?.community_registration ?? {}),
+        [short]: open,
+      },
+    });
   };
 
   const filteredRegs = regs.filter((r) => {
@@ -272,7 +283,7 @@ const Admin = () => {
           <TabsContent value="positions" className="mt-4 space-y-6">
             <div className="glass rounded-xl p-5">
               <h3 className="font-semibold">Add a new open position</h3>
-              <div className="mt-3 grid md:grid-cols-4 gap-2">
+              <div className="mt-3 grid md:grid-cols-5 gap-2">
                 <Select value={newPos.community} onValueChange={(v) => setNewPos({ ...newPos, community: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -280,8 +291,15 @@ const Admin = () => {
                   </SelectContent>
                 </Select>
                 <Input placeholder="Role name (e.g. Social Media Head)" value={newPos.role_name} onChange={(e) => setNewPos({ ...newPos, role_name: e.target.value })} className="md:col-span-2" />
-                <Button onClick={addPosition} className="bg-gradient-emerald text-primary-foreground"><Plus className="h-4 w-4 mr-1" />Add</Button>
-                <Textarea placeholder="Optional description" value={newPos.description} onChange={(e) => setNewPos({ ...newPos, description: e.target.value })} className="md:col-span-4" rows={2} />
+                <Input
+                  type="number"
+                  min={1}
+                  placeholder="Seats"
+                  value={newPos.max_count}
+                  onChange={(e) => setNewPos({ ...newPos, max_count: Math.max(1, parseInt(e.target.value || "1", 10)) })}
+                />
+                <Button onClick={addPosition} className="bg-gradient-emerald text-primary-foreground md:col-span-1"><Plus className="h-4 w-4 mr-1" />Add</Button>
+                <Textarea placeholder="Optional description" value={newPos.description} onChange={(e) => setNewPos({ ...newPos, description: e.target.value })} className="md:col-span-5" rows={2} />
               </div>
             </div>
 
@@ -293,6 +311,20 @@ const Admin = () => {
                     <div className="font-medium">{p.role_name}</div>
                     {p.description && <div className="text-xs text-muted-foreground">{p.description}</div>}
                   </div>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={p.max_count ?? 1}
+                    onChange={(e) => {
+                      const next = Math.max(1, parseInt(e.target.value || "1", 10));
+                      setPositions((prev) => prev.map((x) => x.id === p.id ? { ...x, max_count: next } : x));
+                    }}
+                    onBlur={async (e) => {
+                      const next = Math.max(1, parseInt(e.target.value || "1", 10));
+                      await supabase.from("positions_needed").update({ max_count: next }).eq("id", p.id);
+                    }}
+                    className="w-20"
+                  />
                   <Switch checked={p.is_active} onCheckedChange={() => togglePosition(p)} />
                   <Button size="icon" variant="ghost" onClick={() => deletePosition(p.id)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
@@ -397,6 +429,25 @@ const Admin = () => {
                   </div>
                   <Switch checked={settings.registration_open_global} onCheckedChange={(v) => setSettings({ ...settings, registration_open_global: v })} />
                 </div>
+
+                <div className="space-y-2 rounded-lg border border-border p-4">
+                  <h3 className="font-semibold">ExeCom registration by community</h3>
+                  <p className="text-xs text-muted-foreground">Open or close applications for each community.</p>
+                  {COMMUNITY_LIST.map((c) => {
+                    const cmap = (settings.community_registration ?? {}) as Record<string, boolean>;
+                    const open = cmap[c.short] ?? true;
+                    return (
+                      <div key={c.key} className="flex items-center justify-between py-2 border-t border-border first:border-t-0">
+                        <div>
+                          <div className="text-sm font-medium">{c.short}</div>
+                          <div className="text-xs text-muted-foreground">{c.name}</div>
+                        </div>
+                        <Switch checked={open} onCheckedChange={(v) => setCommunityOpen(c.short, v)} />
+                      </div>
+                    );
+                  })}
+                </div>
+
                 <Button onClick={saveSettings} className="bg-gradient-emerald text-primary-foreground"><Save className="h-4 w-4 mr-1" />Save settings</Button>
               </div>
             )}
