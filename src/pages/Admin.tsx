@@ -283,7 +283,7 @@ const Admin = () => {
           <TabsContent value="positions" className="mt-4 space-y-6">
             <div className="glass rounded-xl p-5">
               <h3 className="font-semibold">Add a new open position</h3>
-              <div className="mt-3 grid md:grid-cols-4 gap-2">
+              <div className="mt-3 grid md:grid-cols-5 gap-2">
                 <Select value={newPos.community} onValueChange={(v) => setNewPos({ ...newPos, community: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
