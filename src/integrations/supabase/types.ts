@@ -17,6 +17,7 @@ export type Database = {
       admin_settings: {
         Row: {
           accent_color: string
+          community_registration: Json
           id: string
           primary_color: string
           registration_open_global: boolean
@@ -25,6 +26,7 @@ export type Database = {
         }
         Insert: {
           accent_color?: string
+          community_registration?: Json
           id?: string
           primary_color?: string
           registration_open_global?: boolean
@@ -33,6 +35,7 @@ export type Database = {
         }
         Update: {
           accent_color?: string
+          community_registration?: Json
           id?: string
           primary_color?: string
           registration_open_global?: boolean
@@ -418,6 +421,7 @@ export type Database = {
           description: string | null
           id: string
           is_active: boolean
+          max_count: number
           role_name: string
         }
         Insert: {
@@ -427,6 +431,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          max_count?: number
           role_name: string
         }
         Update: {
@@ -436,6 +441,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          max_count?: number
           role_name?: string
         }
         Relationships: []
@@ -447,6 +453,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           phone: string | null
+          photo_url: string | null
           semester: string | null
           user_id: string
         }
@@ -456,6 +463,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           phone?: string | null
+          photo_url?: string | null
           semester?: string | null
           user_id: string
         }
@@ -465,6 +473,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           phone?: string | null
+          photo_url?: string | null
           semester?: string | null
           user_id?: string
         }
