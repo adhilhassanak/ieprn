@@ -311,6 +311,20 @@ const Admin = () => {
                     <div className="font-medium">{p.role_name}</div>
                     {p.description && <div className="text-xs text-muted-foreground">{p.description}</div>}
                   </div>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={p.max_count ?? 1}
+                    onChange={(e) => {
+                      const next = Math.max(1, parseInt(e.target.value || "1", 10));
+                      setPositions((prev) => prev.map((x) => x.id === p.id ? { ...x, max_count: next } : x));
+                    }}
+                    onBlur={async (e) => {
+                      const next = Math.max(1, parseInt(e.target.value || "1", 10));
+                      await supabase.from("positions_needed").update({ max_count: next }).eq("id", p.id);
+                    }}
+                    className="w-20"
+                  />
                   <Switch checked={p.is_active} onCheckedChange={() => togglePosition(p)} />
                   <Button size="icon" variant="ghost" onClick={() => deletePosition(p.id)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
