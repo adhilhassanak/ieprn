@@ -532,14 +532,19 @@ const Register = () => {
                   </SelectTrigger>
 
                   <SelectContent>
-                    {positions.map((p) => (
-                      <SelectItem
-                        key={p.id}
-                        value={p.role_name}
-                      >
-                        {p.role_name}
-                      </SelectItem>
-                    ))}
+                    {positions.map((p) => {
+                      const full = p.approved_count >= p.max_count;
+                      return (
+                        <SelectItem
+                          key={p.id}
+                          value={p.role_name}
+                          disabled={full}
+                        >
+                          {p.role_name} ({p.approved_count}/{p.max_count})
+                          {full ? " — Full" : ""}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               ) : (
