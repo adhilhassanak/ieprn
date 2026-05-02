@@ -429,6 +429,25 @@ const Admin = () => {
                   </div>
                   <Switch checked={settings.registration_open_global} onCheckedChange={(v) => setSettings({ ...settings, registration_open_global: v })} />
                 </div>
+
+                <div className="space-y-2 rounded-lg border border-border p-4">
+                  <h3 className="font-semibold">ExeCom registration by community</h3>
+                  <p className="text-xs text-muted-foreground">Open or close applications for each community.</p>
+                  {COMMUNITY_LIST.map((c) => {
+                    const cmap = (settings.community_registration ?? {}) as Record<string, boolean>;
+                    const open = cmap[c.short] ?? true;
+                    return (
+                      <div key={c.key} className="flex items-center justify-between py-2 border-t border-border first:border-t-0">
+                        <div>
+                          <div className="text-sm font-medium">{c.short}</div>
+                          <div className="text-xs text-muted-foreground">{c.name}</div>
+                        </div>
+                        <Switch checked={open} onCheckedChange={(v) => setCommunityOpen(c.short, v)} />
+                      </div>
+                    );
+                  })}
+                </div>
+
                 <Button onClick={saveSettings} className="bg-gradient-emerald text-primary-foreground"><Save className="h-4 w-4 mr-1" />Save settings</Button>
               </div>
             )}
