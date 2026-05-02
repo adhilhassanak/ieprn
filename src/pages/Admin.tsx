@@ -135,11 +135,22 @@ const Admin = () => {
       primary_color: settings.primary_color,
       accent_color: settings.accent_color,
       registration_open_global: settings.registration_open_global,
+      community_registration: settings.community_registration ?? {},
       updated_at: new Date().toISOString(),
     }).eq("id", settings.id);
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
     applyTheme(settings.primary_color, settings.accent_color);
     toast({ title: "Settings saved" });
+  };
+
+  const setCommunityOpen = (short: string, open: boolean) => {
+    setSettings({
+      ...settings,
+      community_registration: {
+        ...(settings?.community_registration ?? {}),
+        [short]: open,
+      },
+    });
   };
 
   const filteredRegs = regs.filter((r) => {
