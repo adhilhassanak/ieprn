@@ -117,7 +117,7 @@ const Admin = () => {
     if (!newPos.role_name.trim()) return;
     const { error } = await supabase.from("positions_needed").insert(newPos);
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
-    setNewPos({ community: "IIC", role_name: "", description: "" });
+    setNewPos({ community: "IIC", role_name: "", description: "", max_count: 1 });
     load();
   };
   const togglePosition = async (p: any) => {
