@@ -76,10 +76,14 @@ const Register = () => {
       id: string;
       role_name: string;
       description: string | null;
+      max_count: number;
+      approved_count: number;
     }[]
   >([]);
 
   const [alreadyApplied, setAlreadyApplied] = useState(false);
+  const [registrationClosed, setRegistrationClosed] = useState(false);
+  const [savedPhotoUrl, setSavedPhotoUrl] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     full_name: "",
