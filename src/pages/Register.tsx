@@ -107,15 +107,52 @@ const Register = () => {
     if (!community || !user) return;
 
     const loadData = async () => {
-      // Load positions
+      // Check global community-open toggle
+      const { data: settings } = await supabase
+        .from("admin_settings")
+        .select("registration_open_global, community_registration")
+        .limit(1)
+        .maybeSingle();
+      const cmap = (settings?.community_registration as Record<string, boolean> | null) ?? {};
+      const isOpen =
+        (settings?.registration_open_global ?? true) &&
+        (cmap[community.short] ?? true);
+      if (!isOpen) {
+        setRegistrationClosed(true);
+        return;
+      }
+
+      // Load positions with seat counts
       const { data: positionData } = await supabase
         .from("positions_needed")
-        .select("id, role_name, description")
+        .select("id, role_name, description, max_count")
         .eq("community", community.short)
         .eq("is_active", true)
         .order("role_name");
 
-      setPositions(positionData ?? []);
+      const withCounts = await Promise.all(
+        (positionData ?? []).map(async (p: any) => {
+          const { count } = await supabase
+            .from("registrations")
+            .select("id", { count: "exact", head: true })
+            .eq("community", community.short)
+            .eq("current_position", p.role_name)
+            .eq("status", "approved");
+          return { ...p, approved_count: count ?? 0 };
+        })
+      );
+      setPositions(withCounts);
+
+      // Saved photo (reuse across registrations)
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("photo_url")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (prof?.photo_url) {
+        setSavedPhotoUrl(prof.photo_url);
+        setPhotoPreview(prof.photo_url);
+      }
 
       // Prevent duplicate registration ONLY in same community
       const { data: existing } = await supabase
