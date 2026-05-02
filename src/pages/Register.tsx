@@ -321,41 +321,61 @@ const Register = () => {
         return;
       }
 
-      const ext =
-        photo.name.split(".").pop() || "jpg";
+      // Position seat-limit check
+      const selectedPos = positions.find(
+        (p) => p.role_name === parsed.data.current_position
+      );
+      if (selectedPos && selectedPos.approved_count >= selectedPos.max_count) {
+        toast({
+          title: "Position full",
+          description: `${selectedPos.role_name} has reached its limit.`,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
 
-      const path = `${user.id}/${community.key}-${Date.now()}.${ext}`;
+      // Reuse existing photo if available, else upload new one
+      let publicUrl = savedPhotoUrl ?? "";
+      if (!publicUrl && photo) {
+        const ext = photo.name.split(".").pop() || "jpg";
+        const path = `${user.id}/${community.key}-${Date.now()}.${ext}`;
 
-      const { error: uploadError } =
-        await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from("profile-photos")
-          .upload(path, photo, {
-            upsert: false,
-          });
+          .upload(path, photo, { upsert: false });
 
-      if (uploadError) throw uploadError;
+        if (uploadError) throw uploadError;
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage
-        .from("profile-photos")
-        .getPublicUrl(path);
+        publicUrl = supabase.storage
+          .from("profile-photos")
+          .getPublicUrl(path).data.publicUrl;
+
+        // Save to profile for reuse
+        await supabase
+          .from("profiles")
+          .update({ photo_url: publicUrl })
+          .eq("user_id", user.id);
+      }
 
       const payload: any = {
         user_id: user.id,
         community: community.short,
         ...parsed.data,
-        previous_position:
-          parsed.data.previous_position || null,
+        previous_position: parsed.data.previous_position || null,
         photo_url: publicUrl,
       };
 
-      const { error: insertError } =
-        await supabase
-          .from("registrations")
-          .insert(payload);
+      const { error: insertError } = await supabase
+        .from("registrations")
+        .insert(payload);
 
       if (insertError) throw insertError;
+
+      // Auto-deactivate position if now full
+      if (selectedPos && selectedPos.approved_count + 1 >= selectedPos.max_count) {
+        // Note: we count approved only — keep active until admin approves more.
+      }
 
       setDone(true);
     } catch (err: any) {
