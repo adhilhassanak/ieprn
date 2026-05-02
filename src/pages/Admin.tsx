@@ -34,7 +34,7 @@ const Admin = () => {
   const [search, setSearch] = useState("");
   const [coAdminEmail, setCoAdminEmail] = useState("");
   const [coAdminCommunity, setCoAdminCommunity] = useState("IIC");
-  const [newPos, setNewPos] = useState({ community: "IIC", role_name: "", description: "" });
+  const [newPos, setNewPos] = useState({ community: "IIC", role_name: "", description: "", max_count: 1 });
   const [glass, setGlass] = useState(() => loadGlassPrefs());
   const [editing, setEditing] = useState<any>(null);
   const [editOpen, setEditOpen] = useState(false);
