@@ -265,14 +265,17 @@ export type Database = {
           event_date: string | null
           event_time: string | null
           expected_participants: number
+          external_form_url: string | null
           funds_received: number
           id: string
           name: string
           pdf_url: string | null
           poster_url: string | null
+          registration_mode: string
           registration_open: boolean
           status: Database["public"]["Enums"]["event_status"]
           venue: string | null
+          whatsapp_group_link: string | null
           whatsapp_link: string | null
         }
         Insert: {
@@ -285,14 +288,17 @@ export type Database = {
           event_date?: string | null
           event_time?: string | null
           expected_participants?: number
+          external_form_url?: string | null
           funds_received?: number
           id?: string
           name: string
           pdf_url?: string | null
           poster_url?: string | null
+          registration_mode?: string
           registration_open?: boolean
           status?: Database["public"]["Enums"]["event_status"]
           venue?: string | null
+          whatsapp_group_link?: string | null
           whatsapp_link?: string | null
         }
         Update: {
@@ -305,14 +311,17 @@ export type Database = {
           event_date?: string | null
           event_time?: string | null
           expected_participants?: number
+          external_form_url?: string | null
           funds_received?: number
           id?: string
           name?: string
           pdf_url?: string | null
           poster_url?: string | null
+          registration_mode?: string
           registration_open?: boolean
           status?: Database["public"]["Enums"]["event_status"]
           venue?: string | null
+          whatsapp_group_link?: string | null
           whatsapp_link?: string | null
         }
         Relationships: []
@@ -489,6 +498,7 @@ export type Database = {
           full_name: string
           gmail: string
           id: string
+          parent_head: string | null
           phone: string
           photo_url: string | null
           previous_position: string | null
@@ -505,6 +515,7 @@ export type Database = {
           full_name: string
           gmail: string
           id?: string
+          parent_head?: string | null
           phone: string
           photo_url?: string | null
           previous_position?: string | null
@@ -521,6 +532,7 @@ export type Database = {
           full_name?: string
           gmail?: string
           id?: string
+          parent_head?: string | null
           phone?: string
           photo_url?: string | null
           previous_position?: string | null

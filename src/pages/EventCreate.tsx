@@ -47,6 +47,8 @@ const EventCreate = () => {
     venue: "",
     expected_participants: "0",
     whatsapp_link: "",
+    registration_mode: "internal" as "internal" | "external",
+    external_form_url: "",
     status: "pending" as "draft" | "pending",
   });
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
@@ -73,6 +75,9 @@ const EventCreate = () => {
     const validCoords = coordinators.map((c) => c.trim()).filter(Boolean);
     if (validCoords.length < 2) {
       return toast({ title: "Need 2 coordinators", description: "At least two coordinator names are required.", variant: "destructive" });
+    }
+    if (form.registration_mode === "external" && !form.external_form_url.trim()) {
+      return toast({ title: "Add Google Form link", description: "External registration requires a form URL.", variant: "destructive" });
     }
 
     const parsed = schema.safeParse(form);
@@ -105,6 +110,8 @@ const EventCreate = () => {
         coordinator_names: validCoords,
         registration_open: false,
         whatsapp_link: form.whatsapp_link.trim() || null,
+        registration_mode: form.registration_mode,
+        external_form_url: form.registration_mode === "external" ? form.external_form_url.trim() : null,
       };
       const { data, error } = await supabase.from("events").insert(payload).select().single();
       if (error) throw error;
@@ -161,6 +168,27 @@ const EventCreate = () => {
             <div><Label>Time</Label><Input value={form.event_time} placeholder="e.g. 10:00 AM" onChange={(e) => set("event_time", e.target.value)} /></div>
             <div className="col-span-2"><Label>Venue</Label><Input value={form.venue} onChange={(e) => set("venue", e.target.value)} /></div>
             <div><Label>Expected participants</Label><Input type="number" min={0} value={form.expected_participants} onChange={(e) => set("expected_participants", e.target.value)} /></div>
+            <div>
+              <Label>Registration mode</Label>
+              <Select value={form.registration_mode} onValueChange={(v) => set("registration_mode", v)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="internal">Register on Website</SelectItem>
+                  <SelectItem value="external">Google Form</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {form.registration_mode === "external" && (
+              <div className="col-span-2">
+                <Label>Google Form link</Label>
+                <Input
+                  type="url"
+                  placeholder="https://forms.gle/..."
+                  value={form.external_form_url}
+                  onChange={(e) => set("external_form_url", e.target.value)}
+                />
+              </div>
+            )}
             <div className="col-span-2">
               <Label>WhatsApp group link <span className="text-muted-foreground text-xs">(shown only after registration)</span></Label>
               <Input type="url" placeholder="https://chat.whatsapp.com/..." value={form.whatsapp_link} onChange={(e) => set("whatsapp_link", e.target.value)} />

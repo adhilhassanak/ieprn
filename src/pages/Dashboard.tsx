@@ -124,6 +124,13 @@ const Dashboard = () => {
       )
   );
 
+  const totalParticipants = myEvents.reduce(
+    (s, e) => s + (e.actual_participants || 0),
+    0,
+  );
+  const docsCount = myEvents.filter((e) => e.pdf_url).length;
+  const coordinatorsCount = coordinatedEvents.length;
+
   return (
     <Layout>
       <div className="container py-10">
@@ -132,25 +139,52 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-3xl md:text-4xl font-bold">
+          <h1 className="text-4xl md:text-5xl font-bold">
             Welcome,{" "}
-            <span className="text-gradient-gold">
+            <span className="text-gradient">
               {profile?.full_name || user?.email}
             </span>
           </h1>
 
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-2">
             {roles.map((role) => (
-              <Badge
+              <span
                 key={role}
-                variant="outline"
-                className="capitalize border-primary/40 text-primary"
+                className="px-3 py-1 text-xs rounded-full bg-primary/15 border border-primary/30 capitalize text-primary"
               >
                 {role.replace("_", " ")}
-              </Badge>
+              </span>
             ))}
           </div>
         </motion.div>
+
+        {/* Stats */}
+        {isExecutive && (
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatCard title="Events Conducted" value={myEvents.length} />
+            <StatCard title="Participants Handled" value={totalParticipants} />
+            <StatCard title="Documents Uploaded" value={docsCount} />
+            <StatCard title="Events Coordinated" value={coordinatorsCount} />
+          </div>
+        )}
+
+        {/* Quick actions */}
+        {isExecutive && (
+          <div className="grid md:grid-cols-2 gap-4 mt-6">
+            <Link to="/events/new" className="glass-card p-6 cursor-pointer block">
+              <h3 className="text-lg font-semibold">Create New Event</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Schedule a new event for your community
+              </p>
+            </Link>
+            <a href="#my-events" className="glass-card p-6 cursor-pointer block">
+              <h3 className="text-lg font-semibold">My Events</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Manage events, attendance and documentation
+              </p>
+            </a>
+          </div>
+        )}
 
         {/* Role-specific tools */}
         {(isDocumentationHead || isFinanceHead) && (
@@ -270,7 +304,7 @@ const Dashboard = () => {
 
         {/* Events You Manage */}
         {isExecutive && (
-          <section className="mt-12">
+          <section id="my-events" className="mt-12">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">
                 Events You Manage
@@ -407,5 +441,12 @@ const EventCard = ({
     </div>
   );
 };
+
+const StatCard = ({ title, value }: { title: string; value: number }) => (
+  <div className="glass-card p-6">
+    <div className="text-3xl font-bold text-gradient">{value}</div>
+    <div className="text-sm text-muted-foreground mt-2">{title}</div>
+  </div>
+);
 
 export default Dashboard;

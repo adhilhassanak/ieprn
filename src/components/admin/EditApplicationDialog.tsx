@@ -33,6 +33,7 @@ type Reg = {
   community: string;
   current_position: string | null;
   previous_position: string | null;
+  parent_head: string | null;
   status: "pending" | "approved" | "rejected";
 };
 
@@ -73,6 +74,7 @@ export const EditApplicationDialog = ({ open, onOpenChange, reg, onSaved }: Prop
           community: form.community,
           current_position: form.current_position,
           previous_position: form.previous_position,
+          parent_head: form.parent_head,
           status: form.status,
         })
         .eq("id", form.id);

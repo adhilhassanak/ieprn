@@ -73,6 +73,9 @@ const EventManage = () => {
       expected_participants: event.expected_participants,
       actual_participants: event.actual_participants,
       funds_received: event.funds_received,
+      registration_mode: event.registration_mode || "internal",
+      external_form_url: event.external_form_url || null,
+      whatsapp_link: event.whatsapp_link || null,
     }).eq("id", event.id);
     setSaving(false);
     if (error) return toast({ title: "Save failed", description: error.message, variant: "destructive" });
@@ -173,6 +176,23 @@ const EventManage = () => {
               <div><Label>Expected</Label><Input type="number" value={event.expected_participants} onChange={(e) => setEvent({ ...event, expected_participants: parseInt(e.target.value || "0") })} /></div>
               <div><Label>Actual</Label><Input type="number" value={event.actual_participants} onChange={(e) => setEvent({ ...event, actual_participants: parseInt(e.target.value || "0") })} /></div>
               <div className="col-span-2"><Label>Funds received (₹)</Label><Input type="number" value={event.funds_received} onChange={(e) => setEvent({ ...event, funds_received: parseFloat(e.target.value || "0") })} /></div>
+              <div>
+                <Label>Registration mode</Label>
+                <Select value={event.registration_mode || "internal"} onValueChange={(v) => setEvent({ ...event, registration_mode: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="internal">Register on Website</SelectItem>
+                    <SelectItem value="external">Google Form</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {event.registration_mode === "external" && (
+                <div>
+                  <Label>Google Form URL</Label>
+                  <Input type="url" value={event.external_form_url ?? ""} onChange={(e) => setEvent({ ...event, external_form_url: e.target.value })} placeholder="https://forms.gle/..." />
+                </div>
+              )}
+              <div className="col-span-2"><Label>WhatsApp group link</Label><Input type="url" value={event.whatsapp_link ?? ""} onChange={(e) => setEvent({ ...event, whatsapp_link: e.target.value })} placeholder="https://chat.whatsapp.com/..." /></div>
             </div>
 
             <div>

@@ -129,11 +129,27 @@ const EventDetails = () => {
 
         {/* Registration */}
         <div className="mt-8 glass rounded-2xl p-6 md:p-8">
-          <h2 className="text-xl font-semibold">Register</h2>
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            Register
+            {event.registration_mode === "external" && (
+              <Badge variant="outline" className="text-xs">External Registration</Badge>
+            )}
+          </h2>
           {!canRegister ? (
             <p className="mt-2 text-sm text-muted-foreground">
               {!globalOpen ? "Registrations are temporarily disabled by the admin." : "Registration is closed for this event."}
             </p>
+          ) : event.registration_mode === "external" && event.external_form_url ? (
+            <div className="mt-4">
+              <p className="text-sm text-muted-foreground mb-3">
+                Registration for this event is handled via an external form.
+              </p>
+              <Button asChild className="bg-gradient-emerald text-primary-foreground shadow-glow-emerald">
+                <a href={event.external_form_url} target="_blank" rel="noreferrer">
+                  Register Now
+                </a>
+              </Button>
+            </div>
           ) : submitted ? (
             <div className="mt-4 space-y-3">
               <div className="flex items-center gap-2 text-primary">
