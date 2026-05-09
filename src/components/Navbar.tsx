@@ -37,7 +37,7 @@ export const Navbar = () => {
             <div className="absolute inset-0 blur-md bg-primary/40 -z-10" />
           </div>
           <span className="font-semibold tracking-tight hidden sm:inline">
-            <span className="text-gradient-gold">IE-Prn</span> Portal
+            <span className="text-gradient-gold">IE-Perumon</span> Portal
           </span>
         </Link>
 
