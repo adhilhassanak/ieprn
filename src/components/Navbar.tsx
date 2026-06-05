@@ -67,6 +67,13 @@ export const Navbar = () => {
               <Button variant="ghost" size="sm" onClick={() => navigate("/profile")}>
                 <UserCircle2 className="h-4 w-4 mr-1" /> Profile
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={async () => { await signOut(); navigate("/"); }}
+              >
+                <LogOut className="h-4 w-4 mr-1" /> Logout
+              </Button>
             </div>
           )}
 
