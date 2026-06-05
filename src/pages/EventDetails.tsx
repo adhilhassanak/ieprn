@@ -64,7 +64,8 @@ const EventDetails = () => {
     const parsed = schema.safeParse(form);
     if (!parsed.success) return toast({ title: "Check inputs", description: parsed.error.issues[0].message, variant: "destructive" });
     setLoading(true);
-    const { error } = await supabase.from("event_participants").insert({ event_id: event.id, ...parsed.data } as any);
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from("event_participants").insert({ event_id: event.id, user_id: user?.id ?? null, ...parsed.data } as any);
     setLoading(false);
     if (error) return toast({ title: "Registration failed", description: error.message, variant: "destructive" });
     setSubmitted(true);
