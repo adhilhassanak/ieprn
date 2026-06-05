@@ -392,23 +392,37 @@ const EventCard = ({
 }) => {
   return (
     <div className="glass rounded-xl p-5 hover:border-primary/40 transition-smooth">
-      <div className="flex items-center gap-2 text-xs text-gold uppercase">
-        <Calendar className="h-3 w-3" />
-        {e.community}
+      <div className="flex gap-3">
+        {e.poster_url ? (
+          <img
+            src={e.poster_url}
+            alt={e.name}
+            className="h-16 w-16 rounded-lg object-cover border border-border/50 flex-shrink-0"
+          />
+        ) : (
+          <div className="h-16 w-16 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
+            <Calendar className="h-6 w-6 text-muted-foreground" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 text-xs text-gold uppercase">
+            <Calendar className="h-3 w-3" />
+            {e.community}
+            <span className="ml-auto rounded-full px-2 py-0.5 text-[10px] bg-secondary capitalize">
+              {e.status}
+            </span>
+          </div>
 
-        <span className="ml-auto rounded-full px-2 py-0.5 text-[10px] bg-secondary capitalize">
-          {e.status}
-        </span>
+          <h3 className="mt-1 font-semibold truncate">{e.name}</h3>
+
+          {e.event_date && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {new Date(e.event_date).toLocaleDateString()} ·{" "}
+              {e.venue ?? "TBA"}
+            </p>
+          )}
+        </div>
       </div>
-
-      <h3 className="mt-2 font-semibold">{e.name}</h3>
-
-      {e.event_date && (
-        <p className="text-xs text-muted-foreground mt-1">
-          {new Date(e.event_date).toLocaleDateString()} ·{" "}
-          {e.venue ?? "TBA"}
-        </p>
-      )}
 
       <div className="mt-3 flex gap-2">
         <Button
