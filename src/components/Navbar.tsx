@@ -42,6 +42,34 @@ export const Navbar = () => {
         </Link>
 
         <nav className="flex items-center gap-2">
+          {/* Desktop inline links */}
+          {user && (
+            <div className="hidden md:flex items-center gap-1 mr-2">
+              <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
+                <Home className="h-4 w-4 mr-1" /> Home
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
+                <LayoutDashboard className="h-4 w-4 mr-1" /> Dashboard
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/gallery")}>
+                <ImageIcon className="h-4 w-4 mr-1" /> Gallery
+              </Button>
+              {showCoAdminItem && (
+                <Button variant="ghost" size="sm" onClick={() => navigate("/admin")}>
+                  <Users className="h-4 w-4 mr-1" /> Co-admin
+                </Button>
+              )}
+              {isAdmin && (
+                <Button variant="ghost" size="sm" onClick={() => navigate("/admin")}>
+                  <ShieldCheck className="h-4 w-4 mr-1" /> Admin
+                </Button>
+              )}
+              <Button variant="ghost" size="sm" onClick={() => navigate("/profile")}>
+                <UserCircle2 className="h-4 w-4 mr-1" /> Profile
+              </Button>
+            </div>
+          )}
+
           {!user && (
             <>
               <Button variant="ghost" size="sm" onClick={() => navigate("/auth")}>
@@ -59,7 +87,7 @@ export const Navbar = () => {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" aria-label="Open menu">
+              <Button variant="outline" size="sm" aria-label="Open menu" className="md:hidden">
                 <MenuIcon className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Menu</span>
               </Button>
