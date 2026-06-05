@@ -48,13 +48,19 @@ const Profile = () => {
         const { error } = await supabase.storage.from("profile-photos").upload(path, photoFile);
         if (error) throw error;
         newPhotoUrl = supabase.storage.from("profile-photos").getPublicUrl(path).data.publicUrl;
-        // Also update most recent registration photo for ExeCom directory
-        const { data: latest } = await supabase.from("registrations").select("id").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
-        if (latest) await supabase.from("registrations").update({ photo_url: newPhotoUrl }).eq("id", latest.id);
+        // Update ALL registrations photo for ExeCom directory across communities
+        await supabase.from("registrations").update({ photo_url: newPhotoUrl }).eq("user_id", user.id);
         setPhotoUrl(newPhotoUrl);
       }
 
       const { error } = await supabase.from("profiles").update({
+        full_name: profile.full_name,
+        phone: profile.phone,
+        semester: profile.semester,
+        ...(newPhotoUrl ? { photo_url: newPhotoUrl } : {}),
+      }).eq("user_id", user.id);
+      // Propagate name/phone/semester to all registrations as well
+      await supabase.from("registrations").update({
         full_name: profile.full_name,
         phone: profile.phone,
         semester: profile.semester,
