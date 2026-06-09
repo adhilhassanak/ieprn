@@ -204,45 +204,44 @@ const EventManage = () => {
             </div>
 
             <div>
-              <Label>Coordinator names (minimum 2)</Label>
-              <div className="space-y-2 mt-1">
-                {(event.coordinator_names ?? []).map((c: string, i: number) => (
-                  <div key={i} className="flex gap-2">
-                    <Input value={c} onChange={(e) => updateCoordName(i, e.target.value)} placeholder={`Coordinator ${i + 1}`} />
-                    {(event.coordinator_names ?? []).length > 2 && (
-                      <Button type="button" variant="ghost" size="icon" onClick={() => removeCoordName(i)}><X className="h-4 w-4" /></Button>
-                    )}
-                  </div>
-                ))}
-                <Button type="button" variant="outline" size="sm" onClick={addCoordName}><Plus className="h-3 w-3 mr-1" />Add</Button>
+              <Label>Coordinators <span className="text-muted-foreground text-xs">(approved executives only — 1 required, max 2)</span></Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Primary *</Label>
+                  <Select value={primaryId} onValueChange={setPrimaryId}>
+                    <SelectTrigger><SelectValue placeholder="Select primary" /></SelectTrigger>
+                    <SelectContent>
+                      {execList.map((m) => (
+                        <SelectItem key={m.user_id} value={m.user_id}>{m.full_name} · {m.community}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Secondary (optional)</Label>
+                  <Select value={secondaryId || "__none__"} onValueChange={(v) => setSecondaryId(v === "__none__" ? "" : v)}>
+                    <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">None</SelectItem>
+                      {execList.filter((m) => m.user_id !== primaryId).map((m) => (
+                        <SelectItem key={m.user_id} value={m.user_id}>{m.full_name} · {m.community}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+              <p className="text-xs text-muted-foreground mt-2">Selected coordinators get edit access to this event.</p>
             </div>
 
             <div className="flex gap-2">
               <Button type="submit" disabled={saving} className="bg-gradient-emerald text-primary-foreground"><Save className="h-4 w-4 mr-1" />Save</Button>
-              <Button type="button" variant="destructive" onClick={deleteEvent}><Trash2 className="h-4 w-4 mr-1" />Delete</Button>
+              {canDelete && (
+                <Button type="button" variant="destructive" onClick={deleteEvent}><Trash2 className="h-4 w-4 mr-1" />Delete</Button>
+              )}
             </div>
           </form>
         )}
 
-        {/* App-level coordinators (with system access) */}
-        <section className="mt-8 glass rounded-2xl p-6">
-          <h2 className="text-lg font-semibold">App access — system coordinators</h2>
-          <p className="text-xs text-muted-foreground mt-1">Grant the system coordinator dashboard access to specific user accounts.</p>
-          <div className="mt-3 flex gap-2">
-            <Input placeholder="user@email.com" value={coordEmail} onChange={(e) => setCoordEmail(e.target.value)} />
-            <Button onClick={addCoord}><UserPlus className="h-4 w-4 mr-1" />Add</Button>
-          </div>
-          <ul className="mt-4 space-y-2">
-            {coordinators.length === 0 && <li className="text-sm text-muted-foreground">No system coordinators yet.</li>}
-            {coordinators.map((c) => (
-              <li key={c.id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm">
-                <span className="text-muted-foreground">User: {c.user_id.slice(0, 8)}…</span>
-                <Button size="icon" variant="ghost" onClick={() => removeCoord(c.id)}><Trash2 className="h-4 w-4" /></Button>
-              </li>
-            ))}
-          </ul>
-        </section>
 
         {/* Participants + attendance */}
         <section className="mt-8 glass rounded-2xl p-6">
