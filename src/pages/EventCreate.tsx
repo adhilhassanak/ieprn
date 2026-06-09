@@ -56,6 +56,18 @@ const EventCreate = () => {
   });
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
 
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("registrations")
+        .select("user_id, full_name, community")
+        .eq("status", "approved")
+        .order("full_name");
+      setExecList((data ?? []) as any);
+    })();
+  }, []);
+
+
   const onPoster = (f: File | null) => {
     if (!f) return;
     if (f.size > POSTER_MAX) return toast({ title: "Poster too large", description: "Max 500 KB", variant: "destructive" });
