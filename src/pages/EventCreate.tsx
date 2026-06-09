@@ -29,7 +29,8 @@ const schema = z.object({
 });
 
 const EventCreate = () => {
-  const { user, isApprovedExecutive } = useAuth();
+  const { user, isApprovedExecutive, isAdmin } = useAuth();
+  const [coordEmails, setCoordEmails] = useState<string[]>([""]);
   const navigate = useNavigate();
   const posterRef = useRef<HTMLInputElement>(null);
   const pdfRef = useRef<HTMLInputElement>(null);
