@@ -38,7 +38,9 @@ const EventCreate = () => {
   const [poster, setPoster] = useState<File | null>(null);
   const [posterPreview, setPosterPreview] = useState<string>("");
   const [pdf, setPdf] = useState<File | null>(null);
-  const [coordinators, setCoordinators] = useState<string[]>(["", ""]);
+  const [execList, setExecList] = useState<Array<{ user_id: string; full_name: string; community: string }>>([]);
+  const [primaryCoord, setPrimaryCoord] = useState<string>("");
+  const [secondaryCoord, setSecondaryCoord] = useState<string>("");
   const [form, setForm] = useState({
     name: "",
     description: "",
