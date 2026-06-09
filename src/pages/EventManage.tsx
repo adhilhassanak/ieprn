@@ -55,11 +55,6 @@ const EventManage = () => {
   const canEdit = isAdmin || event.created_by === user?.id || isAssignedCoordinator;
   const canDelete = isAdmin || event.created_by === user?.id;
 
-  const updateCoordName = (i: number, v: string) => {
-    setEvent({ ...event, coordinator_names: event.coordinator_names.map((x: string, j: number) => j === i ? v : x) });
-  };
-  const addCoordName = () => setEvent({ ...event, coordinator_names: [...(event.coordinator_names ?? []), ""] });
-  const removeCoordName = (i: number) => setEvent({ ...event, coordinator_names: event.coordinator_names.filter((_: any, j: number) => j !== i) });
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
