@@ -87,10 +87,17 @@ const EventCreate = () => {
     if (!isApprovedExecutive) {
       return toast({ title: "Not approved", description: "Only approved executive members can create events.", variant: "destructive" });
     }
-    const validCoords = coordinators.map((c) => c.trim()).filter(Boolean);
-    if (validCoords.length < 2) {
-      return toast({ title: "Need 2 coordinators", description: "At least two coordinator names are required.", variant: "destructive" });
+    const selected = [primaryCoord, secondaryCoord].filter(Boolean);
+    if (!primaryCoord) {
+      return toast({ title: "Primary coordinator required", description: "Select at least one approved executive as coordinator.", variant: "destructive" });
     }
+    if (secondaryCoord && secondaryCoord === primaryCoord) {
+      return toast({ title: "Pick a different secondary", description: "Primary and secondary coordinators must be different.", variant: "destructive" });
+    }
+    const coordRecords = selected
+      .map((uid) => execList.find((m) => m.user_id === uid))
+      .filter(Boolean) as Array<{ user_id: string; full_name: string; community: string }>;
+    const validCoords = coordRecords.map((m) => m.full_name);
     if (form.registration_mode === "external" && !form.external_form_url.trim()) {
       return toast({ title: "Add Google Form link", description: "External registration requires a form URL.", variant: "destructive" });
     }
