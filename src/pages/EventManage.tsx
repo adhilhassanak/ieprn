@@ -63,10 +63,17 @@ const EventManage = () => {
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
-    const cleanCoords = (event.coordinator_names ?? []).map((s: string) => s.trim()).filter(Boolean);
-    if ((event.status === "published" || event.registration_open) && cleanCoords.length < 2) {
-      return toast({ title: "Need 2 coordinators", description: "At least two coordinator names required.", variant: "destructive" });
+    if (!primaryId) {
+      return toast({ title: "Primary coordinator required", description: "Select an approved executive.", variant: "destructive" });
     }
+    if (secondaryId && secondaryId === primaryId) {
+      return toast({ title: "Pick a different secondary", variant: "destructive" });
+    }
+    const selectedIds = [primaryId, secondaryId].filter(Boolean);
+    const cleanCoords = selectedIds
+      .map((uid) => execList.find((m) => m.user_id === uid)?.full_name)
+      .filter(Boolean) as string[];
+
     setSaving(true);
     const { error } = await supabase.from("events").update({
       name: event.name,
@@ -85,30 +92,28 @@ const EventManage = () => {
       external_form_url: event.external_form_url || null,
       whatsapp_link: event.whatsapp_link || null,
     }).eq("id", event.id);
+    if (error) {
+      setSaving(false);
+      return toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    }
+
+    // Sync event_coordinators: remove unselected, add new
+    const existingIds = coordinators.map((c) => c.user_id);
+    const toRemove = coordinators.filter((c) => !selectedIds.includes(c.user_id));
+    const toAdd = selectedIds.filter((uid) => !existingIds.includes(uid));
+    for (const c of toRemove) {
+      await supabase.from("event_coordinators").delete().eq("id", c.id);
+    }
+    for (const uid of toAdd) {
+      await supabase.from("event_coordinators").insert({ event_id: event.id, user_id: uid });
+      await supabase.from("user_roles").insert({ user_id: uid, role: "coordinator" });
+    }
+
     setSaving(false);
-    if (error) return toast({ title: "Save failed", description: error.message, variant: "destructive" });
     toast({ title: "Saved" });
     load();
   };
 
-  const removeCoord = async (cid: string) => {
-    const { error } = await supabase.from("event_coordinators").delete().eq("id", cid);
-    if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
-    load();
-  };
-
-  const addCoord = async () => {
-    const email = coordEmail.trim().toLowerCase();
-    if (!email) return;
-    const { data: prof } = await supabase.from("profiles").select("user_id").eq("email", email).maybeSingle();
-    if (!prof) return toast({ title: "User not found", description: "They must sign up first.", variant: "destructive" });
-    const { error } = await supabase.from("event_coordinators").insert({ event_id: event.id, user_id: prof.user_id });
-    if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
-    if (isAdmin) await supabase.from("user_roles").insert({ user_id: prof.user_id, role: "coordinator" });
-    setCoordEmail("");
-    load();
-    toast({ title: "Coordinator added" });
-  };
 
   const deleteEvent = async () => {
     if (!confirm("Delete this event?")) return;
