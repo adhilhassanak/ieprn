@@ -138,17 +138,10 @@ const EventCreate = () => {
       const { data, error } = await supabase.from("events").insert(payload).select().single();
       if (error) throw error;
 
-      // Admin-assigned coordinator accounts (grants edit access via event_coordinators + coordinator role)
-      if (isAdmin) {
-        const emails = coordEmails.map((e) => e.trim().toLowerCase()).filter(Boolean);
-        const failed: string[] = [];
-        for (const email of emails) {
-          const { data: prof } = await supabase.from("profiles").select("user_id").eq("email", email).maybeSingle();
-          if (!prof) { failed.push(email); continue; }
-          await supabase.from("event_coordinators").insert({ event_id: data.id, user_id: prof.user_id });
-          await supabase.from("user_roles").insert({ user_id: prof.user_id, role: "coordinator" });
-        }
-        if (failed.length) toast({ title: "Some coordinators not found", description: failed.join(", "), variant: "destructive" });
+      // Grant edit access to selected executive coordinators
+      for (const c of coordRecords) {
+        await supabase.from("event_coordinators").insert({ event_id: data.id, user_id: c.user_id });
+        await supabase.from("user_roles").insert({ user_id: c.user_id, role: "coordinator" });
       }
 
       toast({ title: "Event created" });
