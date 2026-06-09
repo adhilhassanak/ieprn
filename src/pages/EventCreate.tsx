@@ -209,6 +209,30 @@ const EventCreate = () => {
             </div>
           </div>
 
+          {/* Admin: assign coordinator accounts with edit access */}
+          {isAdmin && (
+            <div>
+              <Label>Assign coordinator accounts <span className="text-muted-foreground text-xs">(emails — they get edit access)</span></Label>
+              <div className="space-y-2 mt-1">
+                {coordEmails.map((c, i) => (
+                  <div key={i} className="flex gap-2">
+                    <Input type="email" placeholder="coordinator@email.com" value={c}
+                      onChange={(e) => setCoordEmails(coordEmails.map((x, j) => j === i ? e.target.value : x))} />
+                    {coordEmails.length > 1 && (
+                      <Button type="button" variant="ghost" size="icon" onClick={() => setCoordEmails(coordEmails.filter((_, j) => j !== i))}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <Button type="button" variant="outline" size="sm" onClick={() => setCoordEmails([...coordEmails, ""])}>
+                  <Plus className="h-3 w-3 mr-1" />Add account
+                </Button>
+                <p className="text-xs text-muted-foreground">Users must have signed up first. They'll be able to edit this event and manage participants.</p>
+              </div>
+            </div>
+          )}
+
           {/* Coordinators */}
           <div>
             <Label>Coordinators (minimum 2)</Label>
