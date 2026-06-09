@@ -20,22 +20,28 @@ const EventManage = () => {
   const navigate = useNavigate();
   const [event, setEvent] = useState<any>(null);
   const [coordinators, setCoordinators] = useState<any[]>([]);
-  const [coordEmail, setCoordEmail] = useState("");
   const [participants, setParticipants] = useState<any[]>([]);
   const [attendance, setAttendance] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
+  const [execList, setExecList] = useState<Array<{ user_id: string; full_name: string; community: string }>>([]);
+  const [primaryId, setPrimaryId] = useState<string>("");
+  const [secondaryId, setSecondaryId] = useState<string>("");
 
   const load = async () => {
     if (!id) return;
-    const [{ data: ev }, { data: cs }, { data: ps }, { data: att }] = await Promise.all([
+    const [{ data: ev }, { data: cs }, { data: ps }, { data: att }, { data: ex }] = await Promise.all([
       supabase.from("events").select("*").eq("id", id).maybeSingle(),
       supabase.from("event_coordinators").select("id, user_id").eq("event_id", id),
       supabase.from("event_participants").select("*").eq("event_id", id).order("created_at", { ascending: false }),
       supabase.from("attendance").select("*").eq("event_id", id),
+      supabase.from("registrations").select("user_id, full_name, community").eq("status", "approved").order("full_name"),
     ]);
     setEvent(ev);
     setCoordinators(cs ?? []);
     setParticipants(ps ?? []);
+    setExecList((ex ?? []) as any);
+    setPrimaryId((cs ?? [])[0]?.user_id ?? "");
+    setSecondaryId((cs ?? [])[1]?.user_id ?? "");
     const m: Record<string, boolean> = {};
     (att ?? []).forEach((a: any) => { m[a.participant_gmail] = a.present; });
     setAttendance(m);
@@ -45,20 +51,24 @@ const EventManage = () => {
 
   if (!event) return <Layout><div className="container py-20 text-center text-muted-foreground">Loading…</div></Layout>;
 
-  const canEdit = isAdmin || event.created_by === user?.id;
+  const isAssignedCoordinator = coordinators.some((c) => c.user_id === user?.id);
+  const canEdit = isAdmin || event.created_by === user?.id || isAssignedCoordinator;
+  const canDelete = isAdmin || event.created_by === user?.id;
 
-  const updateCoordName = (i: number, v: string) => {
-    setEvent({ ...event, coordinator_names: event.coordinator_names.map((x: string, j: number) => j === i ? v : x) });
-  };
-  const addCoordName = () => setEvent({ ...event, coordinator_names: [...(event.coordinator_names ?? []), ""] });
-  const removeCoordName = (i: number) => setEvent({ ...event, coordinator_names: event.coordinator_names.filter((_: any, j: number) => j !== i) });
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
-    const cleanCoords = (event.coordinator_names ?? []).map((s: string) => s.trim()).filter(Boolean);
-    if ((event.status === "published" || event.registration_open) && cleanCoords.length < 2) {
-      return toast({ title: "Need 2 coordinators", description: "At least two coordinator names required.", variant: "destructive" });
+    if (!primaryId) {
+      return toast({ title: "Primary coordinator required", description: "Select an approved executive.", variant: "destructive" });
     }
+    if (secondaryId && secondaryId === primaryId) {
+      return toast({ title: "Pick a different secondary", variant: "destructive" });
+    }
+    const selectedIds = [primaryId, secondaryId].filter(Boolean);
+    const cleanCoords = selectedIds
+      .map((uid) => execList.find((m) => m.user_id === uid)?.full_name)
+      .filter(Boolean) as string[];
+
     setSaving(true);
     const { error } = await supabase.from("events").update({
       name: event.name,
@@ -77,30 +87,28 @@ const EventManage = () => {
       external_form_url: event.external_form_url || null,
       whatsapp_link: event.whatsapp_link || null,
     }).eq("id", event.id);
+    if (error) {
+      setSaving(false);
+      return toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    }
+
+    // Sync event_coordinators: remove unselected, add new
+    const existingIds = coordinators.map((c) => c.user_id);
+    const toRemove = coordinators.filter((c) => !selectedIds.includes(c.user_id));
+    const toAdd = selectedIds.filter((uid) => !existingIds.includes(uid));
+    for (const c of toRemove) {
+      await supabase.from("event_coordinators").delete().eq("id", c.id);
+    }
+    for (const uid of toAdd) {
+      await supabase.from("event_coordinators").insert({ event_id: event.id, user_id: uid });
+      await supabase.from("user_roles").insert({ user_id: uid, role: "coordinator" });
+    }
+
     setSaving(false);
-    if (error) return toast({ title: "Save failed", description: error.message, variant: "destructive" });
     toast({ title: "Saved" });
     load();
   };
 
-  const removeCoord = async (cid: string) => {
-    const { error } = await supabase.from("event_coordinators").delete().eq("id", cid);
-    if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
-    load();
-  };
-
-  const addCoord = async () => {
-    const email = coordEmail.trim().toLowerCase();
-    if (!email) return;
-    const { data: prof } = await supabase.from("profiles").select("user_id").eq("email", email).maybeSingle();
-    if (!prof) return toast({ title: "User not found", description: "They must sign up first.", variant: "destructive" });
-    const { error } = await supabase.from("event_coordinators").insert({ event_id: event.id, user_id: prof.user_id });
-    if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
-    if (isAdmin) await supabase.from("user_roles").insert({ user_id: prof.user_id, role: "coordinator" });
-    setCoordEmail("");
-    load();
-    toast({ title: "Coordinator added" });
-  };
 
   const deleteEvent = async () => {
     if (!confirm("Delete this event?")) return;
@@ -196,45 +204,44 @@ const EventManage = () => {
             </div>
 
             <div>
-              <Label>Coordinator names (minimum 2)</Label>
-              <div className="space-y-2 mt-1">
-                {(event.coordinator_names ?? []).map((c: string, i: number) => (
-                  <div key={i} className="flex gap-2">
-                    <Input value={c} onChange={(e) => updateCoordName(i, e.target.value)} placeholder={`Coordinator ${i + 1}`} />
-                    {(event.coordinator_names ?? []).length > 2 && (
-                      <Button type="button" variant="ghost" size="icon" onClick={() => removeCoordName(i)}><X className="h-4 w-4" /></Button>
-                    )}
-                  </div>
-                ))}
-                <Button type="button" variant="outline" size="sm" onClick={addCoordName}><Plus className="h-3 w-3 mr-1" />Add</Button>
+              <Label>Coordinators <span className="text-muted-foreground text-xs">(approved executives only — 1 required, max 2)</span></Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Primary *</Label>
+                  <Select value={primaryId} onValueChange={setPrimaryId}>
+                    <SelectTrigger><SelectValue placeholder="Select primary" /></SelectTrigger>
+                    <SelectContent>
+                      {execList.map((m) => (
+                        <SelectItem key={m.user_id} value={m.user_id}>{m.full_name} · {m.community}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Secondary (optional)</Label>
+                  <Select value={secondaryId || "__none__"} onValueChange={(v) => setSecondaryId(v === "__none__" ? "" : v)}>
+                    <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">None</SelectItem>
+                      {execList.filter((m) => m.user_id !== primaryId).map((m) => (
+                        <SelectItem key={m.user_id} value={m.user_id}>{m.full_name} · {m.community}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+              <p className="text-xs text-muted-foreground mt-2">Selected coordinators get edit access to this event.</p>
             </div>
 
             <div className="flex gap-2">
               <Button type="submit" disabled={saving} className="bg-gradient-emerald text-primary-foreground"><Save className="h-4 w-4 mr-1" />Save</Button>
-              <Button type="button" variant="destructive" onClick={deleteEvent}><Trash2 className="h-4 w-4 mr-1" />Delete</Button>
+              {canDelete && (
+                <Button type="button" variant="destructive" onClick={deleteEvent}><Trash2 className="h-4 w-4 mr-1" />Delete</Button>
+              )}
             </div>
           </form>
         )}
 
-        {/* App-level coordinators (with system access) */}
-        <section className="mt-8 glass rounded-2xl p-6">
-          <h2 className="text-lg font-semibold">App access — system coordinators</h2>
-          <p className="text-xs text-muted-foreground mt-1">Grant the system coordinator dashboard access to specific user accounts.</p>
-          <div className="mt-3 flex gap-2">
-            <Input placeholder="user@email.com" value={coordEmail} onChange={(e) => setCoordEmail(e.target.value)} />
-            <Button onClick={addCoord}><UserPlus className="h-4 w-4 mr-1" />Add</Button>
-          </div>
-          <ul className="mt-4 space-y-2">
-            {coordinators.length === 0 && <li className="text-sm text-muted-foreground">No system coordinators yet.</li>}
-            {coordinators.map((c) => (
-              <li key={c.id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm">
-                <span className="text-muted-foreground">User: {c.user_id.slice(0, 8)}…</span>
-                <Button size="icon" variant="ghost" onClick={() => removeCoord(c.id)}><Trash2 className="h-4 w-4" /></Button>
-              </li>
-            ))}
-          </ul>
-        </section>
 
         {/* Participants + attendance */}
         <section className="mt-8 glass rounded-2xl p-6">

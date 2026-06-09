@@ -1,4 +1,4 @@
-import { useState, FormEvent, useRef } from "react";
+import { useState, FormEvent, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { Layout } from "@/components/Layout";
@@ -30,7 +30,7 @@ const schema = z.object({
 
 const EventCreate = () => {
   const { user, isApprovedExecutive, isAdmin } = useAuth();
-  const [coordEmails, setCoordEmails] = useState<string[]>([""]);
+  
   const navigate = useNavigate();
   const posterRef = useRef<HTMLInputElement>(null);
   const pdfRef = useRef<HTMLInputElement>(null);
@@ -38,7 +38,9 @@ const EventCreate = () => {
   const [poster, setPoster] = useState<File | null>(null);
   const [posterPreview, setPosterPreview] = useState<string>("");
   const [pdf, setPdf] = useState<File | null>(null);
-  const [coordinators, setCoordinators] = useState<string[]>(["", ""]);
+  const [execList, setExecList] = useState<Array<{ user_id: string; full_name: string; community: string }>>([]);
+  const [primaryCoord, setPrimaryCoord] = useState<string>("");
+  const [secondaryCoord, setSecondaryCoord] = useState<string>("");
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -53,6 +55,18 @@ const EventCreate = () => {
     status: "pending" as "draft" | "pending",
   });
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("registrations")
+        .select("user_id, full_name, community")
+        .eq("status", "approved")
+        .order("full_name");
+      setExecList((data ?? []) as any);
+    })();
+  }, []);
+
 
   const onPoster = (f: File | null) => {
     if (!f) return;
@@ -73,10 +87,17 @@ const EventCreate = () => {
     if (!isApprovedExecutive) {
       return toast({ title: "Not approved", description: "Only approved executive members can create events.", variant: "destructive" });
     }
-    const validCoords = coordinators.map((c) => c.trim()).filter(Boolean);
-    if (validCoords.length < 2) {
-      return toast({ title: "Need 2 coordinators", description: "At least two coordinator names are required.", variant: "destructive" });
+    const selected = [primaryCoord, secondaryCoord].filter(Boolean);
+    if (!primaryCoord) {
+      return toast({ title: "Primary coordinator required", description: "Select at least one approved executive as coordinator.", variant: "destructive" });
     }
+    if (secondaryCoord && secondaryCoord === primaryCoord) {
+      return toast({ title: "Pick a different secondary", description: "Primary and secondary coordinators must be different.", variant: "destructive" });
+    }
+    const coordRecords = selected
+      .map((uid) => execList.find((m) => m.user_id === uid))
+      .filter(Boolean) as Array<{ user_id: string; full_name: string; community: string }>;
+    const validCoords = coordRecords.map((m) => m.full_name);
     if (form.registration_mode === "external" && !form.external_form_url.trim()) {
       return toast({ title: "Add Google Form link", description: "External registration requires a form URL.", variant: "destructive" });
     }
@@ -117,17 +138,10 @@ const EventCreate = () => {
       const { data, error } = await supabase.from("events").insert(payload).select().single();
       if (error) throw error;
 
-      // Admin-assigned coordinator accounts (grants edit access via event_coordinators + coordinator role)
-      if (isAdmin) {
-        const emails = coordEmails.map((e) => e.trim().toLowerCase()).filter(Boolean);
-        const failed: string[] = [];
-        for (const email of emails) {
-          const { data: prof } = await supabase.from("profiles").select("user_id").eq("email", email).maybeSingle();
-          if (!prof) { failed.push(email); continue; }
-          await supabase.from("event_coordinators").insert({ event_id: data.id, user_id: prof.user_id });
-          await supabase.from("user_roles").insert({ user_id: prof.user_id, role: "coordinator" });
-        }
-        if (failed.length) toast({ title: "Some coordinators not found", description: failed.join(", "), variant: "destructive" });
+      // Grant edit access to selected executive coordinators
+      for (const c of coordRecords) {
+        await supabase.from("event_coordinators").insert({ event_id: data.id, user_id: c.user_id });
+        await supabase.from("user_roles").insert({ user_id: c.user_id, role: "coordinator" });
       }
 
       toast({ title: "Event created" });
@@ -209,50 +223,39 @@ const EventCreate = () => {
             </div>
           </div>
 
-          {/* Admin: assign coordinator accounts with edit access */}
-          {isAdmin && (
-            <div>
-              <Label>Assign coordinator accounts <span className="text-muted-foreground text-xs">(emails — they get edit access)</span></Label>
-              <div className="space-y-2 mt-1">
-                {coordEmails.map((c, i) => (
-                  <div key={i} className="flex gap-2">
-                    <Input type="email" placeholder="coordinator@email.com" value={c}
-                      onChange={(e) => setCoordEmails(coordEmails.map((x, j) => j === i ? e.target.value : x))} />
-                    {coordEmails.length > 1 && (
-                      <Button type="button" variant="ghost" size="icon" onClick={() => setCoordEmails(coordEmails.filter((_, j) => j !== i))}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-                <Button type="button" variant="outline" size="sm" onClick={() => setCoordEmails([...coordEmails, ""])}>
-                  <Plus className="h-3 w-3 mr-1" />Add account
-                </Button>
-                <p className="text-xs text-muted-foreground">Users must have signed up first. They'll be able to edit this event and manage participants.</p>
+          {/* Coordinators — must be approved executive members (1 required, max 2) */}
+          <div>
+            <Label>Coordinators <span className="text-muted-foreground text-xs">(approved executives only — 1 required, max 2)</span></Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+              <div>
+                <Label className="text-xs text-muted-foreground">Primary coordinator *</Label>
+                <Select value={primaryCoord} onValueChange={setPrimaryCoord}>
+                  <SelectTrigger><SelectValue placeholder="Select primary" /></SelectTrigger>
+                  <SelectContent>
+                    {execList.map((m) => (
+                      <SelectItem key={m.user_id} value={m.user_id}>{m.full_name} <span className="text-xs text-muted-foreground">· {m.community}</span></SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Secondary coordinator (optional)</Label>
+                <div className="flex gap-1">
+                  <Select value={secondaryCoord || "__none__"} onValueChange={(v) => setSecondaryCoord(v === "__none__" ? "" : v)}>
+                    <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">None</SelectItem>
+                      {execList.filter((m) => m.user_id !== primaryCoord).map((m) => (
+                        <SelectItem key={m.user_id} value={m.user_id}>{m.full_name} <span className="text-xs text-muted-foreground">· {m.community}</span></SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
-          )}
-
-          {/* Coordinators */}
-          <div>
-            <Label>Coordinators (minimum 2)</Label>
-            <div className="space-y-2 mt-1">
-              {coordinators.map((c, i) => (
-                <div key={i} className="flex gap-2">
-                  <Input placeholder={`Coordinator ${i + 1} name`} value={c}
-                    onChange={(e) => setCoordinators(coordinators.map((x, j) => j === i ? e.target.value : x))} />
-                  {coordinators.length > 2 && (
-                    <Button type="button" variant="ghost" size="icon" onClick={() => setCoordinators(coordinators.filter((_, j) => j !== i))}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <Button type="button" variant="outline" size="sm" onClick={() => setCoordinators([...coordinators, ""])}>
-                <Plus className="h-3 w-3 mr-1" />Add coordinator
-              </Button>
-            </div>
+            <p className="text-xs text-muted-foreground mt-2">Selected coordinators automatically get edit access to this event.</p>
           </div>
+
 
           {/* Poster upload */}
           <div>
