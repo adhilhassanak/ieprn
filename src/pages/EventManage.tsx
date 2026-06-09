@@ -20,22 +20,28 @@ const EventManage = () => {
   const navigate = useNavigate();
   const [event, setEvent] = useState<any>(null);
   const [coordinators, setCoordinators] = useState<any[]>([]);
-  const [coordEmail, setCoordEmail] = useState("");
   const [participants, setParticipants] = useState<any[]>([]);
   const [attendance, setAttendance] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
+  const [execList, setExecList] = useState<Array<{ user_id: string; full_name: string; community: string }>>([]);
+  const [primaryId, setPrimaryId] = useState<string>("");
+  const [secondaryId, setSecondaryId] = useState<string>("");
 
   const load = async () => {
     if (!id) return;
-    const [{ data: ev }, { data: cs }, { data: ps }, { data: att }] = await Promise.all([
+    const [{ data: ev }, { data: cs }, { data: ps }, { data: att }, { data: ex }] = await Promise.all([
       supabase.from("events").select("*").eq("id", id).maybeSingle(),
       supabase.from("event_coordinators").select("id, user_id").eq("event_id", id),
       supabase.from("event_participants").select("*").eq("event_id", id).order("created_at", { ascending: false }),
       supabase.from("attendance").select("*").eq("event_id", id),
+      supabase.from("registrations").select("user_id, full_name, community").eq("status", "approved").order("full_name"),
     ]);
     setEvent(ev);
     setCoordinators(cs ?? []);
     setParticipants(ps ?? []);
+    setExecList((ex ?? []) as any);
+    setPrimaryId((cs ?? [])[0]?.user_id ?? "");
+    setSecondaryId((cs ?? [])[1]?.user_id ?? "");
     const m: Record<string, boolean> = {};
     (att ?? []).forEach((a: any) => { m[a.participant_gmail] = a.present; });
     setAttendance(m);
@@ -45,7 +51,9 @@ const EventManage = () => {
 
   if (!event) return <Layout><div className="container py-20 text-center text-muted-foreground">Loading…</div></Layout>;
 
-  const canEdit = isAdmin || event.created_by === user?.id;
+  const isAssignedCoordinator = coordinators.some((c) => c.user_id === user?.id);
+  const canEdit = isAdmin || event.created_by === user?.id || isAssignedCoordinator;
+  const canDelete = isAdmin || event.created_by === user?.id;
 
   const updateCoordName = (i: number, v: string) => {
     setEvent({ ...event, coordinator_names: event.coordinator_names.map((x: string, j: number) => j === i ? v : x) });
