@@ -223,50 +223,39 @@ const EventCreate = () => {
             </div>
           </div>
 
-          {/* Admin: assign coordinator accounts with edit access */}
-          {isAdmin && (
-            <div>
-              <Label>Assign coordinator accounts <span className="text-muted-foreground text-xs">(emails — they get edit access)</span></Label>
-              <div className="space-y-2 mt-1">
-                {coordEmails.map((c, i) => (
-                  <div key={i} className="flex gap-2">
-                    <Input type="email" placeholder="coordinator@email.com" value={c}
-                      onChange={(e) => setCoordEmails(coordEmails.map((x, j) => j === i ? e.target.value : x))} />
-                    {coordEmails.length > 1 && (
-                      <Button type="button" variant="ghost" size="icon" onClick={() => setCoordEmails(coordEmails.filter((_, j) => j !== i))}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-                <Button type="button" variant="outline" size="sm" onClick={() => setCoordEmails([...coordEmails, ""])}>
-                  <Plus className="h-3 w-3 mr-1" />Add account
-                </Button>
-                <p className="text-xs text-muted-foreground">Users must have signed up first. They'll be able to edit this event and manage participants.</p>
+          {/* Coordinators — must be approved executive members (1 required, max 2) */}
+          <div>
+            <Label>Coordinators <span className="text-muted-foreground text-xs">(approved executives only — 1 required, max 2)</span></Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+              <div>
+                <Label className="text-xs text-muted-foreground">Primary coordinator *</Label>
+                <Select value={primaryCoord} onValueChange={setPrimaryCoord}>
+                  <SelectTrigger><SelectValue placeholder="Select primary" /></SelectTrigger>
+                  <SelectContent>
+                    {execList.map((m) => (
+                      <SelectItem key={m.user_id} value={m.user_id}>{m.full_name} <span className="text-xs text-muted-foreground">· {m.community}</span></SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Secondary coordinator (optional)</Label>
+                <div className="flex gap-1">
+                  <Select value={secondaryCoord || "__none__"} onValueChange={(v) => setSecondaryCoord(v === "__none__" ? "" : v)}>
+                    <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">None</SelectItem>
+                      {execList.filter((m) => m.user_id !== primaryCoord).map((m) => (
+                        <SelectItem key={m.user_id} value={m.user_id}>{m.full_name} <span className="text-xs text-muted-foreground">· {m.community}</span></SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
-          )}
-
-          {/* Coordinators */}
-          <div>
-            <Label>Coordinators (minimum 2)</Label>
-            <div className="space-y-2 mt-1">
-              {coordinators.map((c, i) => (
-                <div key={i} className="flex gap-2">
-                  <Input placeholder={`Coordinator ${i + 1} name`} value={c}
-                    onChange={(e) => setCoordinators(coordinators.map((x, j) => j === i ? e.target.value : x))} />
-                  {coordinators.length > 2 && (
-                    <Button type="button" variant="ghost" size="icon" onClick={() => setCoordinators(coordinators.filter((_, j) => j !== i))}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <Button type="button" variant="outline" size="sm" onClick={() => setCoordinators([...coordinators, ""])}>
-                <Plus className="h-3 w-3 mr-1" />Add coordinator
-              </Button>
-            </div>
+            <p className="text-xs text-muted-foreground mt-2">Selected coordinators automatically get edit access to this event.</p>
           </div>
+
 
           {/* Poster upload */}
           <div>
