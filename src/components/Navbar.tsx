@@ -60,9 +60,14 @@ export const Navbar = () => {
                 </Button>
               )}
               {isAdmin && (
-                <Button variant="ghost" size="sm" onClick={() => navigate("/admin")}>
-                  <ShieldCheck className="h-4 w-4 mr-1" /> Admin
-                </Button>
+                <>
+                  <Button variant="ghost" size="sm" onClick={() => navigate("/admin")}>
+                    <ShieldCheck className="h-4 w-4 mr-1" /> Admin
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => navigate("/admin/community-logos")}>
+                    <ImageIcon className="h-4 w-4 mr-1" /> Logos
+                  </Button>
+                </>
               )}
               <Button variant="ghost" size="sm" onClick={() => navigate("/profile")}>
                 <UserCircle2 className="h-4 w-4 mr-1" /> Profile
@@ -121,9 +126,14 @@ export const Navbar = () => {
                     </DropdownMenuItem>
                   )}
                   {isAdmin && (
-                    <DropdownMenuItem onClick={() => navigate("/admin")}>
-                      <ShieldCheck className="h-4 w-4 mr-2" /> Admin panel
-                    </DropdownMenuItem>
+                    <>
+                      <DropdownMenuItem onClick={() => navigate("/admin")}>
+                        <ShieldCheck className="h-4 w-4 mr-2" /> Admin panel
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/admin/community-logos")}>
+                        <ImageIcon className="h-4 w-4 mr-2" /> Community logos
+                      </DropdownMenuItem>
+                    </>
                   )}
 
                   <DropdownMenuItem onClick={() => navigate("/profile")}>
