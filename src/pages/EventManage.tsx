@@ -26,6 +26,8 @@ const EventManage = () => {
   const [execList, setExecList] = useState<Array<{ user_id: string; full_name: string; community: string }>>([]);
   const [primaryId, setPrimaryId] = useState<string>("");
   const [secondaryId, setSecondaryId] = useState<string>("");
+  const [editingCount, setEditingCount] = useState(false);
+  const [countDraft, setCountDraft] = useState<string>("");
 
   const load = async () => {
     if (!id) return;
@@ -86,6 +88,7 @@ const EventManage = () => {
       registration_mode: event.registration_mode || "internal",
       external_form_url: event.external_form_url || null,
       whatsapp_link: event.whatsapp_link || null,
+      manual_registered_count: event.manual_registered_count ?? null,
     }).eq("id", event.id);
     if (error) {
       setSaving(false);
