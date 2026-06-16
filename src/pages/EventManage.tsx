@@ -246,6 +246,70 @@ const EventManage = () => {
         )}
 
 
+        {/* Registered count override (admin or assigned coordinator) */}
+        <section className="mt-8 glass rounded-2xl p-6">
+          <h2 className="text-lg font-semibold">Registered student count</h2>
+          <div className="mt-3 grid sm:grid-cols-2 gap-4">
+            <div className="rounded-xl border border-border/60 p-4">
+              <div className="text-xs uppercase text-muted-foreground">Actual registrations</div>
+              <div className="text-3xl font-bold mt-1">{participants.length}</div>
+              <div className="text-xs text-muted-foreground mt-1">Auto-counted from registrations.</div>
+            </div>
+            <div className="rounded-xl border border-border/60 p-4">
+              <div className="text-xs uppercase text-muted-foreground">Displayed count</div>
+              <div className="text-3xl font-bold mt-1">
+                {event.manual_registered_count ?? participants.length}
+                {event.manual_registered_count != null && (
+                  <Badge variant="outline" className="ml-2 align-middle border-gold/40 text-gold text-xs">manual</Badge>
+                )}
+              </div>
+              {canEdit ? (
+                editingCount ? (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Input
+                      type="number"
+                      min={0}
+                      value={countDraft}
+                      onChange={(e) => setCountDraft(e.target.value)}
+                      placeholder={`auto (${participants.length})`}
+                      className="max-w-[160px]"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={async () => {
+                        const val = countDraft.trim() === "" ? null : Math.max(0, parseInt(countDraft, 10) || 0);
+                        const { error } = await supabase.from("events").update({ manual_registered_count: val }).eq("id", event.id);
+                        if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
+                        setEvent({ ...event, manual_registered_count: val });
+                        setEditingCount(false);
+                        toast({ title: "Updated" });
+                      }}
+                    >
+                      Save
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setEditingCount(false)}>Cancel</Button>
+                  </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-2"
+                    onClick={() => {
+                      setCountDraft(event.manual_registered_count != null ? String(event.manual_registered_count) : "");
+                      setEditingCount(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                )
+              ) : (
+                <div className="text-xs text-muted-foreground mt-1">Only admin & coordinators can edit.</div>
+              )}
+              <div className="text-xs text-muted-foreground mt-2">Leave blank to fall back to actual count.</div>
+            </div>
+          </div>
+        </section>
+
         {/* Participants + attendance */}
         <section className="mt-8 glass rounded-2xl p-6">
           <h2 className="text-lg font-semibold">Participants & attendance ({participants.length})</h2>
