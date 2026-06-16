@@ -1,11 +1,11 @@
-export type CommunityKey = "iic" | "ecell" | "edclub";
+export type CommunityKey = "iic" | "ecell" | "edclub" | "rndclub";
 
 export interface Community {
   key: CommunityKey;
   name: string;
   short: string;
   tagline: string;
-  accent: "emerald" | "gold" | "violet";
+  accent: "emerald" | "gold" | "violet" | "purple";
   social: {
     instagram?: string;
     facebook?: string;
@@ -48,6 +48,14 @@ export const COMMUNITIES: Record<CommunityKey, Community> = {
       linkedin: "https://www.linkedin.com/company/edclubcep/",
     },
   },
+  rndclub: {
+    key: "rndclub",
+    name: "Research & Development Club",
+    short: "R&D",
+    tagline: "Research, innovation, publications and emerging technologies",
+    accent: "purple",
+    social: {},
+  },
 };
 
 export const COMMUNITY_LIST = Object.values(COMMUNITIES);
@@ -55,4 +63,11 @@ export const COMMUNITY_LIST = Object.values(COMMUNITIES);
 export function getCommunity(key: string | undefined): Community | undefined {
   if (!key) return undefined;
   return COMMUNITIES[key as CommunityKey];
+}
+
+/** Match either short ("IIC") or key ("iic") used across tables. */
+export function findCommunityByShortOrKey(value: string | null | undefined): Community | undefined {
+  if (!value) return undefined;
+  const v = value.trim().toLowerCase();
+  return COMMUNITY_LIST.find((c) => c.short.toLowerCase() === v || c.key.toLowerCase() === v);
 }
