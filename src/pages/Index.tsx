@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { HighlightsGrid } from "@/components/HighlightsGrid";
 import { PublicExecom } from "@/components/PublicExecom";
+import { CommunityLogo } from "@/components/CommunityLogo";
 
 type EventRow = {
   id: string;
@@ -45,9 +46,9 @@ const EventCard = ({ e, faded = false, i = 0 }: { e: EventRow; faded?: boolean; 
         <Calendar className="h-10 w-10 opacity-70" />
       </Link>
     )}
-    <div className="p-4 flex-1 flex flex-col">
+      <div className="p-4 flex-1 flex flex-col">
       <div className="flex items-center gap-2 text-xs text-gold uppercase tracking-wide">
-        <Calendar className="h-3 w-3" />{e.community}
+        <CommunityLogo community={e.community} size={18} />{e.community}
       </div>
       <h3 className="mt-2 text-base font-semibold line-clamp-2">{e.name}</h3>
       {e.event_date && (
@@ -234,9 +235,7 @@ const Index = () => {
                 className="group glass rounded-2xl p-6 hover:border-primary/50 hover:shadow-glow-emerald transition-smooth"
               >
                 <div className="flex items-center justify-between">
-                  <div className="h-12 w-12 rounded-xl bg-gradient-emerald grid place-items-center font-bold text-primary-foreground shadow-glow-emerald">
-                    {c.short.charAt(0)}
-                  </div>
+                  <CommunityLogo community={c.short} size={48} />
                   <div className="flex gap-2">
                     {c.social.instagram && <a href={c.social.instagram} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-smooth"><Instagram className="h-4 w-4" /></a>}
                     {c.social.facebook && <a href={c.social.facebook} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-smooth"><Facebook className="h-4 w-4" /></a>}

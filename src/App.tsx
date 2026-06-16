@@ -18,6 +18,7 @@ import Coordinator from "./pages/Coordinator";
 import Admin from "./pages/Admin";
 import Gallery from "./pages/Gallery";
 import Profile from "./pages/Profile";
+import CommunityLogos from "./pages/CommunityLogos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/events/:id/manage" element={<ProtectedRoute requireRole={["executive_member", "co_admin", "admin"]}><EventManage /></ProtectedRoute>} />
             <Route path="/events/:id/coordinator" element={<ProtectedRoute requireRole={["coordinator", "executive_member", "co_admin", "admin"]}><Coordinator /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute requireRole={["admin", "co_admin"]}><Admin /></ProtectedRoute>} />
+            <Route path="/admin/community-logos" element={<ProtectedRoute requireRole={["admin"]}><CommunityLogos /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

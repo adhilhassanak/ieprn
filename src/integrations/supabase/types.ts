@@ -125,6 +125,30 @@ export type Database = {
           },
         ]
       }
+      community_logos: {
+        Row: {
+          community: string
+          created_at: string
+          logo_url: string | null
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          community: string
+          created_at?: string
+          logo_url?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          community?: string
+          created_at?: string
+          logo_url?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       dashboard_links: {
         Row: {
           button_link: string
@@ -271,6 +295,7 @@ export type Database = {
           external_form_url: string | null
           funds_received: number
           id: string
+          manual_registered_count: number | null
           name: string
           pdf_url: string | null
           poster_url: string | null
@@ -294,6 +319,7 @@ export type Database = {
           external_form_url?: string | null
           funds_received?: number
           id?: string
+          manual_registered_count?: number | null
           name: string
           pdf_url?: string | null
           poster_url?: string | null
@@ -317,6 +343,7 @@ export type Database = {
           external_form_url?: string | null
           funds_received?: number
           id?: string
+          manual_registered_count?: number | null
           name?: string
           pdf_url?: string | null
           poster_url?: string | null

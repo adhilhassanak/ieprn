@@ -340,6 +340,15 @@ const Admin = () => {
 
           {/* STORAGE */}
           <TabsContent value="storage" className="mt-4 space-y-8">
+            <div className="glass rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <div className="font-semibold">Community Logos</div>
+                <div className="text-sm text-muted-foreground">Upload or replace logos shown across the site.</div>
+              </div>
+              <Button asChild size="sm" className="bg-gradient-emerald text-primary-foreground">
+                <Link to="/admin/community-logos">Manage logos</Link>
+              </Button>
+            </div>
             <StorageMonitor />
           </TabsContent>
 
