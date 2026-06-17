@@ -271,6 +271,26 @@ const EventCreate = () => {
             </button>
           </div>
 
+          {/* Manual coordinator entries (optional) */}
+          <div>
+            <Label>Manual coordinators <span className="text-muted-foreground text-xs">(name, gmail, phone — phone shown publicly)</span></Label>
+            <div className="mt-2 space-y-2">
+              {manualCoords.map((c, i) => (
+                <div key={i} className="grid grid-cols-1 md:grid-cols-[1fr,1fr,1fr,auto] gap-2 items-start glass rounded-lg p-2">
+                  <Input placeholder="Name" value={c.name} onChange={(e) => setManualCoords((prev) => prev.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} />
+                  <Input type="email" placeholder="Gmail" value={c.gmail} onChange={(e) => setManualCoords((prev) => prev.map((x, j) => j === i ? { ...x, gmail: e.target.value } : x))} />
+                  <Input inputMode="numeric" maxLength={10} placeholder="Phone (10 digits)" value={c.phone} onChange={(e) => setManualCoords((prev) => prev.map((x, j) => j === i ? { ...x, phone: e.target.value.replace(/\D/g, "") } : x))} />
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setManualCoords((prev) => prev.filter((_, j) => j !== i))}><X className="h-4 w-4" /></Button>
+                </div>
+              ))}
+              <Button type="button" variant="outline" size="sm" onClick={() => setManualCoords((prev) => [...prev, { name: "", gmail: "", phone: "" }])}>
+                <Plus className="h-4 w-4 mr-1" /> Add coordinator
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">Gmail is kept private. Name & phone are shown to visitors.</p>
+          </div>
+
+
           {/* PDF upload */}
           <div>
             <Label>PDF brochure (optional, max 1 MB)</Label>
