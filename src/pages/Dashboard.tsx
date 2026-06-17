@@ -302,62 +302,43 @@ const Dashboard = () => {
           )}
         </section>
 
-        {/* Events You Manage */}
-        {isExecutive && (
-          <section id="my-events" className="mt-12">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">
-                Events You Manage
-              </h2>
-
-              <Button
-                asChild
-                size="sm"
-                className="bg-gradient-emerald text-primary-foreground"
-              >
-                <Link to="/events/new">
-                  <Plus className="h-4 w-4 mr-1" />
-                  New Event
-                </Link>
-              </Button>
-            </div>
-
-            {myEvents.length === 0 ? (
-              <div className="glass rounded-2xl p-8 text-center text-muted-foreground">
-                No events yet.
+        {/* Events You Coordinate (creator + assigned coordinator, deduped) */}
+        {(() => {
+          const merged = [...myEvents, ...coordinatedEvents];
+          const seen = new Set<string>();
+          const unique = merged.filter((e) => {
+            if (!e || seen.has(e.id)) return false;
+            seen.add(e.id);
+            return true;
+          });
+          if (!isExecutive && unique.length === 0) return null;
+          return (
+            <section id="my-events" className="mt-12">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Events You Coordinate</h2>
+                {isExecutive && (
+                  <Button asChild size="sm" className="bg-gradient-emerald text-primary-foreground">
+                    <Link to="/events/new">
+                      <Plus className="h-4 w-4 mr-1" />
+                      New Event
+                    </Link>
+                  </Button>
+                )}
               </div>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {myEvents.map((e) => (
-                  <EventCard
-                    key={e.id}
-                    e={e}
-                    manage
-                  />
-                ))}
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* Events You Coordinate */}
-        {coordinatedEvents.length > 0 && (
-          <section className="mt-12">
-            <h2 className="text-xl font-semibold mb-4">
-              Events You Coordinate
-            </h2>
-
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {coordinatedEvents.map((e) => (
-                <EventCard
-                  key={e.id}
-                  e={e}
-                  coord
-                />
-              ))}
-            </div>
-          </section>
-        )}
+              {unique.length === 0 ? (
+                <div className="glass rounded-2xl p-8 text-center text-muted-foreground">
+                  No events yet.
+                </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {unique.map((e) => (
+                    <EventCard key={e.id} e={e} manage />
+                  ))}
+                </div>
+              )}
+            </section>
+          );
+        })()}
 
         {/* Student Tabs */}
         <StudentTabs />

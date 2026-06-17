@@ -41,6 +41,7 @@ const EventCreate = () => {
   const [execList, setExecList] = useState<Array<{ user_id: string; full_name: string; community: string }>>([]);
   const [primaryCoord, setPrimaryCoord] = useState<string>("");
   const [secondaryCoord, setSecondaryCoord] = useState<string>("");
+  const [manualCoords, setManualCoords] = useState<Array<{ name: string; gmail: string; phone: string }>>([]);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -123,13 +124,17 @@ const EventCreate = () => {
         pdf_url = supabase.storage.from("event-pdfs").getPublicUrl(path).data.publicUrl;
       }
 
+      const validManual = manualCoords
+        .map((c) => ({ name: c.name.trim(), gmail: c.gmail.trim(), phone: c.phone.trim() }))
+        .filter((c) => c.name && c.gmail && /^\d{10}$/.test(c.phone));
       const payload: any = {
         ...parsed.data,
         event_date: parsed.data.event_date || null,
         created_by: user.id,
         poster_url,
         pdf_url,
-        coordinator_names: validCoords,
+        coordinator_names: [...validCoords, ...validManual.map((c) => c.name)],
+        coordinator_contacts: validManual,
         registration_open: false,
         whatsapp_link: form.whatsapp_link.trim() || null,
         registration_mode: form.registration_mode,
@@ -265,6 +270,26 @@ const EventCreate = () => {
               {posterPreview ? <img src={posterPreview} alt="" className="h-24 rounded-lg object-cover" /> : <><Upload className="h-4 w-4" /> Click to upload poster</>}
             </button>
           </div>
+
+          {/* Manual coordinator entries (optional) */}
+          <div>
+            <Label>Manual coordinators <span className="text-muted-foreground text-xs">(name, gmail, phone — phone shown publicly)</span></Label>
+            <div className="mt-2 space-y-2">
+              {manualCoords.map((c, i) => (
+                <div key={i} className="grid grid-cols-1 md:grid-cols-[1fr,1fr,1fr,auto] gap-2 items-start glass rounded-lg p-2">
+                  <Input placeholder="Name" value={c.name} onChange={(e) => setManualCoords((prev) => prev.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} />
+                  <Input type="email" placeholder="Gmail" value={c.gmail} onChange={(e) => setManualCoords((prev) => prev.map((x, j) => j === i ? { ...x, gmail: e.target.value } : x))} />
+                  <Input inputMode="numeric" maxLength={10} placeholder="Phone (10 digits)" value={c.phone} onChange={(e) => setManualCoords((prev) => prev.map((x, j) => j === i ? { ...x, phone: e.target.value.replace(/\D/g, "") } : x))} />
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setManualCoords((prev) => prev.filter((_, j) => j !== i))}><X className="h-4 w-4" /></Button>
+                </div>
+              ))}
+              <Button type="button" variant="outline" size="sm" onClick={() => setManualCoords((prev) => [...prev, { name: "", gmail: "", phone: "" }])}>
+                <Plus className="h-4 w-4 mr-1" /> Add coordinator
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">Gmail is kept private. Name & phone are shown to visitors.</p>
+          </div>
+
 
           {/* PDF upload */}
           <div>

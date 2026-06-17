@@ -6,7 +6,14 @@ export interface AdminSettings {
   primary_color: string;
   accent_color: string;
   registration_open_global: boolean;
+  theme_mode?: "light" | "dark";
 }
+
+export const applyThemeMode = (mode: "light" | "dark") => {
+  const root = document.documentElement;
+  root.classList.remove("light", "dark");
+  root.classList.add(mode);
+};
 
 const hexToHsl = (hex: string): string => {
   const m = hex.replace("#", "");
@@ -71,6 +78,9 @@ export function useAdminSettings() {
     if (data) {
       setSettings(data as AdminSettings);
       applyTheme(data.primary_color, data.accent_color);
+      applyThemeMode(((data as any).theme_mode as "light" | "dark") ?? "dark");
+    } else {
+      applyThemeMode("dark");
     }
   };
 

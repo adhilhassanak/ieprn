@@ -15,7 +15,7 @@ import { toast } from "@/hooks/use-toast";
 import { CheckCircle2, XCircle, Clock, Trash2, Search, Plus, ShieldPlus, Save, Pencil } from "lucide-react";
 import { EditApplicationDialog } from "@/components/admin/EditApplicationDialog";
 import { COMMUNITY_LIST } from "@/lib/communities";
-import { applyTheme, THEME_PRESETS, type ThemePresetKey, loadGlassPrefs, saveGlassPrefs } from "@/hooks/useAdminSettings";
+import { applyTheme, THEME_PRESETS, type ThemePresetKey, loadGlassPrefs, saveGlassPrefs, applyThemeMode } from "@/hooks/useAdminSettings";
 import { Slider } from "@/components/ui/slider";
 import { StorageMonitor } from "@/components/admin/StorageMonitor";
 
@@ -79,8 +79,8 @@ const Admin = () => {
     load();
   };
   const approveEvent = async (e: any) => {
-    if ((e.coordinator_names?.length ?? 0) < 2) {
-      return toast({ title: "Need 2 coordinators", description: "Add at least 2 coordinator names before publishing.", variant: "destructive" });
+    if ((e.coordinator_names?.length ?? 0) < 1) {
+      return toast({ title: "Need 1 coordinator", description: "Add at least 1 coordinator before publishing.", variant: "destructive" });
     }
     const { error } = await supabase.from("events").update({ status: "published", registration_open: true }).eq("id", e.id);
     if (error) return toast({ title: "Approve failed", description: error.message, variant: "destructive" });
@@ -136,10 +136,12 @@ const Admin = () => {
       accent_color: settings.accent_color,
       registration_open_global: settings.registration_open_global,
       community_registration: settings.community_registration ?? {},
+      theme_mode: settings.theme_mode ?? "dark",
       updated_at: new Date().toISOString(),
     }).eq("id", settings.id);
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
     applyTheme(settings.primary_color, settings.accent_color);
+    applyThemeMode(settings.theme_mode ?? "dark");
     toast({ title: "Settings saved" });
   };
 
@@ -371,6 +373,25 @@ const Admin = () => {
           <TabsContent value="settings" className="mt-4">
             {settings && (
               <div className="glass rounded-xl p-6 space-y-6 max-w-xl">
+                <div className="rounded-lg border border-border p-4">
+                  <h3 className="font-semibold">Site theme mode</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Applies to every visitor. Persisted in the database.</p>
+                  <div className="mt-3 inline-flex rounded-lg border border-border overflow-hidden">
+                    {(["light","dark"] as const).map((m) => {
+                      const active = (settings.theme_mode ?? "dark") === m;
+                      return (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => { setSettings({ ...settings, theme_mode: m }); applyThemeMode(m); }}
+                          className={`px-4 py-2 text-sm capitalize ${active ? "bg-primary text-primary-foreground" : "bg-transparent text-muted-foreground hover:text-foreground"}`}
+                        >
+                          {m} mode
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
                 <div>
                   <h3 className="font-semibold">Theme presets</h3>
                   <div className="mt-3 grid grid-cols-3 gap-2">
