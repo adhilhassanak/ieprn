@@ -71,6 +71,11 @@ const EventManage = () => {
       .map((uid) => execList.find((m) => m.user_id === uid)?.full_name)
       .filter(Boolean) as string[];
 
+    const manual = (event.coordinator_contacts ?? []) as Array<{ name: string; gmail: string; phone: string }>;
+    const validManual = manual
+      .map((c) => ({ name: (c.name || "").trim(), gmail: (c.gmail || "").trim(), phone: (c.phone || "").trim() }))
+      .filter((c) => c.name && c.gmail && /^\d{10}$/.test(c.phone));
+
     setSaving(true);
     const { error } = await supabase.from("events").update({
       name: event.name,
@@ -81,7 +86,8 @@ const EventManage = () => {
       venue: event.venue,
       status: event.status,
       registration_open: event.registration_open,
-      coordinator_names: cleanCoords,
+      coordinator_names: [...cleanCoords, ...validManual.map((c) => c.name)],
+      coordinator_contacts: validManual,
       expected_participants: event.expected_participants,
       actual_participants: event.actual_participants,
       funds_received: event.funds_received,
@@ -95,7 +101,6 @@ const EventManage = () => {
       return toast({ title: "Save failed", description: error.message, variant: "destructive" });
     }
 
-    // Sync event_coordinators: remove unselected, add new
     const existingIds = coordinators.map((c) => c.user_id);
     const toRemove = coordinators.filter((c) => !selectedIds.includes(c.user_id));
     const toAdd = selectedIds.filter((uid) => !existingIds.includes(uid));
@@ -110,6 +115,32 @@ const EventManage = () => {
     setSaving(false);
     toast({ title: "Saved" });
     load();
+  };
+
+  const uploadFile = async (kind: "poster" | "pdf", file: File) => {
+    if (!user) return;
+    const bucket = kind === "poster" ? "event-posters" : "event-pdfs";
+    const maxSize = kind === "poster" ? 500 * 1024 : 1024 * 1024;
+    if (file.size > maxSize) return toast({ title: "File too large", description: kind === "poster" ? "Max 500 KB" : "Max 1 MB", variant: "destructive" });
+    if (kind === "pdf" && file.type !== "application/pdf") return toast({ title: "Must be a PDF", variant: "destructive" });
+    const path = `${user.id}/${Date.now()}-${file.name.replace(/[^a-z0-9.\-]/gi, "_")}`;
+    const { error } = await supabase.storage.from(bucket).upload(path, file);
+    if (error) return toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+    const url = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+    const col = kind === "poster" ? "poster_url" : "pdf_url";
+    const { error: upErr } = await supabase.from("events").update({ [col]: url }).eq("id", event.id);
+    if (upErr) return toast({ title: "Update failed", description: upErr.message, variant: "destructive" });
+    setEvent({ ...event, [col]: url });
+    toast({ title: kind === "poster" ? "Poster updated" : "Brochure updated" });
+  };
+
+  const removeFile = async (kind: "poster" | "pdf") => {
+    if (!confirm(`Remove ${kind}?`)) return;
+    const col = kind === "poster" ? "poster_url" : "pdf_url";
+    const { error } = await supabase.from("events").update({ [col]: null }).eq("id", event.id);
+    if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
+    setEvent({ ...event, [col]: null });
+    toast({ title: "Removed" });
   };
 
 
