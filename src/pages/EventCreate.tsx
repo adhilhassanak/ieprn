@@ -41,6 +41,7 @@ const EventCreate = () => {
   const [execList, setExecList] = useState<Array<{ user_id: string; full_name: string; community: string }>>([]);
   const [primaryCoord, setPrimaryCoord] = useState<string>("");
   const [secondaryCoord, setSecondaryCoord] = useState<string>("");
+  const [manualCoords, setManualCoords] = useState<Array<{ name: string; gmail: string; phone: string }>>([]);
   const [form, setForm] = useState({
     name: "",
     description: "",
