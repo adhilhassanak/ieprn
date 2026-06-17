@@ -78,6 +78,9 @@ export function useAdminSettings() {
     if (data) {
       setSettings(data as AdminSettings);
       applyTheme(data.primary_color, data.accent_color);
+      applyThemeMode(((data as any).theme_mode as "light" | "dark") ?? "dark");
+    } else {
+      applyThemeMode("dark");
     }
   };
 
