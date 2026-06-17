@@ -284,11 +284,13 @@ export type Database = {
       events: {
         Row: {
           actual_participants: number
+          actual_registrations: number | null
           community: string
           coordinator_names: string[]
           created_at: string
           created_by: string | null
           description: string | null
+          displayed_registrations: number | null
           event_date: string | null
           event_time: string | null
           expected_participants: number
@@ -308,11 +310,13 @@ export type Database = {
         }
         Insert: {
           actual_participants?: number
+          actual_registrations?: number | null
           community: string
           coordinator_names?: string[]
           created_at?: string
           created_by?: string | null
           description?: string | null
+          displayed_registrations?: number | null
           event_date?: string | null
           event_time?: string | null
           expected_participants?: number
@@ -332,11 +336,13 @@ export type Database = {
         }
         Update: {
           actual_participants?: number
+          actual_registrations?: number | null
           community?: string
           coordinator_names?: string[]
           created_at?: string
           created_by?: string | null
           description?: string | null
+          displayed_registrations?: number | null
           event_date?: string | null
           event_time?: string | null
           expected_participants?: number
