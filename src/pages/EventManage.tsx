@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { Trash2, UserPlus, Save, ExternalLink, Plus, X, CheckCircle2, Circle } from "lucide-react";
+import { Trash2, UserPlus, Save, ExternalLink, Plus, X, CheckCircle2, Circle, Upload, FileText, Image as ImageIcon } from "lucide-react";
 
 const EventManage = () => {
   const { id } = useParams();
