@@ -124,13 +124,17 @@ const EventCreate = () => {
         pdf_url = supabase.storage.from("event-pdfs").getPublicUrl(path).data.publicUrl;
       }
 
+      const validManual = manualCoords
+        .map((c) => ({ name: c.name.trim(), gmail: c.gmail.trim(), phone: c.phone.trim() }))
+        .filter((c) => c.name && c.gmail && /^\d{10}$/.test(c.phone));
       const payload: any = {
         ...parsed.data,
         event_date: parsed.data.event_date || null,
         created_by: user.id,
         poster_url,
         pdf_url,
-        coordinator_names: validCoords,
+        coordinator_names: [...validCoords, ...validManual.map((c) => c.name)],
+        coordinator_contacts: validManual,
         registration_open: false,
         whatsapp_link: form.whatsapp_link.trim() || null,
         registration_mode: form.registration_mode,
