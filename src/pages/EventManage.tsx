@@ -427,4 +427,38 @@ const EventManage = () => {
   );
 };
 
+const FileBlock = ({
+  label, icon, url, accept, preview, onPick, onDelete,
+}: {
+  label: string; icon: React.ReactNode; url?: string | null; accept: string; preview?: boolean;
+  onPick: (file: File) => void; onDelete: () => void;
+}) => {
+  const ref = useRef<HTMLInputElement>(null);
+  return (
+    <div className="rounded-xl border border-border/60 p-4">
+      <div className="flex items-center gap-2 text-sm font-medium">{icon}{label}</div>
+      <div className="mt-3">
+        {url ? (
+          preview ? (
+            <img src={url} alt="" className="h-32 w-full object-cover rounded-lg border border-border/60" />
+          ) : (
+            <a href={url} target="_blank" rel="noreferrer" className="text-sm text-primary underline break-all">Open current file</a>
+          )
+        ) : (
+          <div className="text-xs text-muted-foreground">No file uploaded yet.</div>
+        )}
+      </div>
+      <input ref={ref} type="file" accept={accept} className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onPick(f); e.currentTarget.value = ""; }} />
+      <div className="mt-3 flex gap-2">
+        <Button type="button" size="sm" variant="outline" onClick={() => ref.current?.click()}>
+          <Upload className="h-4 w-4 mr-1" />{url ? "Replace" : "Upload"}
+        </Button>
+        {url && (
+          <Button type="button" size="sm" variant="destructive" onClick={onDelete}><Trash2 className="h-4 w-4 mr-1" />Delete</Button>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default EventManage;
