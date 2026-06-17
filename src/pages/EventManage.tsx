@@ -128,7 +128,7 @@ const EventManage = () => {
     if (error) return toast({ title: "Upload failed", description: error.message, variant: "destructive" });
     const url = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
     const col = kind === "poster" ? "poster_url" : "pdf_url";
-    const { error: upErr } = await supabase.from("events").update({ [col]: url }).eq("id", event.id);
+    const { error: upErr } = await supabase.from("events").update({ [col]: url } as any).eq("id", event.id);
     if (upErr) return toast({ title: "Update failed", description: upErr.message, variant: "destructive" });
     setEvent({ ...event, [col]: url });
     toast({ title: kind === "poster" ? "Poster updated" : "Brochure updated" });
