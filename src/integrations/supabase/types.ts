@@ -22,6 +22,7 @@ export type Database = {
           primary_color: string
           registration_open_global: boolean
           singleton: boolean
+          theme_mode: string
           updated_at: string
         }
         Insert: {
@@ -31,6 +32,7 @@ export type Database = {
           primary_color?: string
           registration_open_global?: boolean
           singleton?: boolean
+          theme_mode?: string
           updated_at?: string
         }
         Update: {
@@ -40,6 +42,7 @@ export type Database = {
           primary_color?: string
           registration_open_global?: boolean
           singleton?: boolean
+          theme_mode?: string
           updated_at?: string
         }
         Relationships: []
@@ -286,6 +289,7 @@ export type Database = {
           actual_participants: number
           actual_registrations: number | null
           community: string
+          coordinator_contacts: Json
           coordinator_names: string[]
           created_at: string
           created_by: string | null
@@ -312,6 +316,7 @@ export type Database = {
           actual_participants?: number
           actual_registrations?: number | null
           community: string
+          coordinator_contacts?: Json
           coordinator_names?: string[]
           created_at?: string
           created_by?: string | null
@@ -338,6 +343,7 @@ export type Database = {
           actual_participants?: number
           actual_registrations?: number | null
           community?: string
+          coordinator_contacts?: Json
           coordinator_names?: string[]
           created_at?: string
           created_by?: string | null
