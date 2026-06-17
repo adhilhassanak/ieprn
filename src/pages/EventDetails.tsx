@@ -91,21 +91,33 @@ const EventDetails = () => {
               {event.event_date && <Info icon={Calendar} label={new Date(event.event_date).toLocaleDateString()} />}
               {event.event_time && <Info icon={Clock} label={event.event_time} />}
               {event.venue && <Info icon={MapPin} label={event.venue} />}
-              <Info icon={Users} label={`${participantCount} registered`} />
             </div>
 
-            {event.coordinator_names?.length > 0 && (
-              <div className="mt-6">
-                <div className="text-xs uppercase tracking-wide text-gold mb-2">Coordinators</div>
-                <div className="flex flex-wrap gap-2">
-                  {event.coordinator_names.map((n: string, i: number) => (
-                    <div key={i} className="flex items-center gap-2 rounded-full border border-border bg-background/40 px-3 py-1 text-sm">
-                      <UserCircle2 className="h-4 w-4 text-primary" /> {n}
-                    </div>
-                  ))}
+            {/* Coordinators — public sees name & phone only (gmail stays private) */}
+            {(() => {
+              const contacts: Array<{ name: string; phone?: string }> = Array.isArray(event.coordinator_contacts)
+                ? event.coordinator_contacts.map((c: any) => ({ name: c?.name, phone: c?.phone }))
+                : [];
+              const namesFromArray: Array<{ name: string; phone?: string }> = (event.coordinator_names ?? [])
+                .filter((n: string) => !contacts.some((c) => c.name === n))
+                .map((n: string) => ({ name: n }));
+              const all = [...contacts, ...namesFromArray].filter((c) => c.name);
+              if (all.length === 0) return null;
+              return (
+                <div className="mt-6">
+                  <div className="text-xs uppercase tracking-wide text-gold mb-2">Coordinators</div>
+                  <div className="flex flex-wrap gap-2">
+                    {all.map((c, i) => (
+                      <div key={i} className="flex items-center gap-2 rounded-full border border-border bg-background/40 px-3 py-1 text-sm">
+                        <UserCircle2 className="h-4 w-4 text-primary" />
+                        <span>{c.name}</span>
+                        {c.phone && <span className="text-muted-foreground">· {c.phone}</span>}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {event.pdf_url && (
               <div className="mt-6">
