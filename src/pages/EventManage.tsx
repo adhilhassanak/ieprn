@@ -267,6 +267,33 @@ const EventManage = () => {
               <p className="text-xs text-muted-foreground mt-2">Selected coordinators get edit access to this event.</p>
             </div>
 
+            {/* Manual coordinators (name + gmail + phone) */}
+            <div>
+              <Label>Manual coordinators <span className="text-muted-foreground text-xs">(name & phone visible to public, gmail private)</span></Label>
+              <div className="mt-2 space-y-2">
+                {((event.coordinator_contacts ?? []) as Array<{ name: string; gmail: string; phone: string }>).map((c, i) => (
+                  <div key={i} className="grid grid-cols-1 md:grid-cols-[1fr,1fr,1fr,auto] gap-2 items-start glass rounded-lg p-2">
+                    <Input placeholder="Name" value={c.name ?? ""} onChange={(ev) => {
+                      const next = [...(event.coordinator_contacts ?? [])]; next[i] = { ...next[i], name: ev.target.value }; setEvent({ ...event, coordinator_contacts: next });
+                    }} />
+                    <Input type="email" placeholder="Gmail" value={c.gmail ?? ""} onChange={(ev) => {
+                      const next = [...(event.coordinator_contacts ?? [])]; next[i] = { ...next[i], gmail: ev.target.value }; setEvent({ ...event, coordinator_contacts: next });
+                    }} />
+                    <Input inputMode="numeric" maxLength={10} placeholder="Phone (10 digits)" value={c.phone ?? ""} onChange={(ev) => {
+                      const next = [...(event.coordinator_contacts ?? [])]; next[i] = { ...next[i], phone: ev.target.value.replace(/\D/g, "") }; setEvent({ ...event, coordinator_contacts: next });
+                    }} />
+                    <Button type="button" variant="ghost" size="sm" onClick={() => {
+                      const next = [...(event.coordinator_contacts ?? [])]; next.splice(i, 1); setEvent({ ...event, coordinator_contacts: next });
+                    }}><X className="h-4 w-4" /></Button>
+                  </div>
+                ))}
+                <Button type="button" variant="outline" size="sm" onClick={() => {
+                  const next = [...(event.coordinator_contacts ?? []), { name: "", gmail: "", phone: "" }];
+                  setEvent({ ...event, coordinator_contacts: next });
+                }}><Plus className="h-4 w-4 mr-1" /> Add coordinator</Button>
+              </div>
+            </div>
+
             <div className="flex gap-2">
               <Button type="submit" disabled={saving} className="bg-gradient-emerald text-primary-foreground"><Save className="h-4 w-4 mr-1" />Save</Button>
               {canDelete && (
@@ -274,6 +301,33 @@ const EventManage = () => {
               )}
             </div>
           </form>
+        )}
+
+        {/* Poster & brochure management (admin + coordinators) */}
+        {canEdit && (
+          <section className="mt-8 glass rounded-2xl p-6">
+            <h2 className="text-lg font-semibold">Event files</h2>
+            <p className="text-xs text-muted-foreground mt-1">Only admin and event coordinators can upload, replace or delete.</p>
+            <div className="mt-4 grid md:grid-cols-2 gap-4">
+              <FileBlock
+                label="Poster (image, max 500 KB)"
+                icon={<ImageIcon className="h-4 w-4 text-primary" />}
+                url={event.poster_url}
+                accept="image/*"
+                preview
+                onPick={(f) => uploadFile("poster", f)}
+                onDelete={() => removeFile("poster")}
+              />
+              <FileBlock
+                label="Brochure (PDF, max 1 MB)"
+                icon={<FileText className="h-4 w-4 text-primary" />}
+                url={event.pdf_url}
+                accept="application/pdf"
+                onPick={(f) => uploadFile("pdf", f)}
+                onDelete={() => removeFile("pdf")}
+              />
+            </div>
+          </section>
         )}
 
 
