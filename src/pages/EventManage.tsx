@@ -137,7 +137,7 @@ const EventManage = () => {
   const removeFile = async (kind: "poster" | "pdf") => {
     if (!confirm(`Remove ${kind}?`)) return;
     const col = kind === "poster" ? "poster_url" : "pdf_url";
-    const { error } = await supabase.from("events").update({ [col]: null }).eq("id", event.id);
+    const { error } = await supabase.from("events").update({ [col]: null } as any).eq("id", event.id);
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
     setEvent({ ...event, [col]: null });
     toast({ title: "Removed" });
