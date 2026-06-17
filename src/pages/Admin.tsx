@@ -373,6 +373,25 @@ const Admin = () => {
           <TabsContent value="settings" className="mt-4">
             {settings && (
               <div className="glass rounded-xl p-6 space-y-6 max-w-xl">
+                <div className="rounded-lg border border-border p-4">
+                  <h3 className="font-semibold">Site theme mode</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Applies to every visitor. Persisted in the database.</p>
+                  <div className="mt-3 inline-flex rounded-lg border border-border overflow-hidden">
+                    {(["light","dark"] as const).map((m) => {
+                      const active = (settings.theme_mode ?? "dark") === m;
+                      return (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => { setSettings({ ...settings, theme_mode: m }); applyThemeMode(m); }}
+                          className={`px-4 py-2 text-sm capitalize ${active ? "bg-primary text-primary-foreground" : "bg-transparent text-muted-foreground hover:text-foreground"}`}
+                        >
+                          {m} mode
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
                 <div>
                   <h3 className="font-semibold">Theme presets</h3>
                   <div className="mt-3 grid grid-cols-3 gap-2">
