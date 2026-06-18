@@ -116,25 +116,43 @@ const EventDetails = () => {
               {event.venue && <Info icon={MapPin} label={event.venue} />}
             </div>
 
-            {/* Coordinators — public sees name & phone only (gmail stays private) */}
+            {/* Coordinators — name, email and phone are all shown publicly */}
             {(() => {
-              const contacts: Array<{ name: string; phone?: string }> = Array.isArray(event.coordinator_contacts)
-                ? event.coordinator_contacts.map((c: any) => ({ name: c?.name, phone: c?.phone }))
+              type Coord = { name: string; gmail?: string; phone?: string };
+              const contacts: Coord[] = Array.isArray(event.coordinator_contacts)
+                ? event.coordinator_contacts.map((c: any) => ({ name: c?.name, gmail: c?.gmail, phone: c?.phone }))
                 : [];
-              const namesFromArray: Array<{ name: string; phone?: string }> = (event.coordinator_names ?? [])
+              const namesFromArray: Coord[] = (event.coordinator_names ?? [])
                 .filter((n: string) => !contacts.some((c) => c.name === n))
                 .map((n: string) => ({ name: n }));
               const all = [...contacts, ...namesFromArray].filter((c) => c.name);
               if (all.length === 0) return null;
               return (
                 <div className="mt-6">
-                  <div className="text-xs uppercase tracking-wide text-gold mb-2">Coordinators</div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="text-xs uppercase tracking-wide text-gold mb-3">Coordinators</div>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {all.map((c, i) => (
-                      <div key={i} className="flex items-center gap-2 rounded-full border border-border bg-background/40 px-3 py-1 text-sm">
-                        <UserCircle2 className="h-4 w-4 text-primary" />
-                        <span>{c.name}</span>
-                        {c.phone && <span className="text-muted-foreground">· {c.phone}</span>}
+                      <div key={i} className="glass rounded-xl p-3 border border-border/60">
+                        <div className="flex items-center gap-2 font-medium">
+                          <UserCircle2 className="h-4 w-4 text-primary shrink-0" />
+                          <span className="truncate">{c.name}</span>
+                        </div>
+                        {(c.gmail || c.phone) && (
+                          <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                            {c.gmail && (
+                              <a href={`mailto:${c.gmail}`} className="flex items-center gap-2 truncate hover:text-primary">
+                                <Mail className="h-3 w-3 text-primary shrink-0" />
+                                <span className="truncate">{c.gmail}</span>
+                              </a>
+                            )}
+                            {c.phone && (
+                              <a href={`tel:${c.phone}`} className="flex items-center gap-2 hover:text-primary">
+                                <Phone className="h-3 w-3 text-primary shrink-0" />
+                                <span>{c.phone}</span>
+                              </a>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
