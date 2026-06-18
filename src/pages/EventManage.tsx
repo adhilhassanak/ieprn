@@ -185,7 +185,7 @@ const EventManage = () => {
               )}
             </div>
           </div>
-          <Button asChild variant="outline" size="sm"><Link to={`/events/${event.id}`}><ExternalLink className="h-3.5 w-3.5 mr-1" />Public page</Link></Button>
+          <Button asChild variant="outline" size="sm"><Link to={`/events/${event.slug ?? event.id}`}><ExternalLink className="h-3.5 w-3.5 mr-1" />Public page</Link></Button>
         </div>
 
         {canEdit && (
@@ -269,7 +269,7 @@ const EventManage = () => {
 
             {/* Manual coordinators (name + gmail + phone) */}
             <div>
-              <Label>Manual coordinators <span className="text-muted-foreground text-xs">(name & phone visible to public, gmail private)</span></Label>
+              <Label>Manual coordinators <span className="text-muted-foreground text-xs">(name, gmail & phone — all shown publicly)</span></Label>
               <div className="mt-2 space-y-2">
                 {((event.coordinator_contacts ?? []) as Array<{ name: string; gmail: string; phone: string }>).map((c, i) => (
                   <div key={i} className="grid grid-cols-1 md:grid-cols-[1fr,1fr,1fr,auto] gap-2 items-start glass rounded-lg p-2">

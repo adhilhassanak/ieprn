@@ -1,5 +1,5 @@
 import { useEffect, useState, FormEvent } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { z } from "zod";
 import { Layout } from "@/components/Layout";
@@ -10,9 +10,12 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Clock, Users, CheckCircle2, Instagram, Linkedin, Facebook, FileText, UserCircle2, MessageCircle } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, CheckCircle2, Instagram, Linkedin, Facebook, FileText, UserCircle2, MessageCircle, Mail, Phone } from "lucide-react";
 import { COMMUNITY_LIST } from "@/lib/communities";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
+
+// UUID v4 pattern (case-insensitive)
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const schema = z.object({
   full_name: z.string().trim().min(2).max(100),
@@ -23,6 +26,7 @@ const schema = z.object({
 
 const EventDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { settings } = useAdminSettings();
   const [event, setEvent] = useState<any>(null);
   const [participantCount, setParticipantCount] = useState(0);
@@ -33,9 +37,28 @@ const EventDetails = () => {
   useEffect(() => {
     if (!id) return;
     (async () => {
-      const { data } = await supabase.from("events").select("*").eq("id", id).maybeSingle();
+      const param = String(id);
+      const isUuid = UUID_RE.test(param);
+
+      // Try slug first; if that fails (or input looks like UUID), fall back to id lookup.
+      let data: any = null;
+      if (!isUuid) {
+        const r = await supabase.from("events").select("*").eq("slug", param).maybeSingle();
+        data = r.data;
+      }
+      if (!data) {
+        const r = await supabase.from("events").select("*").eq("id", param).maybeSingle();
+        data = r.data;
+        // Redirect legacy UUID URLs to the slug URL.
+        if (data?.slug && data.slug !== param) {
+          navigate(`/events/${data.slug}`, { replace: true });
+          return;
+        }
+      }
       setEvent(data);
-      const { count } = await supabase.from("event_participants").select("*", { count: "exact", head: true }).eq("event_id", id);
+      if (!data) return;
+
+      const { count } = await supabase.from("event_participants").select("*", { count: "exact", head: true }).eq("event_id", data.id);
       setParticipantCount(count ?? 0);
 
       // check existing registration by current user's email (if logged in)
@@ -45,13 +68,13 @@ const EventDetails = () => {
         const { data: existing } = await supabase
           .from("event_participants")
           .select("id")
-          .eq("event_id", id)
+          .eq("event_id", data.id)
           .eq("gmail", email)
           .maybeSingle();
         if (existing) setSubmitted(true);
       }
     })();
-  }, [id]);
+  }, [id, navigate]);
 
   if (!event) return <Layout><div className="container py-20 text-center text-muted-foreground">Loading…</div></Layout>;
 
@@ -93,25 +116,43 @@ const EventDetails = () => {
               {event.venue && <Info icon={MapPin} label={event.venue} />}
             </div>
 
-            {/* Coordinators — public sees name & phone only (gmail stays private) */}
+            {/* Coordinators — name, email and phone are all shown publicly */}
             {(() => {
-              const contacts: Array<{ name: string; phone?: string }> = Array.isArray(event.coordinator_contacts)
-                ? event.coordinator_contacts.map((c: any) => ({ name: c?.name, phone: c?.phone }))
+              type Coord = { name: string; gmail?: string; phone?: string };
+              const contacts: Coord[] = Array.isArray(event.coordinator_contacts)
+                ? event.coordinator_contacts.map((c: any) => ({ name: c?.name, gmail: c?.gmail, phone: c?.phone }))
                 : [];
-              const namesFromArray: Array<{ name: string; phone?: string }> = (event.coordinator_names ?? [])
+              const namesFromArray: Coord[] = (event.coordinator_names ?? [])
                 .filter((n: string) => !contacts.some((c) => c.name === n))
                 .map((n: string) => ({ name: n }));
               const all = [...contacts, ...namesFromArray].filter((c) => c.name);
               if (all.length === 0) return null;
               return (
                 <div className="mt-6">
-                  <div className="text-xs uppercase tracking-wide text-gold mb-2">Coordinators</div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="text-xs uppercase tracking-wide text-gold mb-3">Coordinators</div>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {all.map((c, i) => (
-                      <div key={i} className="flex items-center gap-2 rounded-full border border-border bg-background/40 px-3 py-1 text-sm">
-                        <UserCircle2 className="h-4 w-4 text-primary" />
-                        <span>{c.name}</span>
-                        {c.phone && <span className="text-muted-foreground">· {c.phone}</span>}
+                      <div key={i} className="glass rounded-xl p-3 border border-border/60">
+                        <div className="flex items-center gap-2 font-medium">
+                          <UserCircle2 className="h-4 w-4 text-primary shrink-0" />
+                          <span className="truncate">{c.name}</span>
+                        </div>
+                        {(c.gmail || c.phone) && (
+                          <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                            {c.gmail && (
+                              <a href={`mailto:${c.gmail}`} className="flex items-center gap-2 truncate hover:text-primary">
+                                <Mail className="h-3 w-3 text-primary shrink-0" />
+                                <span className="truncate">{c.gmail}</span>
+                              </a>
+                            )}
+                            {c.phone && (
+                              <a href={`tel:${c.phone}`} className="flex items-center gap-2 hover:text-primary">
+                                <Phone className="h-3 w-3 text-primary shrink-0" />
+                                <span>{c.phone}</span>
+                              </a>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

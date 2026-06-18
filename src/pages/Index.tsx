@@ -13,6 +13,7 @@ import { CommunityLogo } from "@/components/CommunityLogo";
 
 type EventRow = {
   id: string;
+  slug: string | null;
   name: string;
   community: string;
   event_date: string | null;
@@ -38,11 +39,11 @@ const EventCard = ({ e, faded = false, i = 0 }: { e: EventRow; faded?: boolean; 
     className={`group glass rounded-xl overflow-hidden hover:border-gold/40 hover:shadow-glow-gold transition-smooth flex flex-col ${faded ? "opacity-80 hover:opacity-100" : ""}`}
   >
     {e.poster_url ? (
-      <Link to={`/events/${e.id}`} className="block aspect-[4/3] overflow-hidden bg-secondary">
+      <Link to={`/events/${e.slug ?? e.id}`} className="block aspect-[4/3] overflow-hidden bg-secondary">
         <img src={e.poster_url} alt={e.name} loading="lazy" className={`h-full w-full object-cover group-hover:scale-105 transition-transform duration-500 ${faded ? "grayscale-[30%] group-hover:grayscale-0" : ""}`} />
       </Link>
     ) : (
-      <Link to={`/events/${e.id}`} className="block aspect-[4/3] bg-gradient-emerald grid place-items-center text-primary-foreground">
+      <Link to={`/events/${e.slug ?? e.id}`} className="block aspect-[4/3] bg-gradient-emerald grid place-items-center text-primary-foreground">
         <Calendar className="h-10 w-10 opacity-70" />
       </Link>
     )}
@@ -58,7 +59,7 @@ const EventCard = ({ e, faded = false, i = 0 }: { e: EventRow; faded?: boolean; 
         </p>
       )}
       <Button asChild size="sm" className={`mt-3 ${faded ? "" : "bg-gradient-emerald text-primary-foreground shadow-glow-emerald"}`} variant={faded ? "outline" : "default"}>
-        <Link to={`/events/${e.id}`}>{faded ? "Register / View" : "Register / View"} <ArrowRight className="ml-1 h-3 w-3" /></Link>
+        <Link to={`/events/${e.slug ?? e.id}`}>{faded ? "Register / View" : "Register / View"} <ArrowRight className="ml-1 h-3 w-3" /></Link>
       </Button>
     </div>
   </motion.div>
@@ -71,7 +72,7 @@ const Index = () => {
     (async () => {
       const { data } = await supabase
         .from("events")
-        .select("id, name, community, event_date, venue, poster_url, status")
+        .select("id, slug, name, community, event_date, venue, poster_url, status")
         .in("status", ["published", "completed"])
         .order("event_date", { ascending: false })
         .limit(24);

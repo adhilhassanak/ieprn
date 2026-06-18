@@ -287,7 +287,7 @@ const EventCreate = () => {
                 <Plus className="h-4 w-4 mr-1" /> Add coordinator
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">Gmail is kept private. Name & phone are shown to visitors.</p>
+            <p className="text-xs text-muted-foreground mt-2">Name, gmail and phone are all shown publicly on the event page.</p>
           </div>
 
 
