@@ -171,9 +171,15 @@ const Dashboard = () => {
         {/* Quick actions */}
         {isExecutive && (
           <div className="grid md:grid-cols-2 gap-4 mt-6">
-            <Link to="/events/new" className="glass-card p-6 cursor-pointer block">
-              <h3 className="text-lg font-semibold">Create New Event</h3>
-              <p className="text-sm text-muted-foreground mt-1">
+            <Link
+              to="/events/new"
+              className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-gold text-gold-foreground shadow-glow-gold hover:scale-[1.02] transition-smooth ring-2 ring-gold/60"
+            >
+              <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-90">
+                <Plus className="h-3.5 w-3.5" /> Primary action
+              </div>
+              <h3 className="mt-2 text-xl font-bold">Create New Event</h3>
+              <p className="text-sm opacity-90 mt-1">
                 Schedule a new event for your community
               </p>
             </Link>
@@ -412,7 +418,7 @@ const EventCard = ({
           variant="ghost"
           className="px-2 text-primary"
         >
-          <Link to={`/events/${e.id}`}>
+          <Link to={`/events/${e.slug ?? e.id}`}>
             View
           </Link>
         </Button>

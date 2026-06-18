@@ -185,7 +185,7 @@ const EventManage = () => {
               )}
             </div>
           </div>
-          <Button asChild variant="outline" size="sm"><Link to={`/events/${event.id}`}><ExternalLink className="h-3.5 w-3.5 mr-1" />Public page</Link></Button>
+          <Button asChild variant="outline" size="sm"><Link to={`/events/${event.slug ?? event.id}`}><ExternalLink className="h-3.5 w-3.5 mr-1" />Public page</Link></Button>
         </div>
 
         {canEdit && (
