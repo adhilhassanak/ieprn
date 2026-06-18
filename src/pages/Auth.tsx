@@ -102,27 +102,26 @@ const Auth = () => {
     navigate("/dashboard");
   };
 
- const handleGoogle = async () => {
+const handleGoogle = async () => {
   setLoading(true);
 
-  const result = await lovable.auth.signInWithOAuth("google");
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
 
-  if (result.error) {
+    options: {
+      redirectTo: `${window.location.origin}/dashboard`,
+    },
+  });
+
+  if (error) {
     setLoading(false);
 
     toast({
       title: "Google sign-in failed",
-      description: result.error.message ?? "Please try again",
+      description: error.message,
       variant: "destructive",
     });
-
-    return;
   }
-
-  // Lovable will handle the redirect automatically
-  if (result.redirected) return;
-
-  setLoading(false);
 };
 
   const handleForgotPassword = async () => {
