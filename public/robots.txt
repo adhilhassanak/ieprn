@@ -1,3 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /reset-password
+
 User-agent: Googlebot
 Allow: /
 
@@ -10,7 +17,4 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
-Allow: /
-
-Sitemap: https://www.ieprn.co.in/sitemap.xml
+Sitemap: https://ieprn.lovable.app/sitemap.xml
