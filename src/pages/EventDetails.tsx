@@ -1,5 +1,5 @@
 import { useEffect, useState, FormEvent } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { z } from "zod";
 import { Layout } from "@/components/Layout";
@@ -10,9 +10,12 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Clock, Users, CheckCircle2, Instagram, Linkedin, Facebook, FileText, UserCircle2, MessageCircle } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, CheckCircle2, Instagram, Linkedin, Facebook, FileText, UserCircle2, MessageCircle, Mail, Phone } from "lucide-react";
 import { COMMUNITY_LIST } from "@/lib/communities";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
+
+// UUID v4 pattern (case-insensitive)
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const schema = z.object({
   full_name: z.string().trim().min(2).max(100),
@@ -23,6 +26,7 @@ const schema = z.object({
 
 const EventDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { settings } = useAdminSettings();
   const [event, setEvent] = useState<any>(null);
   const [participantCount, setParticipantCount] = useState(0);
@@ -33,9 +37,28 @@ const EventDetails = () => {
   useEffect(() => {
     if (!id) return;
     (async () => {
-      const { data } = await supabase.from("events").select("*").eq("id", id).maybeSingle();
+      const param = String(id);
+      const isUuid = UUID_RE.test(param);
+
+      // Try slug first; if that fails (or input looks like UUID), fall back to id lookup.
+      let data: any = null;
+      if (!isUuid) {
+        const r = await supabase.from("events").select("*").eq("slug", param).maybeSingle();
+        data = r.data;
+      }
+      if (!data) {
+        const r = await supabase.from("events").select("*").eq("id", param).maybeSingle();
+        data = r.data;
+        // Redirect legacy UUID URLs to the slug URL.
+        if (data?.slug && data.slug !== param) {
+          navigate(`/events/${data.slug}`, { replace: true });
+          return;
+        }
+      }
       setEvent(data);
-      const { count } = await supabase.from("event_participants").select("*", { count: "exact", head: true }).eq("event_id", id);
+      if (!data) return;
+
+      const { count } = await supabase.from("event_participants").select("*", { count: "exact", head: true }).eq("event_id", data.id);
       setParticipantCount(count ?? 0);
 
       // check existing registration by current user's email (if logged in)
@@ -45,13 +68,13 @@ const EventDetails = () => {
         const { data: existing } = await supabase
           .from("event_participants")
           .select("id")
-          .eq("event_id", id)
+          .eq("event_id", data.id)
           .eq("gmail", email)
           .maybeSingle();
         if (existing) setSubmitted(true);
       }
     })();
-  }, [id]);
+  }, [id, navigate]);
 
   if (!event) return <Layout><div className="container py-20 text-center text-muted-foreground">Loading…</div></Layout>;
 
