@@ -101,6 +101,7 @@ const Auth = () => {
     }
     navigate("/dashboard");
   };
+
 const handleGoogle = async () => {
   setLoading(true);
 
@@ -108,7 +109,7 @@ const handleGoogle = async () => {
     provider: "google",
 
     options: {
-      redirectTo: `${window.location.origin}/dashboard`,
+      redirectTo: "https://ieprn.lovable.app/dashboard",
     },
   });
 
