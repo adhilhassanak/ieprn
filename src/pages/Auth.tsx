@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -101,7 +101,6 @@ const Auth = () => {
     }
     navigate("/dashboard");
   };
-
 const handleGoogle = async () => {
   setLoading(true);
 
@@ -121,6 +120,8 @@ const handleGoogle = async () => {
       description: error.message,
       variant: "destructive",
     });
+
+    return;
   }
 };
 
