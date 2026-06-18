@@ -307,6 +307,7 @@ export type Database = {
           poster_url: string | null
           registration_mode: string
           registration_open: boolean
+          slug: string | null
           status: Database["public"]["Enums"]["event_status"]
           venue: string | null
           whatsapp_group_link: string | null
@@ -334,6 +335,7 @@ export type Database = {
           poster_url?: string | null
           registration_mode?: string
           registration_open?: boolean
+          slug?: string | null
           status?: Database["public"]["Enums"]["event_status"]
           venue?: string | null
           whatsapp_group_link?: string | null
@@ -361,6 +363,7 @@ export type Database = {
           poster_url?: string | null
           registration_mode?: string
           registration_open?: boolean
+          slug?: string | null
           status?: Database["public"]["Enums"]["event_status"]
           venue?: string | null
           whatsapp_group_link?: string | null
@@ -664,6 +667,7 @@ export type Database = {
     }
     Functions: {
       delete_old_events: { Args: { _days: number }; Returns: number }
+      generate_event_slug: { Args: { _name: string }; Returns: string }
       get_public_execom: {
         Args: never
         Returns: {
