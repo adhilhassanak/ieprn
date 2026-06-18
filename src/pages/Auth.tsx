@@ -102,19 +102,28 @@ const Auth = () => {
     navigate("/dashboard");
   };
 
-  const handleGoogle = async () => {
-    setLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/dashboard",
+ const handleGoogle = async () => {
+  setLoading(true);
+
+  const result = await lovable.auth.signInWithOAuth("google");
+
+  if (result.error) {
+    setLoading(false);
+
+    toast({
+      title: "Google sign-in failed",
+      description: result.error.message ?? "Please try again",
+      variant: "destructive",
     });
-    if (result.error) {
-      setLoading(false);
-      toast({ title: "Google sign-in failed", description: result.error.message ?? "Please try again", variant: "destructive" });
-      return;
-    }
-    if (result.redirected) return;
-    navigate("/dashboard");
-  };
+
+    return;
+  }
+
+  // Lovable will handle the redirect automatically
+  if (result.redirected) return;
+
+  setLoading(false);
+};
 
   const handleForgotPassword = async () => {
     if (!form.email) {
