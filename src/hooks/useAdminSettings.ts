@@ -5,6 +5,10 @@ export interface AdminSettings {
   id: string;
   primary_color: string;
   accent_color: string;
+  secondary_color?: string;
+  button_color?: string;
+  gradient_from?: string;
+  gradient_to?: string;
   registration_open_global: boolean;
   theme_mode?: "light" | "dark";
 }
@@ -36,11 +40,19 @@ const hexToHsl = (hex: string): string => {
   return `${Math.round(h)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 };
 
-export const applyTheme = (primaryHex: string, accentHex: string) => {
+export const applyTheme = (
+  primaryHex: string,
+  accentHex: string,
+  extras?: { secondary?: string; button?: string; gradientFrom?: string; gradientTo?: string },
+) => {
   const root = document.documentElement;
   root.style.setProperty("--primary", hexToHsl(primaryHex));
   root.style.setProperty("--ring", hexToHsl(primaryHex));
   root.style.setProperty("--gold", hexToHsl(accentHex));
+  if (extras?.secondary) root.style.setProperty("--secondary", hexToHsl(extras.secondary));
+  if (extras?.button) root.style.setProperty("--button-bg", hexToHsl(extras.button));
+  if (extras?.gradientFrom) root.style.setProperty("--gradient-from", extras.gradientFrom);
+  if (extras?.gradientTo) root.style.setProperty("--gradient-to", extras.gradientTo);
 };
 
 export const THEME_PRESETS = {
@@ -77,7 +89,12 @@ export function useAdminSettings() {
     const { data } = await supabase.from("admin_settings").select("*").limit(1).maybeSingle();
     if (data) {
       setSettings(data as AdminSettings);
-      applyTheme(data.primary_color, data.accent_color);
+      applyTheme(data.primary_color, data.accent_color, {
+        secondary: (data as any).secondary_color,
+        button: (data as any).button_color,
+        gradientFrom: (data as any).gradient_from,
+        gradientTo: (data as any).gradient_to,
+      });
       applyThemeMode(((data as any).theme_mode as "light" | "dark") ?? "dark");
     } else {
       applyThemeMode("dark");
