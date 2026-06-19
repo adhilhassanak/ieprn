@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { HighlightsGrid } from "@/components/HighlightsGrid";
 import { PublicExecom } from "@/components/PublicExecom";
+import { Leadership } from "@/components/Leadership";
 import { CommunityLogo } from "@/components/CommunityLogo";
 
 type EventRow = {
@@ -256,6 +257,7 @@ const Index = () => {
       </section>
 
       {/* PUBLIC EXECOM (preview with View More) */}
+      <Leadership />
       <PublicExecom preview />
 
 
