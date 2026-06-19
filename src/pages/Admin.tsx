@@ -23,6 +23,8 @@ import { ExecomMembers } from "@/components/dashboard/ExecomMembers";
 import { FeedbackList } from "@/components/admin/FeedbackList";
 import { FinancePanel } from "@/components/admin/FinancePanel";
 import { ImageUploadPanel } from "@/components/admin/ImageUploadPanel";
+import { FacultyManager } from "@/components/admin/FacultyManager";
+import { PrincipalManager } from "@/components/admin/PrincipalManager";
 
 const Admin = () => {
   const [regs, setRegs] = useState<any[]>([]);
@@ -134,13 +136,22 @@ const Admin = () => {
     const { error } = await supabase.from("admin_settings").update({
       primary_color: settings.primary_color,
       accent_color: settings.accent_color,
+      secondary_color: settings.secondary_color ?? "#1e3a8a",
+      button_color: settings.button_color ?? "#2563eb",
+      gradient_from: settings.gradient_from ?? "#1d4ed8",
+      gradient_to: settings.gradient_to ?? "#f5c542",
       registration_open_global: settings.registration_open_global,
       community_registration: settings.community_registration ?? {},
       theme_mode: settings.theme_mode ?? "dark",
       updated_at: new Date().toISOString(),
     }).eq("id", settings.id);
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
-    applyTheme(settings.primary_color, settings.accent_color);
+    applyTheme(settings.primary_color, settings.accent_color, {
+      secondary: settings.secondary_color,
+      button: settings.button_color,
+      gradientFrom: settings.gradient_from,
+      gradientTo: settings.gradient_to,
+    });
     applyThemeMode(settings.theme_mode ?? "dark");
     toast({ title: "Settings saved" });
   };
@@ -186,6 +197,8 @@ const Admin = () => {
             <TabsTrigger value="roles">Roles & Co-admins</TabsTrigger>
             <TabsTrigger value="positions">Positions</TabsTrigger>
             <TabsTrigger value="members">Members</TabsTrigger>
+            <TabsTrigger value="principal">Principal</TabsTrigger>
+            <TabsTrigger value="faculty">Faculty</TabsTrigger>
             <TabsTrigger value="storage">Storage</TabsTrigger>
             <TabsTrigger value="feedback">Feedback</TabsTrigger>
             <TabsTrigger value="finance">Finance</TabsTrigger>
@@ -340,6 +353,16 @@ const Admin = () => {
             <ExecomMembers />
           </TabsContent>
 
+          {/* PRINCIPAL */}
+          <TabsContent value="principal" className="mt-4">
+            <PrincipalManager />
+          </TabsContent>
+
+          {/* FACULTY */}
+          <TabsContent value="faculty" className="mt-4">
+            <FacultyManager />
+          </TabsContent>
+
           {/* STORAGE */}
           <TabsContent value="storage" className="mt-4 space-y-8">
             <div className="glass rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3">
@@ -424,8 +447,39 @@ const Admin = () => {
                     <div className="flex gap-2 mt-1">
                       <input type="color" value={settings.primary_color} onChange={(e) => { setSettings({ ...settings, primary_color: e.target.value }); applyTheme(e.target.value, settings.accent_color); }} className="h-10 w-14 rounded cursor-pointer bg-transparent" />
                       <Input value={settings.primary_color} onChange={(e) => setSettings({ ...settings, primary_color: e.target.value })} />
-                    </div>
                   </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {([
+                    ["secondary_color", "Secondary color", "#1e3a8a"],
+                    ["button_color", "Button color", "#2563eb"],
+                    ["gradient_from", "Gradient start", "#1d4ed8"],
+                    ["gradient_to", "Gradient end", "#f5c542"],
+                  ] as const).map(([key, label, fallback]) => (
+                    <div key={key}>
+                      <Label>{label}</Label>
+                      <div className="flex gap-2 mt-1">
+                        <input
+                          type="color"
+                          value={settings[key] ?? fallback}
+                          onChange={(e) => {
+                            const next = { ...settings, [key]: e.target.value };
+                            setSettings(next);
+                            applyTheme(next.primary_color, next.accent_color, {
+                              secondary: next.secondary_color,
+                              button: next.button_color,
+                              gradientFrom: next.gradient_from,
+                              gradientTo: next.gradient_to,
+                            });
+                          }}
+                          className="h-10 w-14 rounded cursor-pointer bg-transparent"
+                        />
+                        <Input value={settings[key] ?? fallback} onChange={(e) => setSettings({ ...settings, [key]: e.target.value })} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
                   <div>
                     <Label>Accent (gold) color</Label>
                     <div className="flex gap-2 mt-1">

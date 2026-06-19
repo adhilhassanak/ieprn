@@ -67,8 +67,9 @@ export const Footer = () => {
         </div>
       </div>
       <div className="border-t border-border/40">
-        <div className="container py-4 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} College of Engineering Perumon · I&E Community Portal
+        <div className="container py-4 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+          <span>© {new Date().getFullYear()} College of Engineering Perumon · I&amp;E Community Portal</span>
+          <a href="/trust" className="hover:text-primary transition-smooth">Trust &amp; Security</a>
         </div>
       </div>
     </footer>

@@ -19,6 +19,7 @@ import {
   Home,
   Menu as MenuIcon,
   Users,
+  Lock,
 } from "lucide-react";
 
 export const Navbar = () => {
@@ -111,6 +112,9 @@ export const Navbar = () => {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/gallery")}>
                 <ImageIcon className="h-4 w-4 mr-2" /> Gallery
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/trust")}>
+                <Lock className="h-4 w-4 mr-2" /> Trust &amp; Security
               </DropdownMenuItem>
 
               {user && (
