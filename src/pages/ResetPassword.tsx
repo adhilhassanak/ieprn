@@ -77,6 +77,15 @@ const ResetPassword = () => {
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Update password
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={loading}
+              onClick={() => navigate("/dashboard", { replace: true })}
+              className="w-full"
+            >
+              Skip for now and continue to website
+            </Button>
           </form>
         </motion.div>
       </div>
