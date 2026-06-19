@@ -17,30 +17,42 @@ export type Database = {
       admin_settings: {
         Row: {
           accent_color: string
+          button_color: string
           community_registration: Json
+          gradient_from: string
+          gradient_to: string
           id: string
           primary_color: string
           registration_open_global: boolean
+          secondary_color: string
           singleton: boolean
           theme_mode: string
           updated_at: string
         }
         Insert: {
           accent_color?: string
+          button_color?: string
           community_registration?: Json
+          gradient_from?: string
+          gradient_to?: string
           id?: string
           primary_color?: string
           registration_open_global?: boolean
+          secondary_color?: string
           singleton?: boolean
           theme_mode?: string
           updated_at?: string
         }
         Update: {
           accent_color?: string
+          button_color?: string
           community_registration?: Json
+          gradient_from?: string
+          gradient_to?: string
           id?: string
           primary_color?: string
           registration_open_global?: boolean
+          secondary_color?: string
           singleton?: boolean
           theme_mode?: string
           updated_at?: string
@@ -371,6 +383,48 @@ export type Database = {
         }
         Relationships: []
       }
+      faculty: {
+        Row: {
+          active: boolean
+          created_at: string
+          department: string | null
+          designation: string | null
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          photo_url: string | null
+          priority: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          department?: string | null
+          designation?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          photo_url?: string | null
+          priority?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          department?: string | null
+          designation?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          photo_url?: string | null
+          priority?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           created_at: string
@@ -497,6 +551,39 @@ export type Database = {
           is_active?: boolean
           max_count?: number
           role_name?: string
+        }
+        Relationships: []
+      }
+      principal: {
+        Row: {
+          created_at: string
+          designation: string | null
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          photo_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          designation?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          photo_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          designation?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          photo_url?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
