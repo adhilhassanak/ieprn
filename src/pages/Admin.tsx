@@ -136,13 +136,22 @@ const Admin = () => {
     const { error } = await supabase.from("admin_settings").update({
       primary_color: settings.primary_color,
       accent_color: settings.accent_color,
+      secondary_color: settings.secondary_color ?? "#1e3a8a",
+      button_color: settings.button_color ?? "#2563eb",
+      gradient_from: settings.gradient_from ?? "#1d4ed8",
+      gradient_to: settings.gradient_to ?? "#f5c542",
       registration_open_global: settings.registration_open_global,
       community_registration: settings.community_registration ?? {},
       theme_mode: settings.theme_mode ?? "dark",
       updated_at: new Date().toISOString(),
     }).eq("id", settings.id);
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
-    applyTheme(settings.primary_color, settings.accent_color);
+    applyTheme(settings.primary_color, settings.accent_color, {
+      secondary: settings.secondary_color,
+      button: settings.button_color,
+      gradientFrom: settings.gradient_from,
+      gradientTo: settings.gradient_to,
+    });
     applyThemeMode(settings.theme_mode ?? "dark");
     toast({ title: "Settings saved" });
   };
