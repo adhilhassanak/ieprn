@@ -23,6 +23,8 @@ import { ExecomMembers } from "@/components/dashboard/ExecomMembers";
 import { FeedbackList } from "@/components/admin/FeedbackList";
 import { FinancePanel } from "@/components/admin/FinancePanel";
 import { ImageUploadPanel } from "@/components/admin/ImageUploadPanel";
+import { FacultyManager } from "@/components/admin/FacultyManager";
+import { PrincipalManager } from "@/components/admin/PrincipalManager";
 
 const Admin = () => {
   const [regs, setRegs] = useState<any[]>([]);
@@ -186,6 +188,8 @@ const Admin = () => {
             <TabsTrigger value="roles">Roles & Co-admins</TabsTrigger>
             <TabsTrigger value="positions">Positions</TabsTrigger>
             <TabsTrigger value="members">Members</TabsTrigger>
+            <TabsTrigger value="principal">Principal</TabsTrigger>
+            <TabsTrigger value="faculty">Faculty</TabsTrigger>
             <TabsTrigger value="storage">Storage</TabsTrigger>
             <TabsTrigger value="feedback">Feedback</TabsTrigger>
             <TabsTrigger value="finance">Finance</TabsTrigger>
@@ -338,6 +342,16 @@ const Admin = () => {
           {/* MEMBERS */}
           <TabsContent value="members" className="mt-4">
             <ExecomMembers />
+          </TabsContent>
+
+          {/* PRINCIPAL */}
+          <TabsContent value="principal" className="mt-4">
+            <PrincipalManager />
+          </TabsContent>
+
+          {/* FACULTY */}
+          <TabsContent value="faculty" className="mt-4">
+            <FacultyManager />
           </TabsContent>
 
           {/* STORAGE */}
