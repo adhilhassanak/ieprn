@@ -108,22 +108,6 @@ export const PublicExecom = ({ preview = false }: { preview?: boolean }) => {
           })}
         </div>
 
-        {preview && members.length > grouped.length * PREVIEW_PER_COMMUNITY && (
-          <div className="mt-10 flex justify-center">
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => setExpanded((v) => !v)}
-              className="border-primary/40 hover:border-primary hover:text-primary"
-            >
-              {expanded ? (
-                <>Show less <ChevronUp className="ml-2 h-4 w-4" /></>
-              ) : (
-                <>View More Members <ChevronDown className="ml-2 h-4 w-4" /></>
-              )}
-            </Button>
-          </div>
-        )}
       </div>
     </section>
   );
