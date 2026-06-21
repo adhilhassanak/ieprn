@@ -25,6 +25,7 @@ import { FinancePanel } from "@/components/admin/FinancePanel";
 import { ImageUploadPanel } from "@/components/admin/ImageUploadPanel";
 import { FacultyManager } from "@/components/admin/FacultyManager";
 import { PrincipalManager } from "@/components/admin/PrincipalManager";
+import { ActivityCalendarManager } from "@/components/admin/ActivityCalendarManager";
 
 const Admin = () => {
   const [regs, setRegs] = useState<any[]>([]);
