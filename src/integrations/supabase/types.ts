@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_calendar: {
+        Row: {
+          community: string
+          coordinator_name: string
+          coordinator_phone: string
+          created_at: string
+          created_by: string | null
+          event_date: string
+          event_name: string
+          id: string
+          updated_at: string
+          visible_to: string[]
+        }
+        Insert: {
+          community: string
+          coordinator_name: string
+          coordinator_phone: string
+          created_at?: string
+          created_by?: string | null
+          event_date: string
+          event_name: string
+          id?: string
+          updated_at?: string
+          visible_to?: string[]
+        }
+        Update: {
+          community?: string
+          coordinator_name?: string
+          coordinator_phone?: string
+          created_at?: string
+          created_by?: string | null
+          event_date?: string
+          event_name?: string
+          id?: string
+          updated_at?: string
+          visible_to?: string[]
+        }
+        Relationships: []
+      }
       admin_settings: {
         Row: {
           accent_color: string
@@ -773,6 +812,7 @@ export type Database = {
           total_bytes: number
         }[]
       }
+      get_user_community: { Args: { _user_id: string }; Returns: string }
       has_approved_position: {
         Args: { _position: string; _user_id: string }
         Returns: boolean

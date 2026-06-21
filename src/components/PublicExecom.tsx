@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { COMMUNITY_LIST } from "@/lib/communities";
-import { Mail, Phone, UserCircle2, ChevronDown, ChevronUp } from "lucide-react";
+import { Mail, Phone, UserCircle2, Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
 
 type Member = { id: string; full_name: string; community: string; photo_url: string | null; current_position: string | null };
 type Contact = { gmail: string; phone: string };
@@ -60,11 +62,19 @@ export const PublicExecom = ({ preview = false }: { preview?: boolean }) => {
             const visible = expanded ? list : list.slice(0, PREVIEW_PER_COMMUNITY);
             return (
             <div key={community.key}>
-              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <span className="h-8 w-8 rounded-lg bg-gradient-emerald grid place-items-center text-xs font-bold text-primary-foreground">{community.short.charAt(0)}</span>
-                {community.short}
-                <span className="text-xs text-muted-foreground font-normal">({list.length})</span>
-              </h3>
+              <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  <span className="h-8 w-8 rounded-lg bg-gradient-emerald grid place-items-center text-xs font-bold text-primary-foreground">{community.short.charAt(0)}</span>
+                  {community.short}
+                  <span className="text-xs text-muted-foreground font-normal">({list.length})</span>
+                </h3>
+                <Button asChild size="sm" variant="outline" className="border-primary/40 hover:border-primary hover:text-primary">
+                  <Link to={`/execom/${community.key}`}>
+                    <Users className="h-4 w-4 mr-1" />View Execom Members <ArrowRight className="ml-1 h-3 w-3" />
+                  </Link>
+                </Button>
+              </div>
+
               <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {visible.map((m) => {
                   const c = contacts[m.id];
@@ -98,22 +108,6 @@ export const PublicExecom = ({ preview = false }: { preview?: boolean }) => {
           })}
         </div>
 
-        {preview && members.length > grouped.length * PREVIEW_PER_COMMUNITY && (
-          <div className="mt-10 flex justify-center">
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => setExpanded((v) => !v)}
-              className="border-primary/40 hover:border-primary hover:text-primary"
-            >
-              {expanded ? (
-                <>Show less <ChevronUp className="ml-2 h-4 w-4" /></>
-              ) : (
-                <>View More Members <ChevronDown className="ml-2 h-4 w-4" /></>
-              )}
-            </Button>
-          </div>
-        )}
       </div>
     </section>
   );

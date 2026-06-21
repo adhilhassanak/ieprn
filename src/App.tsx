@@ -20,6 +20,7 @@ import Gallery from "./pages/Gallery";
 import Profile from "./pages/Profile";
 import CommunityLogos from "./pages/CommunityLogos";
 import Trust from "./pages/Trust";
+import ExecomCommunity from "./pages/ExecomCommunity";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/trust" element={<Trust />} />
+            <Route path="/execom/:community" element={<ExecomCommunity />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/register/:community" element={<ProtectedRoute><Register /></ProtectedRoute>} />

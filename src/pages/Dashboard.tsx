@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { StudentTabs } from "@/components/dashboard/StudentTabs";
 import { ExecomMembers } from "@/components/dashboard/ExecomMembers";
+import { ActivityCalendarView } from "@/components/dashboard/ActivityCalendarView";
 import { FinancePanel } from "@/components/admin/FinancePanel";
 
 const DOC_HEAD_FORM_URL =
@@ -348,6 +349,8 @@ const Dashboard = () => {
 
         {/* Student Tabs */}
         <StudentTabs />
+
+        {isExecutive && <ActivityCalendarView />}
 
         {/* ExeCom Members */}
         {isExecutive && (

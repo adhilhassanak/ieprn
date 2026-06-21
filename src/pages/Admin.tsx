@@ -25,6 +25,7 @@ import { FinancePanel } from "@/components/admin/FinancePanel";
 import { ImageUploadPanel } from "@/components/admin/ImageUploadPanel";
 import { FacultyManager } from "@/components/admin/FacultyManager";
 import { PrincipalManager } from "@/components/admin/PrincipalManager";
+import { ActivityCalendarManager } from "@/components/admin/ActivityCalendarManager";
 
 const Admin = () => {
   const [regs, setRegs] = useState<any[]>([]);
@@ -203,6 +204,7 @@ const Admin = () => {
             <TabsTrigger value="feedback">Feedback</TabsTrigger>
             <TabsTrigger value="finance">Finance</TabsTrigger>
             <TabsTrigger value="gallery">Gallery Upload</TabsTrigger>
+            <TabsTrigger value="calendar">Activity Calendar</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -391,6 +393,12 @@ const Admin = () => {
           <TabsContent value="gallery" className="mt-4">
             <ImageUploadPanel />
           </TabsContent>
+
+          {/* ACTIVITY CALENDAR */}
+          <TabsContent value="calendar" className="mt-4">
+            <ActivityCalendarManager />
+          </TabsContent>
+
 
           {/* SETTINGS */}
           <TabsContent value="settings" className="mt-4">
