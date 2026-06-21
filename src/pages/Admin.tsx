@@ -204,6 +204,7 @@ const Admin = () => {
             <TabsTrigger value="feedback">Feedback</TabsTrigger>
             <TabsTrigger value="finance">Finance</TabsTrigger>
             <TabsTrigger value="gallery">Gallery Upload</TabsTrigger>
+            <TabsTrigger value="calendar">Activity Calendar</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
