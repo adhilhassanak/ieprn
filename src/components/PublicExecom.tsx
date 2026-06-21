@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { COMMUNITY_LIST } from "@/lib/communities";
-import { Mail, Phone, UserCircle2, ChevronDown, ChevronUp } from "lucide-react";
+import { Mail, Phone, UserCircle2, Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
 
 type Member = { id: string; full_name: string; community: string; photo_url: string | null; current_position: string | null };
 type Contact = { gmail: string; phone: string };
