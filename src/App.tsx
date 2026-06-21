@@ -20,6 +20,7 @@ import Gallery from "./pages/Gallery";
 import Profile from "./pages/Profile";
 import CommunityLogos from "./pages/CommunityLogos";
 import Trust from "./pages/Trust";
+import ExecomCommunity from "./pages/ExecomCommunity";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
