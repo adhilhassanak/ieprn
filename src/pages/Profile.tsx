@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Upload, Save, UserCircle2 } from "lucide-react";
+import { Loader2, Upload, Save, UserCircle2, KeyRound } from "lucide-react";
 
 const PHOTO_MAX = 500 * 1024;
+
 
 const Profile = () => {
   const { user } = useAuth();
