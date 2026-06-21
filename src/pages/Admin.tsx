@@ -394,6 +394,12 @@ const Admin = () => {
             <ImageUploadPanel />
           </TabsContent>
 
+          {/* ACTIVITY CALENDAR */}
+          <TabsContent value="calendar" className="mt-4">
+            <ActivityCalendarManager />
+          </TabsContent>
+
+
           {/* SETTINGS */}
           <TabsContent value="settings" className="mt-4">
             {settings && (
