@@ -151,8 +151,7 @@ const ChangePasswordCard = () => {
   );
 };
 
-    </Layout>
-  );
-};
+export default Profile;
+
 
 export default Profile;
