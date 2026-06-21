@@ -350,6 +350,8 @@ const Dashboard = () => {
         {/* Student Tabs */}
         <StudentTabs />
 
+        {isExecutive && <ActivityCalendarView />}
+
         {/* ExeCom Members */}
         {isExecutive && (
           <section className="mt-12">
