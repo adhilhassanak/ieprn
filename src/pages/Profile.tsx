@@ -110,7 +110,47 @@ const Profile = () => {
             Save changes
           </Button>
         </div>
+
+        <ChangePasswordCard />
       </div>
+    </Layout>
+  );
+};
+
+const ChangePasswordCard = () => {
+  const [pwd, setPwd] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async () => {
+    if (pwd.length < 6) return toast({ title: "Password must be at least 6 characters", variant: "destructive" });
+    if (pwd !== confirm) return toast({ title: "Passwords do not match", variant: "destructive" });
+    setBusy(true);
+    const { error } = await supabase.auth.updateUser({ password: pwd });
+    setBusy(false);
+    if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
+    toast({ title: "Password updated successfully" });
+    setPwd(""); setConfirm("");
+  };
+
+  return (
+    <div className="mt-6 glass-strong rounded-2xl p-6 md:p-8 space-y-4">
+      <div className="flex items-center gap-2">
+        <KeyRound className="h-5 w-5 text-primary" />
+        <h2 className="font-semibold">Change password</h2>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div><Label>New password</Label><Input type="password" value={pwd} onChange={(e) => setPwd(e.target.value)} /></div>
+        <div><Label>Confirm new password</Label><Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} /></div>
+      </div>
+      <Button onClick={submit} disabled={busy || !pwd || !confirm} className="bg-gradient-emerald text-primary-foreground">
+        {busy ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <KeyRound className="h-4 w-4 mr-1" />}
+        Update password
+      </Button>
+    </div>
+  );
+};
+
     </Layout>
   );
 };
