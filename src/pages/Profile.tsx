@@ -111,9 +111,9 @@ const Profile = () => {
           </Button>
         </div>
 
-        <div className="mt-6 bg-yellow-500 text-white p-6 rounded-xl">
-  <h1 className="text-3xl font-bold">
-    PASSWORD UPDATE
+        <div className="mt-6 bg-yellow-400 text-black p-4 rounded-xl shadow">
+  <h1 className="text-2xl font-bold">
+    Update Password
   </h1>
 </div>
 
