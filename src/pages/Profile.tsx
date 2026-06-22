@@ -111,7 +111,13 @@ const Profile = () => {
           </Button>
         </div>
 
-        <ChangePasswordCard />
+        <div className="mt-6 bg-red-500 text-white p-6 rounded-xl">
+  <h1 className="text-3xl font-bold">
+    PASSWORD SECTION TEST
+  </h1>
+</div>
+
+<ChangePasswordCard />
       </div>
     </Layout>
   );
