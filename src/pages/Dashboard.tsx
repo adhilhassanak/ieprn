@@ -17,6 +17,8 @@ import {
   Users,
   FileUp,
   IndianRupee,
+  ExternalLink,
+  Trophy,
 } from "lucide-react";
 import { StudentTabs } from "@/components/dashboard/StudentTabs";
 import { ExecomMembers } from "@/components/dashboard/ExecomMembers";
@@ -83,6 +85,17 @@ const Dashboard = () => {
   const isDocumentationHead = roleDocHead || approvedPositions.includes("documentation head");
   const isFinanceHead = roleFinHead || approvedPositions.includes("finance head");
 
+  // Check if the user belongs to Ecell via approved registrations, profiles, or user roles
+  const approvedCommunities = registrations
+    .filter((r) => r.status === "approved")
+    .map((r) => String(r.community ?? "").trim().toLowerCase());
+
+  const isEcellMember =
+    approvedCommunities.includes("ecell") ||
+    approvedCommunities.includes("e-cell") ||
+    String(profile?.community ?? "").toLowerCase().includes("ecell") ||
+    roles.some((role) => String(role).toLowerCase().includes("ecell"));
+
   const statusBadge = (status: string) => {
     if (status === "approved") {
       return (
@@ -111,7 +124,7 @@ const Dashboard = () => {
   };
 
   /* --------------------------------------------------
-     SHOW ONLY COMMUNITIES NOT YET REGISTERED
+      SHOW ONLY COMMUNITIES NOT YET REGISTERED
   -------------------------------------------------- */
 
   const registeredCommunities = registrations.map((r) =>
@@ -223,6 +236,36 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
+          </section>
+        )}
+
+        {/* Ecell ExeCom Specific Section: NEC Challenge */}
+        {isEcellMember && (
+          <section className="mt-6">
+            <div className="glass rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-gold/30 shadow-glow-gold/10">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-lg bg-gold/15 flex items-center justify-center flex-shrink-0">
+                  <Trophy className="h-6 w-6 text-gold" />
+                </div>
+                <div>
+                  <div className="font-semibold text-lg flex items-center gap-2">
+                    NEC Challenge
+                    <Badge variant="outline" className="text-gold border-gold/40 text-[10px] py-0 px-2">
+                      E-Cell Exclusive
+                    </Badge>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Access resources and monitor progress directly on the National Entrepreneurship Challenge portal.
+                  </div>
+                </div>
+              </div>
+              <Button asChild className="bg-gradient-gold text-gold-foreground w-full sm:w-auto">
+                <a href="https://www.ecell.in/nec" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1.5">
+                  View NEC Challenge
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </Button>
+            </div>
           </section>
         )}
 
