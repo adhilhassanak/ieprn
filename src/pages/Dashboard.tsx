@@ -85,16 +85,14 @@ const Dashboard = () => {
   const isDocumentationHead = roleDocHead || approvedPositions.includes("documentation head");
   const isFinanceHead = roleFinHead || approvedPositions.includes("finance head");
 
-  // Check if the user belongs to Ecell via approved registrations, profiles, or user roles
-  const approvedCommunities = registrations
-    .filter((r) => r.status === "approved")
-    .map((r) => String(r.community ?? "").trim().toLowerCase());
-
+  /* --------------------------------------------------
+      ROBUST E-CELL MEMBER DETECTION (WITH ADMIN OVERRIDE)
+  -------------------------------------------------- */
   const isEcellMember =
-    approvedCommunities.includes("ecell") ||
-    approvedCommunities.includes("e-cell") ||
-    String(profile?.community ?? "").toLowerCase().includes("ecell") ||
-    roles.some((role) => String(role).toLowerCase().includes("ecell"));
+    isAdmin ||
+    registrations.some((r) => String(r.community).toLowerCase().replace(/[^a-z0-9]/g, "") === "ecell") ||
+    String(profile?.community ?? "").toLowerCase().replace(/[^a-z0-9]/g, "") === "ecell" ||
+    roles.some((role) => String(role).toLowerCase().replace(/[^a-z0-9]/g, "") === "ecell");
 
   const statusBadge = (status: string) => {
     if (status === "approved") {
@@ -184,7 +182,7 @@ const Dashboard = () => {
 
         {/* Quick actions */}
         {isExecutive && (
-          <div className="grid md:grid-cols-2 gap-4 mt-6">
+          <div className={`grid gap-4 mt-6 ${isEcellMember ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
             <Link
               to="/events/new"
               className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-gold text-gold-foreground shadow-glow-gold hover:scale-[1.02] transition-smooth ring-2 ring-gold/60"
@@ -197,6 +195,27 @@ const Dashboard = () => {
                 Schedule a new event for your community
               </p>
             </Link>
+
+            {/* Big NEC Challenge Button for Ecell members placed directly right next to Create New Event */}
+            {isEcellMember && (
+              <a
+                href="https://www.ecell.in/nec"
+                target="_blank"
+                rel="noreferrer"
+                className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-to-br from-amber-600 to-amber-900 text-white shadow-md hover:scale-[1.02] transition-smooth ring-2 ring-amber-500/50"
+              >
+                <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-90 text-amber-300">
+                  <Trophy className="h-3.5 w-3.5" /> E-Cell Exclusive
+                </div>
+                <h3 className="mt-2 text-xl font-bold flex items-center gap-2">
+                  NEC Challenge <ExternalLink className="h-4 w-4 opacity-80" />
+                </h3>
+                <p className="text-sm opacity-90 mt-1 text-amber-100">
+                  Access materials and track portal standings
+                </p>
+              </a>
+            )}
+
             <a href="#my-events" className="glass-card p-6 cursor-pointer block">
               <h3 className="text-lg font-semibold">My Events</h3>
               <p className="text-sm text-muted-foreground mt-1">
@@ -236,36 +255,6 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
-          </section>
-        )}
-
-        {/* Ecell ExeCom Specific Section: NEC Challenge */}
-        {isEcellMember && (
-          <section className="mt-6">
-            <div className="glass rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-gold/30 shadow-glow-gold/10">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-lg bg-gold/15 flex items-center justify-center flex-shrink-0">
-                  <Trophy className="h-6 w-6 text-gold" />
-                </div>
-                <div>
-                  <div className="font-semibold text-lg flex items-center gap-2">
-                    NEC Challenge
-                    <Badge variant="outline" className="text-gold border-gold/40 text-[10px] py-0 px-2">
-                      E-Cell Exclusive
-                    </Badge>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    Access resources and monitor progress directly on the National Entrepreneurship Challenge portal.
-                  </div>
-                </div>
-              </div>
-              <Button asChild className="bg-gradient-gold text-gold-foreground w-full sm:w-auto">
-                <a href="https://www.ecell.in/nec" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1.5">
-                  View NEC Challenge
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              </Button>
-            </div>
           </section>
         )}
 
