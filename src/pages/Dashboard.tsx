@@ -183,7 +183,13 @@ const Dashboard = () => {
 
         {/* Quick actions */}
         {isExecutive && (
-          <div className={`grid gap-4 mt-6 ${isEcellMember ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
+        <div
+  className={`grid gap-4 mt-6 ${
+    isEcellMember
+      ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4"
+      : "grid-cols-1 md:grid-cols-2"
+  }`}
+>
             <Link
               to="/events/new"
               className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-gold text-gold-foreground shadow-glow-gold hover:scale-[1.02] transition-smooth ring-2 ring-gold/60"
