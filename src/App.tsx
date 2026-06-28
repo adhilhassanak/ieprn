@@ -50,6 +50,14 @@ const App = () => (
             <Route path="/events/:id/coordinator" element={<ProtectedRoute requireRole={["coordinator", "executive_member", "co_admin", "admin"]}><Coordinator /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute requireRole={["admin", "co_admin"]}><Admin /></ProtectedRoute>} />
             <Route path="/admin/community-logos" element={<ProtectedRoute requireRole={["admin"]}><CommunityLogos /></ProtectedRoute>} />
+            <Route
+  path="/cep-challenge"
+  element={
+    <ProtectedRoute>
+      <CepChallenge />
+    </ProtectedRoute>
+  }
+/>
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
