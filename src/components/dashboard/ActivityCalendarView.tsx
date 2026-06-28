@@ -10,6 +10,9 @@ type Entry = {
   event_date: string;
   coordinator_name: string;
   coordinator_phone: string;
+
+  know_more_link?: string;
+  button_text?: string;
 };
 
 export const ActivityCalendarView = () => {
