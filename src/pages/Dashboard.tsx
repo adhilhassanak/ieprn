@@ -212,7 +212,7 @@ const Dashboard = () => {
       </div>
 
       <h3 className="mt-2 text-xl font-bold flex items-center gap-2">
-        NEC Challenge
+        NEC Login
         <ExternalLink className="h-4 w-4 opacity-80" />
       </h3>
 
@@ -231,7 +231,7 @@ const Dashboard = () => {
       </div>
 
       <h3 className="mt-2 text-xl font-bold flex items-center gap-2">
-        CEP Challenge
+        NEC CEP TASK
         <ArrowRight className="h-4 w-4 opacity-80" />
       </h3>
 
