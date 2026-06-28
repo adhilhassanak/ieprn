@@ -39,6 +39,7 @@ export const ActivityCalendarManager = () => {
   const [form, setForm] = useState<typeof EMPTY>(EMPTY);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("ALL");
+  const [coordinators, setCoordinators] = useState<any[]>([]);
 
   const load = async () => {
     const { data } = await (supabase as any)
@@ -48,8 +49,19 @@ export const ActivityCalendarManager = () => {
     setItems((data ?? []) as Entry[]);
   };
 
+  const loadCoordinators = async () => {
+    const { data } = await (supabase as any)
+      .from("coordinators")
+      .select("*")
+      .eq("active", true)
+      .order("name");
+
+    setCoordinators(data || []);
+  };
+
   useEffect(() => {
     load();
+    loadCoordinators();
   }, []);
 
   const reset = () => {
@@ -58,7 +70,7 @@ export const ActivityCalendarManager = () => {
   };
 
   const submit = async () => {
-    if (!form.event_name || !form.event_date || !form.coordinator_name || !form.coordinator_phone) {
+    if (!form.event_name || !form.event_date) {
       return toast({ title: "Fill all fields", variant: "destructive" });
     }
     
@@ -84,8 +96,8 @@ export const ActivityCalendarManager = () => {
       community: e.community,
       event_name: e.event_name,
       event_date: e.event_date,
-      coordinator_name: e.coordinator_name,
-      coordinator_phone: e.coordinator_phone,
+      coordinator_name: e.coordinator_name || "",
+      coordinator_phone: e.coordinator_phone || "",
       visible_to: e.visible_to ?? [],
       know_more_link: e.know_more_link || "",
       button_text: e.button_text || "Know More",
@@ -139,12 +151,37 @@ export const ActivityCalendarManager = () => {
             <Input type="date" value={form.event_date} onChange={(e) => setForm({ ...form, event_date: e.target.value })} />
           </div>
           <div>
-            <Label>Coordinator name</Label>
-            <Input value={form.coordinator_name} onChange={(e) => setForm({ ...form, coordinator_name: e.target.value })} />
+            <Label>Coordinator</Label>
+            <Select
+              value={form.coordinator_name}
+              onValueChange={(value) => {
+                const person = coordinators.find((c) => c.name === value);
+                setForm({
+                  ...form,
+                  coordinator_name: person?.name || "",
+                  coordinator_phone: person?.phone || "",
+                });
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Coordinator" />
+              </SelectTrigger>
+              <SelectContent>
+                {coordinators.map((c) => (
+                  <SelectItem key={c.id} value={c.name}>
+                    {c.name} ({c.member_type})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label>Coordinator phone</Label>
-            <Input inputMode="numeric" maxLength={15} value={form.coordinator_phone} onChange={(e) => setForm({ ...form, coordinator_phone: e.target.value })} />
+            <Input
+              value={form.coordinator_phone}
+              readOnly
+              className="bg-muted/50 cursor-not-allowed"
+            />
           </div>
           <div>
             <Label>Upload / Know More Link</Label>
@@ -246,8 +283,8 @@ export const ActivityCalendarManager = () => {
                     <td className="p-2"><Badge variant="outline">{e.community}</Badge></td>
                     <td className="p-2 font-medium">{e.event_name}</td>
                     <td className="p-2">{new Date(e.event_date).toLocaleDateString()}</td>
-                    <td className="p-2">{e.coordinator_name}</td>
-                    <td className="p-2">{e.coordinator_phone}</td>
+                    <td className="p-2">{e.coordinator_name || "-"}</td>
+                    <td className="p-2">{e.coordinator_phone || "-"}</td>
                     <td className="p-2">
                       <div className="flex flex-wrap gap-1">
                         {(e.visible_to ?? []).map((v) => (
