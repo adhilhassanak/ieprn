@@ -8,9 +8,7 @@ type Entry = {
   community: string;
   event_name: string;
   event_date: string;
-  coordinator_name: string;
-  coordinator_phone: string;
-
+  coordinators?: string[];
   know_more_link?: string;
   button_text?: string;
 };
@@ -28,8 +26,7 @@ export const ActivityCalendarView = () => {
           community,
           event_name,
           event_date,
-          coordinator_name,
-          coordinator_phone,
+          coordinators,
           know_more_link,
           button_text
         `)
@@ -61,8 +58,7 @@ export const ActivityCalendarView = () => {
                 <th className="p-2">Community</th>
                 <th className="p-2">Event Name</th>
                 <th className="p-2">Event Date</th>
-                <th className="p-2">Coordinator</th>
-                <th className="p-2">Phone</th>
+                <th className="p-2">Coordinators</th>
                 <th className="p-2">More</th>
               </tr>
             </thead>
@@ -83,16 +79,17 @@ export const ActivityCalendarView = () => {
                   </td>
 
                   <td className="p-2">
-                    {e.coordinator_name}
-                  </td>
-
-                  <td className="p-2">
-                    <a
-                      href={`tel:${e.coordinator_phone}`}
-                      className="text-primary hover:underline"
-                    >
-                      {e.coordinator_phone}
-                    </a>
+                    {e.coordinators?.length ? (
+                      <div className="flex flex-wrap gap-1 max-w-[200px]">
+                        {e.coordinators.map((name) => (
+                          <Badge key={name} variant="secondary" className="whitespace-nowrap">
+                            {name}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
                   </td>
 
                   <td className="p-2">
