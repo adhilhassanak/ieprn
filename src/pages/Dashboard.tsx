@@ -199,7 +199,7 @@ const Dashboard = () => {
             {/* Big NEC Challenge Button for Ecell members placed directly right next to Create New Event */}
             {isEcellMember && (
               <a
-                href="https://www.ecell.in/nec"
+                href="https://www.ecell.in/nec/basic"
                 target="_blank"
                 rel="noreferrer"
                 className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-to-br from-amber-600 to-amber-900 text-white shadow-md hover:scale-[1.02] transition-smooth ring-2 ring-amber-500/50"
