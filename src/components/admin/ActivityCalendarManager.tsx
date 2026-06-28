@@ -18,7 +18,6 @@ type Entry = {
   coordinator_name: string;
   coordinator_phone: string;
   visible_to: string[];
-
   know_more_link?: string;
   button_text?: string;
 };
@@ -30,7 +29,6 @@ const EMPTY = {
   coordinator_name: "",
   coordinator_phone: "",
   visible_to: [] as string[],
-
   know_more_link: "",
   button_text: "Know More",
 };
@@ -63,31 +61,36 @@ export const ActivityCalendarManager = () => {
     if (!form.event_name || !form.event_date || !form.coordinator_name || !form.coordinator_phone) {
       return toast({ title: "Fill all fields", variant: "destructive" });
     }
-    const payload = { ...form };
+    
+    const payload = {
+      ...form,
+      know_more_link: form.know_more_link,
+      button_text: form.button_text,
+    };
+
     const { error } = editingId
       ? await (supabase as any).from("activity_calendar").update(payload).eq("id", editingId)
       : await (supabase as any).from("activity_calendar").insert(payload);
+
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
     toast({ title: editingId ? "Updated" : "Created" });
     reset();
     load();
   };
 
-const edit = (e: Entry) => {
-  setEditingId(e.id);
-
-  setForm({
-    community: e.community,
-    event_name: e.event_name,
-    event_date: e.event_date,
-    coordinator_name: e.coordinator_name,
-    coordinator_phone: e.coordinator_phone,
-    visible_to: e.visible_to ?? [],
-
-    know_more_link: e.know_more_link ?? "",
-    button_text: e.button_text ?? "Know More",
-  });
-};
+  const edit = (e: Entry) => {
+    setEditingId(e.id);
+    setForm({
+      community: e.community,
+      event_name: e.event_name,
+      event_date: e.event_date,
+      coordinator_name: e.coordinator_name,
+      coordinator_phone: e.coordinator_phone,
+      visible_to: e.visible_to ?? [],
+      know_more_link: e.know_more_link || "",
+      button_text: e.button_text || "Know More",
+    });
+  };
 
   const remove = async (id: string) => {
     if (!confirm("Delete this entry?")) return;
@@ -114,6 +117,7 @@ const edit = (e: Entry) => {
           <CalendarDays className="h-5 w-5 text-primary" />
           <h3 className="font-semibold">{editingId ? "Edit calendar entry" : "Add calendar entry"}</h3>
         </div>
+        
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           <div>
             <Label>Community</Label>
@@ -127,128 +131,51 @@ const edit = (e: Entry) => {
             </Select>
           </div>
           <div>
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-  <div>
-    <Label>Community</Label>
-    <Select
-      value={form.community}
-      onValueChange={(v) => setForm({ ...form, community: v })}
-      disabled={!isAdmin && !!editingId}
-    >
-      <SelectTrigger>
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {COMMUNITY_LIST.map((c) => (
-          <SelectItem key={c.key} value={c.short}>
-            {c.short}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </div>
+            <Label>Event name</Label>
+            <Input value={form.event_name} onChange={(e) => setForm({ ...form, event_name: e.target.value })} />
+          </div>
+          <div>
+            <Label>Event date</Label>
+            <Input type="date" value={form.event_date} onChange={(e) => setForm({ ...form, event_date: e.target.value })} />
+          </div>
+          <div>
+            <Label>Coordinator name</Label>
+            <Input value={form.coordinator_name} onChange={(e) => setForm({ ...form, coordinator_name: e.target.value })} />
+          </div>
+          <div>
+            <Label>Coordinator phone</Label>
+            <Input inputMode="numeric" maxLength={15} value={form.coordinator_phone} onChange={(e) => setForm({ ...form, coordinator_phone: e.target.value })} />
+          </div>
+          <div>
+            <Label>Upload / Know More Link</Label>
+            <Input
+              type="url"
+              placeholder="https://example.com"
+              value={form.know_more_link}
+              onChange={(e) => setForm({ ...form, know_more_link: e.target.value })}
+            />
+          </div>
+          <div>
+            <Label>Button Text</Label>
+            <Select
+              value={form.button_text}
+              onValueChange={(value) => setForm({ ...form, button_text: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Know More">Know More</SelectItem>
+                <SelectItem value="Register Now">Register Now</SelectItem>
+                <SelectItem value="Visit Website">Visit Website</SelectItem>
+                <SelectItem value="Apply Now">Apply Now</SelectItem>
+                <SelectItem value="Join Event">Join Event</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-  <div>
-    <Label>Event name</Label>
-    <Input
-      value={form.event_name}
-      onChange={(e) =>
-        setForm({ ...form, event_name: e.target.value })
-      }
-    />
-  </div>
-
-  <div>
-    <Label>Event date</Label>
-    <Input
-      type="date"
-      value={form.event_date}
-      onChange={(e) =>
-        setForm({ ...form, event_date: e.target.value })
-      }
-    />
-  </div>
-
-  <div>
-    <Label>Coordinator name</Label>
-    <Input
-      value={form.coordinator_name}
-      onChange={(e) =>
-        setForm({ ...form, coordinator_name: e.target.value })
-      }
-    />
-  </div>
-
-  <div>
-    <Label>Coordinator phone</Label>
-    <Input
-      inputMode="numeric"
-      maxLength={15}
-      value={form.coordinator_phone}
-      onChange={(e) =>
-        setForm({
-          ...form,
-          coordinator_phone: e.target.value,
-        })
-      }
-    />
-  </div>
-
-  <div>
-    <Label>Upload / Know More Link</Label>
-    <Input
-      type="url"
-      placeholder="https://example.com"
-      value={form.know_more_link}
-      onChange={(e) =>
-        setForm({
-          ...form,
-          know_more_link: e.target.value,
-        })
-      }
-    />
-  </div>
-
-  <div>
-    <Label>Button Text</Label>
-
-    <Select
-      value={form.button_text}
-      onValueChange={(value) =>
-        setForm({
-          ...form,
-          button_text: value,
-        })
-      }
-    >
-      <SelectTrigger>
-        <SelectValue />
-      </SelectTrigger>
-
-      <SelectContent>
-        <SelectItem value="Know More">
-          Know More
-        </SelectItem>
-
-        <SelectItem value="Register Now">
-          Register Now
-        </SelectItem>
-
-        <SelectItem value="Apply Now">
-          Apply Now
-        </SelectItem>
-
-        <SelectItem value="Visit Website">
-          Visit Website
-        </SelectItem>
-
-        <SelectItem value="Join Event">
-          Join Event
-        </SelectItem>
-      </SelectContent>
-    </Select>
-  </div>
-</div>
+        <div>
           <Label className="mb-2 block">Visible to communities (multi-select)</Label>
           <div className="flex flex-wrap gap-2">
             {COMMUNITY_LIST.map((c) => {
@@ -271,6 +198,7 @@ const edit = (e: Entry) => {
             Owning community always has access. Add others to share with them.
           </p>
         </div>
+
         <div className="flex gap-2">
           <Button onClick={submit} className="bg-gradient-emerald text-primary-foreground">
             {editingId ? <><Save className="h-4 w-4 mr-1" />Save</> : <><Plus className="h-4 w-4 mr-1" />Add</>}
@@ -294,13 +222,23 @@ const edit = (e: Entry) => {
             </SelectContent>
           </Select>
         </div>
+
         {filtered.length === 0 ? (
           <p className="text-sm text-muted-foreground">No entries yet.</p>
         ) : (
           <div className="overflow-auto">
             <table className="w-full text-sm">
               <thead className="text-left text-xs uppercase text-muted-foreground">
-                <tr><th className="p-2">Community</th><th className="p-2">Event</th><th className="p-2">Date</th><th className="p-2">Coordinator</th><th className="p-2">Phone</th><th className="p-2">Visible to</th><th className="p-2"></th></tr>
+                <tr>
+                  <th className="p-2">Community</th>
+                  <th className="p-2">Event</th>
+                  <th className="p-2">Date</th>
+                  <th className="p-2">Coordinator</th>
+                  <th className="p-2">Phone</th>
+                  <th className="p-2">Visible To</th>
+                  <th className="p-2">Link</th>
+                  <th className="p-2"></th>
+                </tr>
               </thead>
               <tbody>
                 {filtered.map((e) => (
@@ -312,8 +250,25 @@ const edit = (e: Entry) => {
                     <td className="p-2">{e.coordinator_phone}</td>
                     <td className="p-2">
                       <div className="flex flex-wrap gap-1">
-                        {(e.visible_to ?? []).map((v) => <Badge key={v} variant="secondary" className="text-[10px]">{v}</Badge>)}
+                        {(e.visible_to ?? []).map((v) => (
+                          <Badge key={v} variant="secondary" className="text-[10px]">{v}</Badge>
+                        ))}
                       </div>
+                    </td>
+                    <td className="p-2">
+                      {e.know_more_link ? (
+                        <a
+                          href={e.know_more_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button size="sm">
+                            {e.button_text || "Know More"}
+                          </Button>
+                        </a>
+                      ) : (
+                        "-"
+                      )}
                     </td>
                     <td className="p-2">
                       <div className="flex gap-1">
