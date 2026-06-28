@@ -197,25 +197,50 @@ const Dashboard = () => {
               </p>
             </Link>
 
-            {/* Big NEC Challenge Button for Ecell members placed directly right next to Create New Event */}
-            {isEcellMember && (
-              <a
-                href="https://www.ecell.in/nec/basic"
-                target="_blank"
-                rel="noreferrer"
-                className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-to-br from-amber-600 to-amber-900 text-white shadow-md hover:scale-[1.02] transition-smooth ring-2 ring-amber-500/50"
-              >
-                <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-90 text-amber-300">
-                  <Trophy className="h-3.5 w-3.5" /> E-Cell Exclusive
-                </div>
-                <h3 className="mt-2 text-xl font-bold flex items-center gap-2">
-                  NEC Challenge <ExternalLink className="h-4 w-4 opacity-80" />
-                </h3>
-                <p className="text-sm opacity-90 mt-1 text-amber-100">
-                  Access materials and track portal standings
-                </p>
-              </a>
-            )}
+            {/* Big NEC Challenge Button for Ecell members */}
+{isEcellMember && (
+  <>
+    <a
+      href="https://www.ecell.in/nec/basic"
+      target="_blank"
+      rel="noreferrer"
+      className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-to-br from-amber-600 to-amber-900 text-white shadow-md hover:scale-[1.02] transition-smooth ring-2 ring-amber-500/50"
+    >
+      <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-90 text-amber-300">
+        <Trophy className="h-3.5 w-3.5" />
+        E-Cell Exclusive
+      </div>
+
+      <h3 className="mt-2 text-xl font-bold flex items-center gap-2">
+        NEC Challenge
+        <ExternalLink className="h-4 w-4 opacity-80" />
+      </h3>
+
+      <p className="text-sm opacity-90 mt-1 text-amber-100">
+        Access materials and track portal standings
+      </p>
+    </a>
+
+    <Link
+      to="/cep-challenge"
+      className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-to-br from-emerald-600 to-green-900 text-white shadow-md hover:scale-[1.02] transition-smooth ring-2 ring-emerald-500/50"
+    >
+      <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-90 text-emerald-200">
+        <Calendar className="h-3.5 w-3.5" />
+        E-Cell Exclusive
+      </div>
+
+      <h3 className="mt-2 text-xl font-bold flex items-center gap-2">
+        CEP Challenge
+        <ArrowRight className="h-4 w-4 opacity-80" />
+      </h3>
+
+      <p className="text-sm opacity-90 mt-1 text-emerald-100">
+        View E-Cell Activity Calendar
+      </p>
+    </Link>
+  </>
+)}
 
             <a href="#my-events" className="glass-card p-6 cursor-pointer block">
               <h3 className="text-lg font-semibold">My Events</h3>
