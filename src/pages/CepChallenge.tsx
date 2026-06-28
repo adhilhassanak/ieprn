@@ -3,6 +3,7 @@ import { Layout } from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { CalendarDays } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 type Entry = {
   id: string;
@@ -11,6 +12,8 @@ type Entry = {
   event_date: string;
   coordinator_name: string;
   coordinator_phone: string;
+  know_more_link?: string;
+  button_text?: string;
 };
 
 const CepChallenge = () => {
@@ -21,9 +24,16 @@ const CepChallenge = () => {
     (async () => {
       const { data } = await (supabase as any)
         .from("activity_calendar")
-        .select(
-          "id, community, event_name, event_date, coordinator_name, coordinator_phone"
-        )
+        .select(`
+          id,
+          community,
+          event_name,
+          event_date,
+          coordinator_name,
+          coordinator_phone,
+          know_more_link,
+          button_text
+        `)
         .eq("community", "E-Cell")
         .order("event_date", { ascending: true });
 
@@ -58,6 +68,7 @@ const CepChallenge = () => {
                   <th className="p-2">Event Date</th>
                   <th className="p-2">Coordinator</th>
                   <th className="p-2">Phone</th>
+                  <th className="p-2">Action</th>
                 </tr>
               </thead>
 
@@ -65,7 +76,9 @@ const CepChallenge = () => {
                 {items.map((e) => (
                   <tr key={e.id} className="border-t border-border/50">
                     <td className="p-2">
-                      <Badge variant="outline">{e.community}</Badge>
+                      <Badge variant="outline">
+                        {e.community}
+                      </Badge>
                     </td>
 
                     <td className="p-2 font-medium">
@@ -87,6 +100,22 @@ const CepChallenge = () => {
                       >
                         {e.coordinator_phone}
                       </a>
+                    </td>
+
+                    <td className="p-2">
+                      {e.know_more_link ? (
+                        <a
+                          href={e.know_more_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button size="sm">
+                            {e.button_text || "Know More"}
+                          </Button>
+                        </a>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
