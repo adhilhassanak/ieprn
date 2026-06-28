@@ -181,87 +181,95 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Quick actions */}
-        {isExecutive && (
-        <div
-  className={`grid gap-4 mt-6 ${
-    isEcellMember
-      ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4"
-      : "grid-cols-1 md:grid-cols-2"
-  }`}
->
-            <Link
-              to="/events/new"
-              className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-gold text-gold-foreground shadow-glow-gold hover:scale-[1.02] transition-smooth ring-2 ring-gold/60"
-            >
-              <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-90">
-                <Plus className="h-3.5 w-3.5" /> Primary action
-              </div>
-              <h3 className="mt-2 text-xl font-bold">Create New Event</h3>
-              <p className="text-sm opacity-90 mt-1">
-                Schedule a new event for your community
-              </p>
-            </Link>
-
-            {/* Big NEC Challenge Button for Ecell members */}
-{isEcellMember && (
- <>
-  {/* NEC LOGIN */}
-  <a
-    href="https://www.ecell.in/nec/basic"
-    target="_blank"
-    rel="noreferrer"
-    className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-to-br from-amber-600 to-amber-900 text-white shadow-md hover:scale-[1.02] transition-smooth ring-2 ring-amber-500/50"
+      {/* Quick actions */}
+{isExecutive && (
+  <div
+    className={`grid gap-4 mt-6 ${
+      isEcellMember
+        ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+        : "grid-cols-1 md:grid-cols-2"
+    }`}
   >
-    <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-90 text-amber-300">
-      <Trophy className="h-3.5 w-3.5" />
-      E-Cell Exclusive
-    </div>
+    {/* Create Event */}
+    <Link
+      to="/events/new"
+      className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-gold text-gold-foreground shadow-glow-gold hover:scale-[1.02] transition-smooth ring-2 ring-gold/60"
+    >
+      <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-90">
+        <Plus className="h-3.5 w-3.5" />
+        Primary Action
+      </div>
 
-    <h3 className="mt-2 text-xl font-bold flex items-center gap-2">
-      NEC LOGIN
-      <ExternalLink className="h-4 w-4 opacity-80" />
-    </h3>
+      <h3 className="mt-2 text-xl font-bold">
+        Create New Event
+      </h3>
 
-    <p className="text-sm opacity-90 mt-1 text-amber-100">
-      Login to the NEC portal and track your challenge progress.
-    </p>
-  </a>
-
-{/* CEP NEC TASK */}
-<Link
-  to="/cep-challenge"
-  className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-to-br from-amber-300 to-amber-500 text-amber-950 shadow-md hover:scale-[1.02] transition-smooth ring-2 ring-amber-400/60"
->
-  <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-90 text-amber-800">
-    <Calendar className="h-3.5 w-3.5" />
-    E-Cell Exclusive
-  </div>
-
-  <h3 className="mt-2 text-xl font-bold flex items-center gap-2">
-    CEP NEC TASK
-    <ArrowRight className="h-4 w-4 opacity-80" />
-  </h3>
-
-  <p className="text-sm opacity-90 mt-1 text-amber-900">
-    View CEP tasks, activity calendar, deadlines and coordinator details.
-  </p>
-</Link>
-      <p className="text-sm opacity-90 mt-1 text-emerald-100">
-        View E-Cell Activity Calendar
+      <p className="text-sm opacity-90 mt-1">
+        Schedule a new event for your community.
       </p>
     </Link>
-  </>
-)}
 
-            <a href="#my-events" className="glass-card p-6 cursor-pointer block">
-              <h3 className="text-lg font-semibold">My Events</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Manage events, attendance and documentation
-              </p>
-            </a>
+    {isEcellMember && (
+      <>
+        {/* NEC LOGIN */}
+        <a
+          href="https://www.ecell.in/nec/basic"
+          target="_blank"
+          rel="noreferrer"
+          className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-to-br from-amber-600 to-amber-900 text-white shadow-md hover:scale-[1.02] transition-smooth ring-2 ring-amber-500/50"
+        >
+          <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-90 text-amber-300">
+            <Trophy className="h-3.5 w-3.5" />
+            E-Cell Exclusive
           </div>
-        )}
+
+          <h3 className="mt-2 text-xl font-bold flex items-center gap-2">
+            NEC LOGIN
+            <ExternalLink className="h-4 w-4 opacity-80" />
+          </h3>
+
+          <p className="text-sm opacity-90 mt-1 text-amber-100">
+            Login to the NEC portal and track your challenge progress.
+          </p>
+        </a>
+
+        {/* CEP NEC TASK */}
+        <Link
+          to="/cep-challenge"
+          className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-to-br from-yellow-300 to-amber-400 text-amber-950 shadow-md hover:scale-[1.02] hover:brightness-105 transition-all ring-2 ring-yellow-500/70"
+        >
+          <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-amber-800">
+            <Calendar className="h-3.5 w-3.5" />
+            E-Cell Exclusive
+          </div>
+
+          <h3 className="mt-2 text-xl font-bold flex items-center gap-2">
+            CEP NEC TASK
+            <ArrowRight className="h-4 w-4" />
+          </h3>
+
+          <p className="text-sm mt-1 text-amber-900">
+            View CEP tasks, activity calendar, deadlines and coordinator details.
+          </p>
+        </Link>
+      </>
+    )}
+
+    {/* My Events */}
+    <a
+      href="#my-events"
+      className="glass-card p-6 cursor-pointer block"
+    >
+      <h3 className="text-lg font-semibold">
+        My Events
+      </h3>
+
+      <p className="text-sm text-muted-foreground mt-1">
+        Manage events, attendance and documentation.
+      </p>
+    </a>
+  </div>
+)}
 
         {/* Role-specific tools */}
         {(isDocumentationHead || isFinanceHead) && (
