@@ -383,14 +383,6 @@ const Dashboard = () => {
         {/* Student Tabs */}
 <StudentTabs />
 
-{/* E-Cell Activity Calendar */}
-{isExecutive && isEcellMember && (
-  <section className="mt-10">
-    <EcellActivityCalendar />
-  </section>
-)}
-
-{/* General Activity Calendar */}
 {isExecutive && <ActivityCalendarView />}
 
         {/* ExeCom Members */}
