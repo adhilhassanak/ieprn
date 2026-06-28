@@ -30,6 +30,9 @@ const EMPTY = {
   coordinator_name: "",
   coordinator_phone: "",
   visible_to: [] as string[],
+
+  know_more_link: "",
+  button_text: "Know More",
 };
 
 export const ActivityCalendarManager = () => {
@@ -70,17 +73,21 @@ export const ActivityCalendarManager = () => {
     load();
   };
 
-  const edit = (e: Entry) => {
-    setEditingId(e.id);
-    setForm({
-      community: e.community,
-      event_name: e.event_name,
-      event_date: e.event_date,
-      coordinator_name: e.coordinator_name,
-      coordinator_phone: e.coordinator_phone,
-      visible_to: e.visible_to ?? [],
-    });
-  };
+const edit = (e: Entry) => {
+  setEditingId(e.id);
+
+  setForm({
+    community: e.community,
+    event_name: e.event_name,
+    event_date: e.event_date,
+    coordinator_name: e.coordinator_name,
+    coordinator_phone: e.coordinator_phone,
+    visible_to: e.visible_to ?? [],
+
+    know_more_link: e.know_more_link ?? "",
+    button_text: e.button_text ?? "Know More",
+  });
+};
 
   const remove = async (id: string) => {
     if (!confirm("Delete this entry?")) return;
@@ -120,23 +127,128 @@ export const ActivityCalendarManager = () => {
             </Select>
           </div>
           <div>
-            <Label>Event name</Label>
-            <Input value={form.event_name} onChange={(e) => setForm({ ...form, event_name: e.target.value })} />
-          </div>
-          <div>
-            <Label>Event date</Label>
-            <Input type="date" value={form.event_date} onChange={(e) => setForm({ ...form, event_date: e.target.value })} />
-          </div>
-          <div>
-            <Label>Coordinator name</Label>
-            <Input value={form.coordinator_name} onChange={(e) => setForm({ ...form, coordinator_name: e.target.value })} />
-          </div>
-          <div>
-            <Label>Coordinator phone</Label>
-            <Input inputMode="numeric" maxLength={15} value={form.coordinator_phone} onChange={(e) => setForm({ ...form, coordinator_phone: e.target.value })} />
-          </div>
-        </div>
-        <div>
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+  <div>
+    <Label>Community</Label>
+    <Select
+      value={form.community}
+      onValueChange={(v) => setForm({ ...form, community: v })}
+      disabled={!isAdmin && !!editingId}
+    >
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {COMMUNITY_LIST.map((c) => (
+          <SelectItem key={c.key} value={c.short}>
+            {c.short}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+
+  <div>
+    <Label>Event name</Label>
+    <Input
+      value={form.event_name}
+      onChange={(e) =>
+        setForm({ ...form, event_name: e.target.value })
+      }
+    />
+  </div>
+
+  <div>
+    <Label>Event date</Label>
+    <Input
+      type="date"
+      value={form.event_date}
+      onChange={(e) =>
+        setForm({ ...form, event_date: e.target.value })
+      }
+    />
+  </div>
+
+  <div>
+    <Label>Coordinator name</Label>
+    <Input
+      value={form.coordinator_name}
+      onChange={(e) =>
+        setForm({ ...form, coordinator_name: e.target.value })
+      }
+    />
+  </div>
+
+  <div>
+    <Label>Coordinator phone</Label>
+    <Input
+      inputMode="numeric"
+      maxLength={15}
+      value={form.coordinator_phone}
+      onChange={(e) =>
+        setForm({
+          ...form,
+          coordinator_phone: e.target.value,
+        })
+      }
+    />
+  </div>
+
+  <div>
+    <Label>Upload / Know More Link</Label>
+    <Input
+      type="url"
+      placeholder="https://example.com"
+      value={form.know_more_link}
+      onChange={(e) =>
+        setForm({
+          ...form,
+          know_more_link: e.target.value,
+        })
+      }
+    />
+  </div>
+
+  <div>
+    <Label>Button Text</Label>
+
+    <Select
+      value={form.button_text}
+      onValueChange={(value) =>
+        setForm({
+          ...form,
+          button_text: value,
+        })
+      }
+    >
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+
+      <SelectContent>
+        <SelectItem value="Know More">
+          Know More
+        </SelectItem>
+
+        <SelectItem value="Register Now">
+          Register Now
+        </SelectItem>
+
+        <SelectItem value="Apply Now">
+          Apply Now
+        </SelectItem>
+
+        <SelectItem value="Visit Website">
+          Visit Website
+        </SelectItem>
+
+        <SelectItem value="Join Event">
+          Join Event
+        </SelectItem>
+      </SelectContent>
+    </Select>
+  </div>
+</div>
           <Label className="mb-2 block">Visible to communities (multi-select)</Label>
           <div className="flex flex-wrap gap-2">
             {COMMUNITY_LIST.map((c) => {
