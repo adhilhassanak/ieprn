@@ -83,7 +83,7 @@ export const ActivityCalendarView = () => {
                       <div className="space-y-1">
                         {e.coordinators.map((name) => (
                           <Badge
-                            key={name}
+                            key={`${e.id}-${name}`}
                             variant="secondary"
                             className="block w-fit"
                           >
