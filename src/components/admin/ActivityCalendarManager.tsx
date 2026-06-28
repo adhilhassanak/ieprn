@@ -18,6 +18,9 @@ type Entry = {
   coordinator_name: string;
   coordinator_phone: string;
   visible_to: string[];
+
+  know_more_link?: string;
+  button_text?: string;
 };
 
 const EMPTY = {
