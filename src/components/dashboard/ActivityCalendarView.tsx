@@ -23,8 +23,18 @@ export const ActivityCalendarView = () => {
     (async () => {
       const { data } = await (supabase as any)
         .from("activity_calendar")
-        .select("id, community, event_name, event_date, coordinator_name, coordinator_phone")
+        .select(`
+          id,
+          community,
+          event_name,
+          event_date,
+          coordinator_name,
+          coordinator_phone,
+          know_more_link,
+          button_text
+        `)
         .order("event_date", { ascending: true });
+
       setItems((data ?? []) as Entry[]);
       setLoading(false);
     })();
@@ -38,6 +48,7 @@ export const ActivityCalendarView = () => {
         <CalendarDays className="h-5 w-5 text-primary" />
         Activity Calendar
       </h2>
+
       {items.length === 0 ? (
         <div className="glass rounded-2xl p-6 text-sm text-muted-foreground">
           No calendar entries visible to you yet.
@@ -48,20 +59,56 @@ export const ActivityCalendarView = () => {
             <thead className="text-left text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="p-2">Community</th>
-                <th className="p-2">Event name</th>
-                <th className="p-2">Event date</th>
+                <th className="p-2">Event Name</th>
+                <th className="p-2">Event Date</th>
                 <th className="p-2">Coordinator</th>
                 <th className="p-2">Phone</th>
+                <th className="p-2">More</th>
               </tr>
             </thead>
+
             <tbody>
               {items.map((e) => (
                 <tr key={e.id} className="border-t border-border/50">
-                  <td className="p-2"><Badge variant="outline">{e.community}</Badge></td>
-                  <td className="p-2 font-medium">{e.event_name}</td>
-                  <td className="p-2">{new Date(e.event_date).toLocaleDateString()}</td>
-                  <td className="p-2">{e.coordinator_name}</td>
-                  <td className="p-2"><a href={`tel:${e.coordinator_phone}`} className="text-primary hover:underline">{e.coordinator_phone}</a></td>
+                  <td className="p-2">
+                    <Badge variant="outline">{e.community}</Badge>
+                  </td>
+
+                  <td className="p-2 font-medium">
+                    {e.event_name}
+                  </td>
+
+                  <td className="p-2">
+                    {new Date(e.event_date).toLocaleDateString()}
+                  </td>
+
+                  <td className="p-2">
+                    {e.coordinator_name}
+                  </td>
+
+                  <td className="p-2">
+                    <a
+                      href={`tel:${e.coordinator_phone}`}
+                      className="text-primary hover:underline"
+                    >
+                      {e.coordinator_phone}
+                    </a>
+                  </td>
+
+                  <td className="p-2">
+                    {e.know_more_link ? (
+                      <a
+                        href={e.know_more_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground hover:opacity-90 transition"
+                      >
+                        {e.button_text || "Know More"}
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
