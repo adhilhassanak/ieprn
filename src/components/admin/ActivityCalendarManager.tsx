@@ -15,9 +15,8 @@ type Entry = {
   community: string;
   event_name: string;
   event_date: string;
-  coordinator_name: string;
-  coordinator_phone: string;
   visible_to: string[];
+  coordinators?: string[];
   know_more_link?: string;
   button_text?: string;
 };
@@ -26,20 +25,19 @@ const EMPTY = {
   community: "IIC",
   event_name: "",
   event_date: "",
-  coordinator_name: "",
-  coordinator_phone: "",
   visible_to: [] as string[],
   know_more_link: "",
   button_text: "Know More",
+  coordinators: [] as string[],
 };
 
 export const ActivityCalendarManager = () => {
   const { isAdmin } = useAuth();
   const [items, setItems] = useState<Entry[]>([]);
+  const [execomMembers, setExecomMembers] = useState<any[]>([]);
   const [form, setForm] = useState<typeof EMPTY>(EMPTY);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("ALL");
-  const [coordinators, setCoordinators] = useState<any[]>([]);
 
   const load = async () => {
     const { data } = await (supabase as any)
@@ -49,19 +47,19 @@ export const ActivityCalendarManager = () => {
     setItems((data ?? []) as Entry[]);
   };
 
-  const loadCoordinators = async () => {
+  const loadExecom = async () => {
     const { data } = await (supabase as any)
-      .from("coordinators")
-      .select("*")
-      .eq("active", true)
-      .order("name");
+      .from("execom_sorted")
+      .select("full_name")
+      .eq("status", "approved")
+      .order("full_name");
 
-    setCoordinators(data || []);
+    setExecomMembers(data || []);
   };
 
   useEffect(() => {
     load();
-    loadCoordinators();
+    loadExecom();
   }, []);
 
   const reset = () => {
@@ -78,6 +76,7 @@ export const ActivityCalendarManager = () => {
       ...form,
       know_more_link: form.know_more_link,
       button_text: form.button_text,
+      coordinators: form.coordinators ?? [],
     };
 
     const { error } = editingId
@@ -96,11 +95,10 @@ export const ActivityCalendarManager = () => {
       community: e.community,
       event_name: e.event_name,
       event_date: e.event_date,
-      coordinator_name: e.coordinator_name || "",
-      coordinator_phone: e.coordinator_phone || "",
       visible_to: e.visible_to ?? [],
       know_more_link: e.know_more_link || "",
       button_text: e.button_text || "Know More",
+      coordinators: e.coordinators ?? [],
     });
   };
 
@@ -151,39 +149,6 @@ export const ActivityCalendarManager = () => {
             <Input type="date" value={form.event_date} onChange={(e) => setForm({ ...form, event_date: e.target.value })} />
           </div>
           <div>
-            <Label>Coordinator</Label>
-            <Select
-              value={form.coordinator_name}
-              onValueChange={(value) => {
-                const person = coordinators.find((c) => c.name === value);
-                setForm({
-                  ...form,
-                  coordinator_name: person?.name || "",
-                  coordinator_phone: person?.phone || "",
-                });
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select Coordinator" />
-              </SelectTrigger>
-              <SelectContent>
-                {coordinators.map((c) => (
-                  <SelectItem key={c.id} value={c.name}>
-                    {c.name} ({c.member_type})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label>Coordinator phone</Label>
-            <Input
-              value={form.coordinator_phone}
-              readOnly
-              className="bg-muted/50 cursor-not-allowed"
-            />
-          </div>
-          <div>
             <Label>Upload / Know More Link</Label>
             <Input
               type="url"
@@ -209,6 +174,43 @@ export const ActivityCalendarManager = () => {
                 <SelectItem value="Join Event">Join Event</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </div>
+
+        <div>
+          <Label>Coordinators (Maximum 10)</Label>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {execomMembers.map((member) => {
+              const selected = form.coordinators?.includes(member.full_name);
+              return (
+                <button
+                  key={member.full_name}
+                  type="button"
+                  disabled={!selected && (form.coordinators?.length || 0) >= 10}
+                  onClick={() => {
+                    const list = form.coordinators || [];
+                    if (selected) {
+                      setForm({
+                        ...form,
+                        coordinators: list.filter((n) => n !== member.full_name),
+                      });
+                    } else {
+                      setForm({
+                        ...form,
+                        coordinators: [...list, member.full_name],
+                      });
+                    }
+                  }}
+                  className={`px-3 py-1 rounded-full border text-xs transition-smooth ${
+                    selected
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border hover:border-primary/60"
+                  }`}
+                >
+                  {member.full_name}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -270,8 +272,7 @@ export const ActivityCalendarManager = () => {
                   <th className="p-2">Community</th>
                   <th className="p-2">Event</th>
                   <th className="p-2">Date</th>
-                  <th className="p-2">Coordinator</th>
-                  <th className="p-2">Phone</th>
+                  <th className="p-2">Coordinators</th>
                   <th className="p-2">Visible To</th>
                   <th className="p-2">Link</th>
                   <th className="p-2"></th>
@@ -283,8 +284,23 @@ export const ActivityCalendarManager = () => {
                     <td className="p-2"><Badge variant="outline">{e.community}</Badge></td>
                     <td className="p-2 font-medium">{e.event_name}</td>
                     <td className="p-2">{new Date(e.event_date).toLocaleDateString()}</td>
-                    <td className="p-2">{e.coordinator_name || "-"}</td>
-                    <td className="p-2">{e.coordinator_phone || "-"}</td>
+                    <td className="p-2">
+                      {e.coordinators?.length ? (
+                        <div className="space-y-1">
+                          {e.coordinators.map((name) => (
+                            <Badge
+                              key={`${e.id}-${name}`}
+                              variant="secondary"
+                              className="block w-fit text-[11px]"
+                            >
+                              {name}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
                     <td className="p-2">
                       <div className="flex flex-wrap gap-1">
                         {(e.visible_to ?? []).map((v) => (
