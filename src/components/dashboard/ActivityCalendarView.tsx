@@ -80,9 +80,13 @@ export const ActivityCalendarView = () => {
 
                   <td className="p-2">
                     {e.coordinators?.length ? (
-                      <div className="flex flex-wrap gap-1 max-w-[200px]">
+                      <div className="space-y-1">
                         {e.coordinators.map((name) => (
-                          <Badge key={name} variant="secondary" className="whitespace-nowrap">
+                          <Badge
+                            key={name}
+                            variant="secondary"
+                            className="block w-fit"
+                          >
                             {name}
                           </Badge>
                         ))}
