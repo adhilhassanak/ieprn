@@ -1,4 +1,4 @@
-import { EcellActivityCalendar } from "@/components/dashboard/EcellActivityCalendar";
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -87,13 +87,75 @@ const Dashboard = () => {
   const isFinanceHead = roleFinHead || approvedPositions.includes("finance head");
 
   /* --------------------------------------------------
-      ROBUST E-CELL MEMBER DETECTION (WITH ADMIN OVERRIDE)
+      COMMUNITY MEMBERSHIP DETECTION (ADMIN SEES ALL)
   -------------------------------------------------- */
-  const isEcellMember =
-    isAdmin ||
-    registrations.some((r) => String(r.community).toLowerCase().replace(/[^a-z0-9]/g, "") === "ecell") ||
-    String(profile?.community ?? "").toLowerCase().replace(/[^a-z0-9]/g, "") === "ecell" ||
-    roles.some((role) => String(role).toLowerCase().replace(/[^a-z0-9]/g, "") === "ecell");
+  const norm = (s: unknown) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const memberOf = (keys: string[]) => {
+    if (isAdmin) return true;
+    const values = [
+      ...registrations.map((r) => norm(r.community)),
+      norm(profile?.community),
+      ...roles.map((r) => norm(r)),
+    ];
+    return keys.some((k) => values.includes(k));
+  };
+
+  const isEcellMember = memberOf(["ecell"]);
+  const isIicMember = memberOf(["iic"]);
+  const isEdMember = memberOf(["edclub", "ed", "edcep"]);
+  const isRndMember = memberOf(["rnd", "rndclub", "randd", "rd"]);
+
+  const cepButtons: {
+    show: boolean;
+    to: string;
+    label: string;
+    external?: boolean;
+    classes: string;
+    labelClass?: string;
+  }[] = [
+    {
+      show: isEcellMember,
+      to: "https://www.ecell.in/nec/basic",
+      external: true,
+      label: "NEC LOGIN",
+      classes:
+        "bg-gradient-to-br from-amber-600 to-amber-900 text-white ring-2 ring-amber-500/50",
+      labelClass: "text-amber-200",
+    },
+    {
+      show: isEcellMember,
+      to: "/cep-challenge",
+      label: "E-Cell CEP Task",
+      classes:
+        "bg-gradient-to-br from-yellow-300 to-amber-400 text-amber-950 ring-2 ring-yellow-500/70",
+      labelClass: "text-amber-800",
+    },
+    {
+      show: isIicMember,
+      to: "/cep/iic",
+      label: "IIC CEP Task",
+      classes:
+        "bg-gradient-to-br from-emerald-400 to-emerald-700 text-white ring-2 ring-emerald-500/60",
+      labelClass: "text-emerald-100",
+    },
+    {
+      show: isEdMember,
+      to: "/cep/edclub",
+      label: "ED CEP Task",
+      classes:
+        "bg-gradient-to-br from-violet-400 to-violet-700 text-white ring-2 ring-violet-500/60",
+      labelClass: "text-violet-100",
+    },
+    {
+      show: isRndMember,
+      to: "/cep/rndclub",
+      label: "R&D CEP Task",
+      classes:
+        "bg-gradient-to-br from-purple-400 to-fuchsia-700 text-white ring-2 ring-purple-500/60",
+      labelClass: "text-purple-100",
+    },
+  ];
+  const visibleCep = cepButtons.filter((b) => b.show);
 
   const statusBadge = (status: string) => {
     if (status === "approved") {
@@ -183,90 +245,71 @@ const Dashboard = () => {
 
       {/* Quick actions */}
 {isExecutive && (
-  <div
-    className={`grid gap-4 mt-6 ${
-      isEcellMember
-        ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
-        : "grid-cols-1 md:grid-cols-2"
-    }`}
-  >
+  <div className="grid gap-3 sm:gap-4 mt-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
     {/* Create Event */}
     <Link
       to="/events/new"
-      className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-gold text-gold-foreground shadow-glow-gold hover:scale-[1.02] transition-smooth ring-2 ring-gold/60"
+      className="relative overflow-hidden rounded-2xl p-4 sm:p-5 cursor-pointer block bg-gradient-gold text-gold-foreground shadow-glow-gold hover:scale-[1.02] transition-smooth ring-2 ring-gold/60"
     >
-      <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-90">
-        <Plus className="h-3.5 w-3.5" />
-        Primary Action
+      <div className="flex items-center gap-1 text-[10px] sm:text-xs uppercase tracking-wider opacity-90">
+        <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+        Primary
       </div>
-
-      <h3 className="mt-2 text-xl font-bold">
+      <h3 className="mt-1.5 text-sm sm:text-base font-bold leading-tight">
         Create New Event
       </h3>
-
-      <p className="text-sm opacity-90 mt-1">
-        Schedule a new event for your community.
+      <p className="hidden sm:block text-xs opacity-90 mt-1">
+        Schedule a new event.
       </p>
     </Link>
 
-    {isEcellMember && (
-      <>
-        {/* NEC LOGIN */}
+    {visibleCep.map((b) =>
+      b.external ? (
         <a
-          href="https://www.ecell.in/nec/basic"
+          key={b.to}
+          href={b.to}
           target="_blank"
           rel="noreferrer"
-          className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-to-br from-amber-600 to-amber-900 text-white shadow-md hover:scale-[1.02] transition-smooth ring-2 ring-amber-500/50"
+          className={`relative overflow-hidden rounded-2xl p-4 sm:p-5 cursor-pointer block shadow-md hover:scale-[1.02] transition-smooth ${b.classes}`}
         >
-          <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-90 text-amber-300">
-            <Trophy className="h-3.5 w-3.5" />
-            E-Cell Exclusive
+          <div className={`flex items-center gap-1 text-[10px] sm:text-xs uppercase tracking-wider ${b.labelClass ?? "opacity-90"}`}>
+            <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            Exclusive
           </div>
-
-          <h3 className="mt-2 text-xl font-bold flex items-center gap-2">
-            NEC LOGIN
-            <ExternalLink className="h-4 w-4 opacity-80" />
+          <h3 className="mt-1.5 text-sm sm:text-base font-bold flex items-center gap-1 leading-tight">
+            {b.label}
+            <ExternalLink className="h-3.5 w-3.5 opacity-80" />
           </h3>
-
-          <p className="text-sm opacity-90 mt-1 text-amber-100">
-            Login to the NEC portal and track your challenge progress.
-          </p>
         </a>
-
-        {/* CEP NEC TASK */}
+      ) : (
         <Link
-          to="/cep-challenge"
-          className="relative overflow-hidden rounded-2xl p-6 cursor-pointer block bg-gradient-to-br from-yellow-300 to-amber-400 text-amber-950 shadow-md hover:scale-[1.02] hover:brightness-105 transition-all ring-2 ring-yellow-500/70"
+          key={b.to}
+          to={b.to}
+          className={`relative overflow-hidden rounded-2xl p-4 sm:p-5 cursor-pointer block shadow-md hover:scale-[1.02] transition-smooth ${b.classes}`}
         >
-          <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-amber-800">
-            <Calendar className="h-3.5 w-3.5" />
-            E-Cell Exclusive
+          <div className={`flex items-center gap-1 text-[10px] sm:text-xs uppercase tracking-wider ${b.labelClass ?? "opacity-90"}`}>
+            <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            CEP Task
           </div>
-
-          <h3 className="mt-2 text-xl font-bold flex items-center gap-2">
-            CEP NEC TASK
-            <ArrowRight className="h-4 w-4" />
+          <h3 className="mt-1.5 text-sm sm:text-base font-bold flex items-center gap-1 leading-tight">
+            {b.label}
+            <ArrowRight className="h-3.5 w-3.5" />
           </h3>
-
-          <p className="text-sm mt-1 text-amber-900">
-            View CEP tasks, activity calendar, deadlines and coordinator details.
-          </p>
         </Link>
-      </>
+      )
     )}
 
     {/* My Events */}
     <a
       href="#my-events"
-      className="glass-card p-6 cursor-pointer block"
+      className="glass-card p-4 sm:p-5 cursor-pointer block"
     >
-      <h3 className="text-lg font-semibold">
+      <div className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground">
+        Manage
+      </div>
+      <h3 className="mt-1.5 text-sm sm:text-base font-semibold leading-tight">
         My Events
       </h3>
-
-      <p className="text-sm text-muted-foreground mt-1">
-        Manage events, attendance and documentation.
-      </p>
     </a>
   </div>
 )}
