@@ -525,6 +525,9 @@ const EventCard = ({
           </div>
 
           <h3 className="mt-1 font-semibold truncate">{e.name}</h3>
+          {Array.isArray(e.collaborators) && e.collaborators.length > 0 && (
+            <p className="text-[11px] text-muted-foreground truncate">with {e.collaborators.join(", ")}</p>
+          )}
 
           {e.event_date && (
             <p className="text-xs text-muted-foreground mt-1">
