@@ -42,6 +42,7 @@ const EventCreate = () => {
   const [primaryCoord, setPrimaryCoord] = useState<string>("");
   const [secondaryCoord, setSecondaryCoord] = useState<string>("");
   const [manualCoords, setManualCoords] = useState<Array<{ name: string; gmail: string; phone: string }>>([]);
+  const [collaborators, setCollaborators] = useState<string[]>([]);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -139,6 +140,7 @@ const EventCreate = () => {
         whatsapp_link: form.whatsapp_link.trim() || null,
         registration_mode: form.registration_mode,
         external_form_url: form.registration_mode === "external" ? form.external_form_url.trim() : null,
+        collaborators: collaborators.map((c) => c.trim()).filter(Boolean).slice(0, 5),
       };
       const { data, error } = await supabase.from("events").insert(payload).select().single();
       if (error) throw error;
