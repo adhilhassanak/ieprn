@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar, CheckCircle2, XCircle, Send } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-type Event = { id: string; slug: string | null; name: string; community: string; event_date: string | null; venue: string | null; poster_url: string | null; status: string };
+type Event = { id: string; slug: string | null; name: string; community: string; event_date: string | null; venue: string | null; poster_url: string | null; status: string; collaborators?: string[] | null };
 
 export const StudentTabs = () => {
   const { user } = useAuth();
@@ -116,6 +116,9 @@ const EventGrid = ({ events, empty, badge }: { events: Event[]; empty: string; b
             {badge === "missed" && <Badge variant="destructive" className="ml-auto"><XCircle className="h-3 w-3 mr-1" />Missed</Badge>}
           </div>
           <h3 className="mt-2 font-semibold">{e.name}</h3>
+          {e.collaborators && e.collaborators.length > 0 && (
+            <p className="text-[11px] text-muted-foreground mt-1">with {e.collaborators.join(", ")}</p>
+          )}
           {e.event_date && <p className="text-xs text-muted-foreground mt-1">{new Date(e.event_date).toLocaleDateString()} · {e.venue ?? "TBA"}</p>}
           <Button asChild size="sm" variant="ghost" className="mt-3 px-2 text-primary">
             <Link to={`/events/${e.slug ?? e.id}`}>View</Link>
