@@ -87,13 +87,75 @@ const Dashboard = () => {
   const isFinanceHead = roleFinHead || approvedPositions.includes("finance head");
 
   /* --------------------------------------------------
-      ROBUST E-CELL MEMBER DETECTION (WITH ADMIN OVERRIDE)
+      COMMUNITY MEMBERSHIP DETECTION (ADMIN SEES ALL)
   -------------------------------------------------- */
-  const isEcellMember =
-    isAdmin ||
-    registrations.some((r) => String(r.community).toLowerCase().replace(/[^a-z0-9]/g, "") === "ecell") ||
-    String(profile?.community ?? "").toLowerCase().replace(/[^a-z0-9]/g, "") === "ecell" ||
-    roles.some((role) => String(role).toLowerCase().replace(/[^a-z0-9]/g, "") === "ecell");
+  const norm = (s: unknown) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const memberOf = (keys: string[]) => {
+    if (isAdmin) return true;
+    const values = [
+      ...registrations.map((r) => norm(r.community)),
+      norm(profile?.community),
+      ...roles.map((r) => norm(r)),
+    ];
+    return keys.some((k) => values.includes(k));
+  };
+
+  const isEcellMember = memberOf(["ecell"]);
+  const isIicMember = memberOf(["iic"]);
+  const isEdMember = memberOf(["edclub", "ed", "edcep"]);
+  const isRndMember = memberOf(["rnd", "rndclub", "randd", "rd"]);
+
+  const cepButtons: {
+    show: boolean;
+    to: string;
+    label: string;
+    external?: boolean;
+    classes: string;
+    labelClass?: string;
+  }[] = [
+    {
+      show: isEcellMember,
+      to: "https://www.ecell.in/nec/basic",
+      external: true,
+      label: "NEC LOGIN",
+      classes:
+        "bg-gradient-to-br from-amber-600 to-amber-900 text-white ring-2 ring-amber-500/50",
+      labelClass: "text-amber-200",
+    },
+    {
+      show: isEcellMember,
+      to: "/cep-challenge",
+      label: "E-Cell CEP Task",
+      classes:
+        "bg-gradient-to-br from-yellow-300 to-amber-400 text-amber-950 ring-2 ring-yellow-500/70",
+      labelClass: "text-amber-800",
+    },
+    {
+      show: isIicMember,
+      to: "/cep/iic",
+      label: "IIC CEP Task",
+      classes:
+        "bg-gradient-to-br from-emerald-400 to-emerald-700 text-white ring-2 ring-emerald-500/60",
+      labelClass: "text-emerald-100",
+    },
+    {
+      show: isEdMember,
+      to: "/cep/edclub",
+      label: "ED CEP Task",
+      classes:
+        "bg-gradient-to-br from-violet-400 to-violet-700 text-white ring-2 ring-violet-500/60",
+      labelClass: "text-violet-100",
+    },
+    {
+      show: isRndMember,
+      to: "/cep/rndclub",
+      label: "R&D CEP Task",
+      classes:
+        "bg-gradient-to-br from-purple-400 to-fuchsia-700 text-white ring-2 ring-purple-500/60",
+      labelClass: "text-purple-100",
+    },
+  ];
+  const visibleCep = cepButtons.filter((b) => b.show);
 
   const statusBadge = (status: string) => {
     if (status === "approved") {
