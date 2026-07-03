@@ -67,7 +67,7 @@ th{background:#f5f5f5;font-weight:bold}
   <p>Print Date: ${new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"})}</p>
 </div>
 <table>
-  <thead><tr><th>Sl. No.</th><th>Event Name</th><th>Date</th><th>Coordinators</th><th>Phone</th></tr></thead>
+  <thead><tr><th>Sl. No.</th><th>Event Name</th><th>Date</th><th>Coordinators</th></tr></thead>
   <tbody>
     ${rows.map((e,i)=>`
       <tr>
@@ -75,7 +75,6 @@ th{background:#f5f5f5;font-weight:bold}
         <td><strong>${e.event_name}</strong></td>
         <td>${formatDate(e.event_date)}</td>
         <td>${e.coordinators?.length ? e.coordinators.join(", ") : "—"}</td>
-        <td>${e.coordinator_phone ?? "—"}</td>
       </tr>`).join("")}
   </tbody>
 </table>
