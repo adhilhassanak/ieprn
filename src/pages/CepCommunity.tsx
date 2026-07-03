@@ -13,7 +13,6 @@ type Entry = {
   event_name: string;
   event_date: string;
   coordinators?: string[];
-  coordinator_phone?: string | null;
   know_more_link?: string;
   button_text?: string;
 };
@@ -33,7 +32,7 @@ const CepCommunity = () => {
       setLoading(true);
       const { data } = await (supabase as any)
         .from("activity_calendar")
-        .select(`id, community, event_name, event_date, coordinators, coordinator_phone, know_more_link, button_text`)
+        .select(`id, community, event_name, event_date, coordinators, know_more_link, button_text`)
         .eq("community", shortName)
         .order("event_date", { ascending: true });
       setItems((data ?? []) as Entry[]);
