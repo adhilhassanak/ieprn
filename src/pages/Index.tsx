@@ -21,6 +21,7 @@ type EventRow = {
   venue: string | null;
   poster_url: string | null;
   status: string;
+  collaborators: string[] | null;
 };
 
 type Stat = { label: string; value: number | null; icon: any; suffix?: string; dynamic?: "events" };
@@ -52,6 +53,11 @@ const EventCard = ({ e, faded = false, i = 0 }: { e: EventRow; faded?: boolean; 
       <div className="flex items-center gap-2 text-xs text-gold uppercase tracking-wide">
         <CommunityLogo community={e.community} size={18} />{e.community}
       </div>
+      {e.collaborators && e.collaborators.length > 0 && (
+        <div className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+          <span className="text-primary/80">× </span>with {e.collaborators.join(", ")}
+        </div>
+      )}
       <h3 className="mt-2 text-base font-semibold line-clamp-2">{e.name}</h3>
       {e.event_date && (
         <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
@@ -73,7 +79,7 @@ const Index = () => {
     (async () => {
       const { data } = await supabase
         .from("events")
-        .select("id, slug, name, community, event_date, venue, poster_url, status")
+        .select("id, slug, name, community, event_date, venue, poster_url, status, collaborators")
         .in("status", ["published", "completed"])
         .order("event_date", { ascending: false })
         .limit(24);

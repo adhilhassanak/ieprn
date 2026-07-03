@@ -103,8 +103,16 @@ const EventDetails = () => {
             <img src={event.poster_url} alt={event.name} className="w-full max-h-[420px] object-cover" />
           )}
           <div className="p-8">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Badge className="bg-gradient-gold text-gold-foreground">{event.community}</Badge>
+              {Array.isArray(event.collaborators) && event.collaborators.length > 0 && (
+                <>
+                  <span className="text-xs text-muted-foreground">in collaboration with</span>
+                  {event.collaborators.map((c: string) => (
+                    <Badge key={c} variant="outline" className="border-primary/40 text-primary">{c}</Badge>
+                  ))}
+                </>
+              )}
               <Badge variant="outline" className="capitalize">{event.status}</Badge>
             </div>
             <h1 className="mt-3 text-3xl md:text-4xl font-bold">{event.name}</h1>
