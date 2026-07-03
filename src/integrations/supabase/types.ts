@@ -16,38 +16,41 @@ export type Database = {
     Tables: {
       activity_calendar: {
         Row: {
+          button_text: string | null
           community: string
-          coordinator_name: string
-          coordinator_phone: string
+          coordinators: string[] | null
           created_at: string
           created_by: string | null
           event_date: string
           event_name: string
           id: string
+          know_more_link: string | null
           updated_at: string
           visible_to: string[]
         }
         Insert: {
+          button_text?: string | null
           community: string
-          coordinator_name: string
-          coordinator_phone: string
+          coordinators?: string[] | null
           created_at?: string
           created_by?: string | null
           event_date: string
           event_name: string
           id?: string
+          know_more_link?: string | null
           updated_at?: string
           visible_to?: string[]
         }
         Update: {
+          button_text?: string | null
           community?: string
-          coordinator_name?: string
-          coordinator_phone?: string
+          coordinators?: string[] | null
           created_at?: string
           created_by?: string | null
           event_date?: string
           event_name?: string
           id?: string
+          know_more_link?: string | null
           updated_at?: string
           visible_to?: string[]
         }
@@ -200,6 +203,33 @@ export type Database = {
           logo_url?: string | null
           updated_at?: string
           uploaded_by?: string | null
+        }
+        Relationships: []
+      }
+      coordinators: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          id: string
+          member_type: string | null
+          name: string
+          phone: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: string
+          member_type?: string | null
+          name: string
+          phone?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: string
+          member_type?: string | null
+          name?: string
+          phone?: string | null
         }
         Relationships: []
       }
