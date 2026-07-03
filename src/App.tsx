@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CepChallenge from "./pages/CepChallenge";
+import CepCommunity from "./pages/CepCommunity";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -55,6 +56,14 @@ const App = () => (
   element={
     <ProtectedRoute>
       <CepChallenge />
+    </ProtectedRoute>
+  }
+/>
+            <Route
+  path="/cep/:community"
+  element={
+    <ProtectedRoute>
+      <CepCommunity />
     </ProtectedRoute>
   }
 />
