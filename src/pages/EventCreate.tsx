@@ -292,6 +292,50 @@ const EventCreate = () => {
             <p className="text-xs text-muted-foreground mt-2">Name, gmail and phone are all shown publicly on the event page.</p>
           </div>
 
+          {/* Collaborating communities / clubs (optional, max 5) */}
+          <div>
+            <Label>
+              Collaborating communities / clubs{" "}
+              <span className="text-muted-foreground text-xs">(optional, max 5)</span>
+            </Label>
+            <div className="mt-2 space-y-2">
+              {collaborators.map((c, i) => (
+                <div key={i} className="flex gap-2 items-center">
+                  <Input
+                    placeholder="e.g. IIC, IEEE Student Branch, Robotics Club"
+                    value={c}
+                    onChange={(e) =>
+                      setCollaborators((prev) => prev.map((x, j) => (j === i ? e.target.value : x)))
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCollaborators((prev) => prev.filter((_, j) => j !== i))}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              {collaborators.length < 5 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCollaborators((prev) => [...prev, ""])}
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add collaborator
+                </Button>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Name is optional — blank rows are ignored. Shown publicly on the event card and details page.
+            </p>
+          </div>
+
+
+
 
           {/* PDF upload */}
           <div>
