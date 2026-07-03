@@ -142,7 +142,6 @@ th{background:#f5f5f5;font-weight:bold}
                   <th className="p-2">Event Name</th>
                   <th className="p-2">Date</th>
                   <th className="p-2">Coordinators</th>
-                  <th className="p-2">Phone</th>
                   <th className="p-2">Action</th>
                 </tr>
               </thead>
@@ -174,7 +173,6 @@ th{background:#f5f5f5;font-weight:bold}
                         </div>
                       ) : <span className="text-muted-foreground">—</span>}
                     </td>
-                    <td className="p-2 whitespace-nowrap">{e.coordinator_phone ?? <span className="text-muted-foreground">—</span>}</td>
                     <td className="p-2">
                       {e.know_more_link ? (
                         <a href={e.know_more_link} target="_blank" rel="noopener noreferrer">
