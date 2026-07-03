@@ -369,6 +369,7 @@ export type Database = {
         Row: {
           actual_participants: number
           actual_registrations: number | null
+          collaborators: string[]
           community: string
           coordinator_contacts: Json
           coordinator_names: string[]
@@ -397,6 +398,7 @@ export type Database = {
         Insert: {
           actual_participants?: number
           actual_registrations?: number | null
+          collaborators?: string[]
           community: string
           coordinator_contacts?: Json
           coordinator_names?: string[]
@@ -425,6 +427,7 @@ export type Database = {
         Update: {
           actual_participants?: number
           actual_registrations?: number | null
+          collaborators?: string[]
           community?: string
           coordinator_contacts?: Json
           coordinator_names?: string[]
