@@ -392,6 +392,7 @@ export type Database = {
           slug: string | null
           status: Database["public"]["Enums"]["event_status"]
           venue: string | null
+          visible_to: string[]
           whatsapp_group_link: string | null
           whatsapp_link: string | null
         }
@@ -421,6 +422,7 @@ export type Database = {
           slug?: string | null
           status?: Database["public"]["Enums"]["event_status"]
           venue?: string | null
+          visible_to?: string[]
           whatsapp_group_link?: string | null
           whatsapp_link?: string | null
         }
@@ -450,6 +452,7 @@ export type Database = {
           slug?: string | null
           status?: Database["public"]["Enums"]["event_status"]
           venue?: string | null
+          visible_to?: string[]
           whatsapp_group_link?: string | null
           whatsapp_link?: string | null
         }
