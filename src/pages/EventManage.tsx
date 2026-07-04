@@ -241,6 +241,33 @@ const EventManage = () => {
             </div>
 
             <div>
+              <Label>Visible to communities <span className="text-muted-foreground text-xs">(owner is always included; other selected communities can view but not edit)</span></Label>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {COMMUNITY_LIST.map((c) => {
+                  const list: string[] = event.visible_to ?? [];
+                  const owner = c.short === event.community;
+                  const on = owner || list.includes(c.short);
+                  return (
+                    <button
+                      type="button"
+                      key={c.key}
+                      disabled={owner}
+                      onClick={() => {
+                        const next = list.includes(c.short) ? list.filter((x) => x !== c.short) : [...list, c.short];
+                        setEvent({ ...event, visible_to: next });
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-xs border transition-smooth ${
+                        on ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary/60"
+                      } ${owner ? "opacity-80 cursor-not-allowed" : ""}`}
+                    >
+                      {c.short}{owner ? " (owner)" : ""}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
               <Label>Coordinators <span className="text-muted-foreground text-xs">(approved executives only — 1 required, max 2)</span></Label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
                 <div>
