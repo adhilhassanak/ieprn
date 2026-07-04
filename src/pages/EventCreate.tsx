@@ -151,6 +151,7 @@ const EventCreate = () => {
         registration_mode: form.registration_mode,
         external_form_url: form.registration_mode === "external" ? form.external_form_url.trim() : null,
         collaborators: collaborators.map((c) => c.trim()).filter(Boolean).slice(0, 5),
+        visible_to: Array.from(new Set([form.community, ...visibleTo])),
       };
       const { data, error } = await supabase.from("events").insert(payload).select().single();
       if (error) throw error;
