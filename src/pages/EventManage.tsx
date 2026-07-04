@@ -54,8 +54,9 @@ const EventManage = () => {
   if (!event) return <Layout><div className="container py-20 text-center text-muted-foreground">Loading…</div></Layout>;
 
   const isAssignedCoordinator = coordinators.some((c) => c.user_id === user?.id);
-  const canEdit = isAdmin || event.created_by === user?.id || isAssignedCoordinator;
-  const canDelete = isAdmin || event.created_by === user?.id;
+  const isOwnerCoAdmin = isCommunityCoAdmin(event.community);
+  const canEdit = isAdmin || isOwnerCoAdmin || event.created_by === user?.id || isAssignedCoordinator;
+  const canDelete = isAdmin || isOwnerCoAdmin || event.created_by === user?.id;
 
 
   const save = async (e: FormEvent) => {
