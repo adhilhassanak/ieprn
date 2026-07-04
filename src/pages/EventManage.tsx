@@ -16,7 +16,7 @@ import { Trash2, UserPlus, Save, ExternalLink, Plus, X, CheckCircle2, Circle, Up
 
 const EventManage = () => {
   const { id } = useParams();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isCommunityCoAdmin } = useAuth();
   const navigate = useNavigate();
   const [event, setEvent] = useState<any>(null);
   const [coordinators, setCoordinators] = useState<any[]>([]);
