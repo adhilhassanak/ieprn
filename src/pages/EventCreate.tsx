@@ -43,6 +43,7 @@ const EventCreate = () => {
   const [secondaryCoord, setSecondaryCoord] = useState<string>("");
   const [manualCoords, setManualCoords] = useState<Array<{ name: string; gmail: string; phone: string }>>([]);
   const [collaborators, setCollaborators] = useState<string[]>([]);
+  const [visibleTo, setVisibleTo] = useState<string[]>(["IIC"]);
   const [form, setForm] = useState({
     name: "",
     description: "",
