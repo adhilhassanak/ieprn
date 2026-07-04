@@ -96,6 +96,7 @@ const EventManage = () => {
       external_form_url: event.external_form_url || null,
       whatsapp_link: event.whatsapp_link || null,
       manual_registered_count: event.manual_registered_count ?? null,
+      visible_to: Array.from(new Set([event.community, ...(event.visible_to ?? [])])),
     }).eq("id", event.id);
     if (error) {
       setSaving(false);
