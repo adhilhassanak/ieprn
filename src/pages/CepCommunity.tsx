@@ -15,7 +15,6 @@ type Entry = {
   coordinators?: string[];
   know_more_link?: string;
   button_text?: string;
-  visible_to?: string[];
 };
 
 const CepCommunity = () => {
@@ -29,49 +28,14 @@ const CepCommunity = () => {
 
   useEffect(() => {
     if (!shortName) return;
-
     (async () => {
       setLoading(true);
-
-      const { data, error } = await (supabase as any)
+      const { data } = await (supabase as any)
         .from("activity_calendar")
-        .select(`
-          id,
-          community,
-          event_name,
-          event_date,
-          coordinators,
-          know_more_link,
-          button_text,
-          visible_to
-        `)
+        .select(`id, community, event_name, event_date, coordinators, know_more_link, button_text, visible_to`)
+        .or(`community.eq.${shortName},visible_to.cs.{${shortName}}`)
         .order("event_date", { ascending: true });
-
-      if (error) {
-        console.error(error);
-        setItems([]);
-        setLoading(false);
-        return;
-      }
-
-      const filtered = (data ?? []).filter((event: Entry) => {
-        // Improved Improvement: Defensive check to ensure visible_to is a valid array
-        const visible = Array.isArray(event.visible_to) 
-          ? event.visible_to 
-          : [];
-
-        return (
-          event.community === shortName ||
-          visible.includes(shortName)
-        );
-      });
-
-      // Temporary diagnostic logs
-      console.log("Total rows from DB:", data?.length);
-      console.log("Filtered rows:", filtered.length);
-      console.table(filtered);
-
-      setItems(filtered);
+      setItems((data ?? []) as Entry[]);
       setLoading(false);
     })();
   }, [shortName]);
