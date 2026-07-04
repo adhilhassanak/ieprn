@@ -25,8 +25,10 @@ interface AuthContextValue {
   isCoordinator: boolean;
   isDocumentationHead: boolean;
   isFinanceHead: boolean;
+  isCommunityCoAdmin: (community?: string | null) => boolean;
+  canManageCommunity: (community?: string | null) => boolean;
   signOut: () => Promise<void>;
-  refreshRoles: () => Promise<void>;
+  refreshRoles: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
