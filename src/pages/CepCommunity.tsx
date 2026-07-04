@@ -33,6 +33,29 @@ const CepCommunity = () => {
     (async () => {
       setLoading(true);
 
+      // --- Step 1 Diagnostics: Check current auth state & full user profile metadata ---
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        console.log("🔒 Logged in user:", user);
+
+        if (user) {
+          const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("*") // Changed from "community" to "*" to select the whole profile
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+          if (profileError) {
+            console.error("❌ Profile Fetch Error:", profileError);
+          } else {
+            console.log("👤 Full profile:", profile); // Changed log descriptor text
+          }
+        }
+      } catch (err) {
+        console.error("⚠️ Diagnostic authentication query failed:", err);
+      }
+      // -------------------------------------------------------------------------
+
       const { data, error } = await (supabase as any)
         .from("activity_calendar")
         .select(`
@@ -48,14 +71,13 @@ const CepCommunity = () => {
         .order("event_date", { ascending: true });
 
       if (error) {
-        console.error(error);
+        console.error("❌ Database Fetch Error:", error);
         setItems([]);
         setLoading(false);
         return;
       }
 
       const filtered = (data ?? []).filter((event: Entry) => {
-        // Improved Improvement: Defensive check to ensure visible_to is a valid array
         const visible = Array.isArray(event.visible_to) 
           ? event.visible_to 
           : [];
@@ -66,9 +88,9 @@ const CepCommunity = () => {
         );
       });
 
-      // Temporary diagnostic logs
-      console.log("Total rows from DB:", data?.length);
-      console.log("Filtered rows:", filtered.length);
+      // Existing diagnostic logs
+      console.log("📊 Total rows received from DB:", data?.length);
+      console.log("🎯 Filtered rows showing on UI:", filtered.length);
       console.table(filtered);
 
       setItems(filtered);
