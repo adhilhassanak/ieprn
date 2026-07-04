@@ -57,7 +57,16 @@ const EventCreate = () => {
     external_form_url: "",
     status: "pending" as "draft" | "pending",
   });
-  const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
+  const set = (k: keyof typeof form, v: string) => {
+    setForm((p) => ({ ...p, [k]: v }));
+    if (k === "community") {
+      setVisibleTo((prev) => (prev.includes(v) ? prev : [v, ...prev]));
+    }
+  };
+  const toggleVisible = (short: string) => {
+    if (short === form.community) return; // owner always included
+    setVisibleTo((prev) => (prev.includes(short) ? prev.filter((c) => c !== short) : [...prev, short]));
+  };
 
   useEffect(() => {
     (async () => {
