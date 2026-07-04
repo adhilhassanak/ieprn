@@ -32,8 +32,8 @@ const CepCommunity = () => {
       setLoading(true);
       const { data } = await (supabase as any)
         .from("activity_calendar")
-        .select(`id, community, event_name, event_date, coordinators, know_more_link, button_text`)
-        .eq("community", shortName)
+        .select(`id, community, event_name, event_date, coordinators, know_more_link, button_text, visible_to`)
+        .or(`community.eq.${shortName},visible_to.cs.{${shortName}}`)
         .order("event_date", { ascending: true });
       setItems((data ?? []) as Entry[]);
       setLoading(false);
