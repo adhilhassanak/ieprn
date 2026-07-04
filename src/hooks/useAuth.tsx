@@ -25,8 +25,10 @@ interface AuthContextValue {
   isCoordinator: boolean;
   isDocumentationHead: boolean;
   isFinanceHead: boolean;
+  isCommunityCoAdmin: (community?: string | null) => boolean;
+  canManageCommunity: (community?: string | null) => boolean;
   signOut: () => Promise<void>;
-  refreshRoles: () => Promise<void>;
+  refreshRoles: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -92,12 +94,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isDocumentationHead = roles.includes("documentation_head") || isAdmin;
   const isFinanceHead = roles.includes("finance_head") || isAdmin;
 
+  const normCommunity = (c?: string | null) =>
+    String(c ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const isCommunityCoAdmin = (c?: string | null) => {
+    if (isAdmin) return true;
+    if (!roles.includes("co_admin")) return false;
+    if (!c) return true;
+    return normCommunity(community) === normCommunity(c);
+  };
+  const canManageCommunity = (c?: string | null) => isAdmin || isCommunityCoAdmin(c);
+
   return (
     <AuthContext.Provider
       value={{
         user, session, roles, community, approved, loading,
         isAdmin, isCoAdmin, isExecutive, isApprovedExecutive, isCoordinator,
         isDocumentationHead, isFinanceHead,
+        isCommunityCoAdmin, canManageCommunity,
         signOut, refreshRoles,
       }}
     >
@@ -120,6 +133,8 @@ const FALLBACK_AUTH: AuthContextValue = {
   isCoordinator: false,
   isDocumentationHead: false,
   isFinanceHead: false,
+  isCommunityCoAdmin: () => false,
+  canManageCommunity: () => false,
   signOut: async () => {},
   refreshRoles: async () => {},
 };

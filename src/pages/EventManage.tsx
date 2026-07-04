@@ -13,10 +13,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { Trash2, UserPlus, Save, ExternalLink, Plus, X, CheckCircle2, Circle, Upload, FileText, Image as ImageIcon } from "lucide-react";
+import { COMMUNITY_LIST } from "@/lib/communities";
 
 const EventManage = () => {
   const { id } = useParams();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isCommunityCoAdmin } = useAuth();
   const navigate = useNavigate();
   const [event, setEvent] = useState<any>(null);
   const [coordinators, setCoordinators] = useState<any[]>([]);
@@ -54,8 +55,9 @@ const EventManage = () => {
   if (!event) return <Layout><div className="container py-20 text-center text-muted-foreground">Loading…</div></Layout>;
 
   const isAssignedCoordinator = coordinators.some((c) => c.user_id === user?.id);
-  const canEdit = isAdmin || event.created_by === user?.id || isAssignedCoordinator;
-  const canDelete = isAdmin || event.created_by === user?.id;
+  const isOwnerCoAdmin = isCommunityCoAdmin(event.community);
+  const canEdit = isAdmin || isOwnerCoAdmin || event.created_by === user?.id || isAssignedCoordinator;
+  const canDelete = isAdmin || isOwnerCoAdmin || event.created_by === user?.id;
 
 
   const save = async (e: FormEvent) => {
@@ -95,6 +97,7 @@ const EventManage = () => {
       external_form_url: event.external_form_url || null,
       whatsapp_link: event.whatsapp_link || null,
       manual_registered_count: event.manual_registered_count ?? null,
+      visible_to: Array.from(new Set([event.community, ...(event.visible_to ?? [])])),
     }).eq("id", event.id);
     if (error) {
       setSaving(false);
@@ -235,6 +238,33 @@ const EventManage = () => {
                 </div>
               )}
               <div className="col-span-2"><Label>WhatsApp group link</Label><Input type="url" value={event.whatsapp_link ?? ""} onChange={(e) => setEvent({ ...event, whatsapp_link: e.target.value })} placeholder="https://chat.whatsapp.com/..." /></div>
+            </div>
+
+            <div>
+              <Label>Visible to communities <span className="text-muted-foreground text-xs">(owner is always included; other selected communities can view but not edit)</span></Label>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {COMMUNITY_LIST.map((c) => {
+                  const list: string[] = event.visible_to ?? [];
+                  const owner = c.short === event.community;
+                  const on = owner || list.includes(c.short);
+                  return (
+                    <button
+                      type="button"
+                      key={c.key}
+                      disabled={owner}
+                      onClick={() => {
+                        const next = list.includes(c.short) ? list.filter((x) => x !== c.short) : [...list, c.short];
+                        setEvent({ ...event, visible_to: next });
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-xs border transition-smooth ${
+                        on ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary/60"
+                      } ${owner ? "opacity-80 cursor-not-allowed" : ""}`}
+                    >
+                      {c.short}{owner ? " (owner)" : ""}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div>

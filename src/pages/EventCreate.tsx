@@ -43,6 +43,7 @@ const EventCreate = () => {
   const [secondaryCoord, setSecondaryCoord] = useState<string>("");
   const [manualCoords, setManualCoords] = useState<Array<{ name: string; gmail: string; phone: string }>>([]);
   const [collaborators, setCollaborators] = useState<string[]>([]);
+  const [visibleTo, setVisibleTo] = useState<string[]>(["IIC"]);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -56,7 +57,16 @@ const EventCreate = () => {
     external_form_url: "",
     status: "pending" as "draft" | "pending",
   });
-  const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
+  const set = (k: keyof typeof form, v: string) => {
+    setForm((p) => ({ ...p, [k]: v }));
+    if (k === "community") {
+      setVisibleTo((prev) => (prev.includes(v) ? prev : [v, ...prev]));
+    }
+  };
+  const toggleVisible = (short: string) => {
+    if (short === form.community) return; // owner always included
+    setVisibleTo((prev) => (prev.includes(short) ? prev.filter((c) => c !== short) : [...prev, short]));
+  };
 
   useEffect(() => {
     (async () => {
@@ -141,6 +151,7 @@ const EventCreate = () => {
         registration_mode: form.registration_mode,
         external_form_url: form.registration_mode === "external" ? form.external_form_url.trim() : null,
         collaborators: collaborators.map((c) => c.trim()).filter(Boolean).slice(0, 5),
+        visible_to: Array.from(new Set([form.community, ...visibleTo])),
       };
       const { data, error } = await supabase.from("events").insert(payload).select().single();
       if (error) throw error;
@@ -227,6 +238,30 @@ const EventCreate = () => {
             <div className="col-span-2">
               <Label>WhatsApp group link <span className="text-muted-foreground text-xs">(shown only after registration)</span></Label>
               <Input type="url" placeholder="https://chat.whatsapp.com/..." value={form.whatsapp_link} onChange={(e) => set("whatsapp_link", e.target.value)} />
+            </div>
+          </div>
+
+          {/* Visible-to communities */}
+          <div>
+            <Label>Visible to communities <span className="text-muted-foreground text-xs">(owner is always included; other selected communities can view but not edit)</span></Label>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {COMMUNITY_LIST.map((c) => {
+                const on = visibleTo.includes(c.short) || c.short === form.community;
+                const owner = c.short === form.community;
+                return (
+                  <button
+                    type="button"
+                    key={c.key}
+                    onClick={() => toggleVisible(c.short)}
+                    disabled={owner}
+                    className={`px-3 py-1.5 rounded-full text-xs border transition-smooth ${
+                      on ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary/60"
+                    } ${owner ? "opacity-80 cursor-not-allowed" : ""}`}
+                  >
+                    {c.short}{owner ? " (owner)" : ""}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
