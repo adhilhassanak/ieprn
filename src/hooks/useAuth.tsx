@@ -133,6 +133,8 @@ const FALLBACK_AUTH: AuthContextValue = {
   isCoordinator: false,
   isDocumentationHead: false,
   isFinanceHead: false,
+  isCommunityCoAdmin: () => false,
+  canManageCommunity: () => false,
   signOut: async () => {},
   refreshRoles: async () => {},
 };
