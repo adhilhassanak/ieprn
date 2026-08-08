@@ -843,6 +843,18 @@ export type Database = {
           photo_url: string
         }[]
       }
+      get_public_faculty: {
+        Args: never
+        Returns: {
+          active: boolean
+          department: string
+          designation: string
+          id: string
+          name: string
+          photo_url: string
+          priority: number
+        }[]
+      }
       get_storage_stats: {
         Args: never
         Returns: {

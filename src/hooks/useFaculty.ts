@@ -28,10 +28,18 @@ export const useFaculty = (onlyActive = true) => {
 
   const load = useCallback(async () => {
     setLoading(true);
-    let q = supabase.from("faculty").select("*").order("priority", { ascending: true }).order("name");
-    if (onlyActive) q = q.eq("active", true);
-    const { data } = await q;
-    setFaculty((data ?? []) as Faculty[]);
+    if (onlyActive) {
+      // Public listing: excludes personal contact details (email/phone)
+      const { data } = await supabase.rpc("get_public_faculty");
+      setFaculty(((data ?? []) as any[]).map((f) => ({ ...f, email: null, phone: null })) as Faculty[]);
+    } else {
+      const { data } = await supabase
+        .from("faculty")
+        .select("*")
+        .order("priority", { ascending: true })
+        .order("name");
+      setFaculty((data ?? []) as Faculty[]);
+    }
     setLoading(false);
   }, [onlyActive]);
 
