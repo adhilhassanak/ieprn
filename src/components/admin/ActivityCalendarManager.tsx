@@ -102,6 +102,8 @@ export const ActivityCalendarManager = () => {
       know_more_link: e.know_more_link || "",
       button_text: e.button_text || "Know More",
       coordinators: e.coordinators ?? [],
+      whatsapp_group_link: e.whatsapp_group_link || "",
+
     });
   };
 
