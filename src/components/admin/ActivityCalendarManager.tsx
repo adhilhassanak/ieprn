@@ -338,20 +338,21 @@ export const ActivityCalendarManager = () => {
                       </div>
                     </td>
                     <td className="p-2">
-                      {e.know_more_link ? (
-                        <a
-                          href={e.know_more_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Button size="sm">
-                            {e.button_text || "Know More"}
-                          </Button>
-                        </a>
-                      ) : (
-                        "-"
-                      )}
+                      <div className="flex flex-wrap gap-1">
+                        {e.know_more_link && (
+                          <a href={e.know_more_link} target="_blank" rel="noopener noreferrer">
+                            <Button size="sm">{e.button_text || "Know More"}</Button>
+                          </a>
+                        )}
+                        {e.whatsapp_group_link && (
+                          <a href={e.whatsapp_group_link} target="_blank" rel="noopener noreferrer">
+                            <Button size="sm" variant="outline">WhatsApp</Button>
+                          </a>
+                        )}
+                        {!e.know_more_link && !e.whatsapp_group_link && "-"}
+                      </div>
                     </td>
+
                     <td className="p-2">
                       <div className="flex gap-1">
                         <Button size="icon" variant="ghost" onClick={() => edit(e)}><Pencil className="h-4 w-4" /></Button>
