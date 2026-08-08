@@ -27,6 +27,7 @@ export type Database = {
           know_more_link: string | null
           updated_at: string
           visible_to: string[]
+          whatsapp_group_link: string | null
         }
         Insert: {
           button_text?: string | null
@@ -40,6 +41,7 @@ export type Database = {
           know_more_link?: string | null
           updated_at?: string
           visible_to?: string[]
+          whatsapp_group_link?: string | null
         }
         Update: {
           button_text?: string | null
@@ -53,6 +55,7 @@ export type Database = {
           know_more_link?: string | null
           updated_at?: string
           visible_to?: string[]
+          whatsapp_group_link?: string | null
         }
         Relationships: []
       }
@@ -848,6 +851,7 @@ export type Database = {
           total_bytes: number
         }[]
       }
+      get_user_communities: { Args: { _user_id: string }; Returns: string[] }
       get_user_community: { Args: { _user_id: string }; Returns: string }
       has_approved_position: {
         Args: { _position: string; _user_id: string }

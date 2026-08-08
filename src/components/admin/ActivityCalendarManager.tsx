@@ -19,6 +19,7 @@ type Entry = {
   coordinators?: string[];
   know_more_link?: string;
   button_text?: string;
+  whatsapp_group_link?: string;
 };
 
 const EMPTY = {
@@ -29,7 +30,9 @@ const EMPTY = {
   know_more_link: "",
   button_text: "Know More",
   coordinators: [] as string[],
+  whatsapp_group_link: "",
 };
+
 
 export const ActivityCalendarManager = () => {
   const { isAdmin } = useAuth();
@@ -99,6 +102,8 @@ export const ActivityCalendarManager = () => {
       know_more_link: e.know_more_link || "",
       button_text: e.button_text || "Know More",
       coordinators: e.coordinators ?? [],
+      whatsapp_group_link: e.whatsapp_group_link || "",
+
     });
   };
 
@@ -118,7 +123,15 @@ export const ActivityCalendarManager = () => {
     }));
   };
 
-  const filtered = filter === "ALL" ? items : items.filter((i) => i.community === filter);
+  const base = filter === "ALL" ? items : items.filter((i) => i.community === filter);
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const isExpired = (d: string) => new Date(d) < todayStart;
+  const filtered = [
+    ...base.filter((e) => !isExpired(e.event_date)).sort((a, b) => +new Date(a.event_date) - +new Date(b.event_date)),
+    ...base.filter((e) => isExpired(e.event_date)).sort((a, b) => +new Date(b.event_date) - +new Date(a.event_date)),
+  ];
+
 
   return (
     <div className="space-y-6">
@@ -175,7 +188,17 @@ export const ActivityCalendarManager = () => {
               </SelectContent>
             </Select>
           </div>
+          <div>
+            <Label>WhatsApp Group Link</Label>
+            <Input
+              type="url"
+              placeholder="https://chat.whatsapp.com/..."
+              value={form.whatsapp_group_link}
+              onChange={(e) => setForm({ ...form, whatsapp_group_link: e.target.value })}
+            />
+          </div>
         </div>
+
 
         <div>
           <Label>Coordinators (Maximum 10)</Label>
@@ -280,9 +303,15 @@ export const ActivityCalendarManager = () => {
               </thead>
               <tbody>
                 {filtered.map((e) => (
-                  <tr key={e.id} className="border-t border-border/50">
+                  <tr key={e.id} className={`border-t border-border/50 ${isExpired(e.event_date) ? "opacity-70" : ""}`}>
                     <td className="p-2"><Badge variant="outline">{e.community}</Badge></td>
-                    <td className="p-2 font-medium">{e.event_name}</td>
+                    <td className="p-2 font-medium">
+                      {e.event_name}
+                      {isExpired(e.event_date) && (
+                        <Badge variant="secondary" className="ml-2 text-[10px]">Expired</Badge>
+                      )}
+                    </td>
+
                     <td className="p-2">{new Date(e.event_date).toLocaleDateString()}</td>
                     <td className="p-2">
                       {e.coordinators?.length ? (
@@ -309,20 +338,21 @@ export const ActivityCalendarManager = () => {
                       </div>
                     </td>
                     <td className="p-2">
-                      {e.know_more_link ? (
-                        <a
-                          href={e.know_more_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Button size="sm">
-                            {e.button_text || "Know More"}
-                          </Button>
-                        </a>
-                      ) : (
-                        "-"
-                      )}
+                      <div className="flex flex-wrap gap-1">
+                        {e.know_more_link && (
+                          <a href={e.know_more_link} target="_blank" rel="noopener noreferrer">
+                            <Button size="sm">{e.button_text || "Know More"}</Button>
+                          </a>
+                        )}
+                        {e.whatsapp_group_link && (
+                          <a href={e.whatsapp_group_link} target="_blank" rel="noopener noreferrer">
+                            <Button size="sm" variant="outline">WhatsApp</Button>
+                          </a>
+                        )}
+                        {!e.know_more_link && !e.whatsapp_group_link && "-"}
+                      </div>
                     </td>
+
                     <td className="p-2">
                       <div className="flex gap-1">
                         <Button size="icon" variant="ghost" onClick={() => edit(e)}><Pencil className="h-4 w-4" /></Button>
