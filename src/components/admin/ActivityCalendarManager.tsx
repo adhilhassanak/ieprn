@@ -19,6 +19,7 @@ type Entry = {
   coordinators?: string[];
   know_more_link?: string;
   button_text?: string;
+  whatsapp_group_link?: string;
 };
 
 const EMPTY = {
@@ -29,7 +30,9 @@ const EMPTY = {
   know_more_link: "",
   button_text: "Know More",
   coordinators: [] as string[],
+  whatsapp_group_link: "",
 };
+
 
 export const ActivityCalendarManager = () => {
   const { isAdmin } = useAuth();
