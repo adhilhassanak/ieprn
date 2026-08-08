@@ -124,7 +124,7 @@ const Dashboard = () => {
     },
     {
       show: isEcellMember,
-      to: "/cep-challenge",
+      to: "/cep/ecell",
       label: "E-Cell CEP Task",
       classes:
         "bg-gradient-to-br from-yellow-300 to-amber-400 text-amber-950 ring-2 ring-yellow-500/70",
