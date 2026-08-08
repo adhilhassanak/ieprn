@@ -303,9 +303,15 @@ export const ActivityCalendarManager = () => {
               </thead>
               <tbody>
                 {filtered.map((e) => (
-                  <tr key={e.id} className="border-t border-border/50">
+                  <tr key={e.id} className={`border-t border-border/50 ${isExpired(e.event_date) ? "opacity-70" : ""}`}>
                     <td className="p-2"><Badge variant="outline">{e.community}</Badge></td>
-                    <td className="p-2 font-medium">{e.event_name}</td>
+                    <td className="p-2 font-medium">
+                      {e.event_name}
+                      {isExpired(e.event_date) && (
+                        <Badge variant="secondary" className="ml-2 text-[10px]">Expired</Badge>
+                      )}
+                    </td>
+
                     <td className="p-2">{new Date(e.event_date).toLocaleDateString()}</td>
                     <td className="p-2">
                       {e.coordinators?.length ? (
