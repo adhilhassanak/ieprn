@@ -188,7 +188,17 @@ export const ActivityCalendarManager = () => {
               </SelectContent>
             </Select>
           </div>
+          <div>
+            <Label>WhatsApp Group Link</Label>
+            <Input
+              type="url"
+              placeholder="https://chat.whatsapp.com/..."
+              value={form.whatsapp_group_link}
+              onChange={(e) => setForm({ ...form, whatsapp_group_link: e.target.value })}
+            />
+          </div>
         </div>
+
 
         <div>
           <Label>Coordinators (Maximum 10)</Label>
