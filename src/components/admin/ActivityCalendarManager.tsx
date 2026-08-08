@@ -123,7 +123,15 @@ export const ActivityCalendarManager = () => {
     }));
   };
 
-  const filtered = filter === "ALL" ? items : items.filter((i) => i.community === filter);
+  const base = filter === "ALL" ? items : items.filter((i) => i.community === filter);
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const isExpired = (d: string) => new Date(d) < todayStart;
+  const filtered = [
+    ...base.filter((e) => !isExpired(e.event_date)).sort((a, b) => +new Date(a.event_date) - +new Date(b.event_date)),
+    ...base.filter((e) => isExpired(e.event_date)).sort((a, b) => +new Date(b.event_date) - +new Date(a.event_date)),
+  ];
+
 
   return (
     <div className="space-y-6">
