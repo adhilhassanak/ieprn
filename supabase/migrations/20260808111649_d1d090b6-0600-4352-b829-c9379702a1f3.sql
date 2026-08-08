@@ -1,0 +1,1 @@
+ALTER TABLE public.activity_calendar ADD COLUMN IF NOT EXISTS whatsapp_group_link text;
