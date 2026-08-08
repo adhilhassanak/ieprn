@@ -848,6 +848,7 @@ export type Database = {
           total_bytes: number
         }[]
       }
+      get_user_communities: { Args: { _user_id: string }; Returns: string[] }
       get_user_community: { Args: { _user_id: string }; Returns: string }
       has_approved_position: {
         Args: { _position: string; _user_id: string }
