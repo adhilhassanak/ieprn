@@ -26,6 +26,7 @@ import { ImageUploadPanel } from "@/components/admin/ImageUploadPanel";
 import { FacultyManager } from "@/components/admin/FacultyManager";
 import { PrincipalManager } from "@/components/admin/PrincipalManager";
 import { ActivityCalendarManager } from "@/components/admin/ActivityCalendarManager";
+import { PopupManager } from "@/components/admin/PopupManager";
 
 const Admin = () => {
   const [regs, setRegs] = useState<any[]>([]);
@@ -205,6 +206,7 @@ const Admin = () => {
             <TabsTrigger value="finance">Finance</TabsTrigger>
             <TabsTrigger value="gallery">Gallery Upload</TabsTrigger>
             <TabsTrigger value="calendar">Activity Calendar</TabsTrigger>
+            <TabsTrigger value="popups">Popup Messages</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -397,6 +399,10 @@ const Admin = () => {
           {/* ACTIVITY CALENDAR */}
           <TabsContent value="calendar" className="mt-4">
             <ActivityCalendarManager />
+          </TabsContent>
+
+          <TabsContent value="popups" className="mt-4">
+            <PopupManager />
           </TabsContent>
 
 

@@ -13,6 +13,7 @@ type Entry = {
   event_name: string;
   event_date: string;
   coordinators?: string[];
+  volunteers?: string[];
   know_more_link?: string;
   button_text?: string;
   whatsapp_group_link?: string;
@@ -42,6 +43,7 @@ const CepCommunity = () => {
           event_name,
           event_date,
           coordinators,
+          volunteers,
           know_more_link,
           button_text,
           whatsapp_group_link,
@@ -122,7 +124,7 @@ th{background:#f5f5f5;font-weight:bold}
   <p>Print Date: ${new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"})}</p>
 </div>
 <table>
-  <thead><tr><th>Sl. No.</th><th>Event Name</th><th>Date</th><th>Coordinators</th></tr></thead>
+  <thead><tr><th>Sl. No.</th><th>Event Name</th><th>Date</th><th>Coordinators</th><th>Volunteers</th></tr></thead>
   <tbody>
     ${rows.map((e,i)=>`
       <tr>
@@ -130,6 +132,7 @@ th{background:#f5f5f5;font-weight:bold}
         <td><strong>${e.event_name}</strong></td>
         <td>${formatDate(e.event_date)}</td>
         <td>${e.coordinators?.length ? e.coordinators.join(", ") : "—"}</td>
+        <td>${e.volunteers?.length ? e.volunteers.join(", ") : "—"}</td>
       </tr>`).join("")}
   </tbody>
 </table>
@@ -186,6 +189,17 @@ th{background:#f5f5f5;font-weight:bold}
         ) : <span className="text-muted-foreground">—</span>}
       </td>
       <td className="p-2">
+        {e.volunteers?.length ? (
+          <div className="flex flex-wrap gap-1 max-w-[240px]">
+            {e.volunteers.map((n) => (
+              <Badge key={`${e.id}-vol-${n}`} variant="outline" className="text-[10px]">
+                {n}
+              </Badge>
+            ))}
+          </div>
+        ) : <span className="text-muted-foreground">—</span>}
+      </td>
+      <td className="p-2">
         <div className="flex flex-wrap gap-2">
           {e.know_more_link && (
             <a href={e.know_more_link} target="_blank" rel="noopener noreferrer">
@@ -222,6 +236,7 @@ th{background:#f5f5f5;font-weight:bold}
         <th className="p-2">Event Name</th>
         <th className="p-2">Date</th>
         <th className="p-2">Coordinators</th>
+        <th className="p-2">Volunteers</th>
         <th className="p-2">Action</th>
       </tr>
     </thead>

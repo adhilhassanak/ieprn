@@ -384,6 +384,8 @@ const Dashboard = () => {
           </section>
         )}
 
+        {isExecutive && <ActivityCalendarView />}
+
         {/* Already Applied */}
         <section className="mt-10">
           <h2 className="text-xl font-semibold mb-4">
@@ -470,8 +472,6 @@ const Dashboard = () => {
 
         {/* Student Tabs */}
 <StudentTabs />
-
-{isExecutive && <ActivityCalendarView />}
 
         {/* ExeCom Members */}
         {isExecutive && (
