@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/siih2.0",
+      "destination": "https://siih2.vercel.app"
+    },
+    {
+      "source": "/siih2.0/:path*",
+      "destination": "https://siih2.vercel.app/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
