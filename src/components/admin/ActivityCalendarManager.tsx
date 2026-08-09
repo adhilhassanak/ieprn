@@ -17,6 +17,7 @@ type Entry = {
   event_date: string;
   visible_to: string[];
   coordinators?: string[];
+  volunteers?: string[];
   know_more_link?: string;
   button_text?: string;
   whatsapp_group_link?: string;
@@ -30,6 +31,7 @@ const EMPTY = {
   know_more_link: "",
   button_text: "Know More",
   coordinators: [] as string[],
+  volunteers: [] as string[],
   whatsapp_group_link: "",
 };
 
