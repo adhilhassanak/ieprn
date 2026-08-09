@@ -27,6 +27,7 @@ export type Database = {
           know_more_link: string | null
           updated_at: string
           visible_to: string[]
+          volunteers: string[]
           whatsapp_group_link: string | null
         }
         Insert: {
@@ -41,6 +42,7 @@ export type Database = {
           know_more_link?: string | null
           updated_at?: string
           visible_to?: string[]
+          volunteers?: string[]
           whatsapp_group_link?: string | null
         }
         Update: {
@@ -55,6 +57,7 @@ export type Database = {
           know_more_link?: string | null
           updated_at?: string
           visible_to?: string[]
+          volunteers?: string[]
           whatsapp_group_link?: string | null
         }
         Relationships: []
@@ -206,6 +209,45 @@ export type Database = {
           logo_url?: string | null
           updated_at?: string
           uploaded_by?: string | null
+        }
+        Relationships: []
+      }
+      community_popups: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          id: string
+          media_type: string
+          media_url: string | null
+          message: string | null
+          title: string
+          updated_at: string
+          visible_to: string[]
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          media_type?: string
+          media_url?: string | null
+          message?: string | null
+          title: string
+          updated_at?: string
+          visible_to?: string[]
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          media_type?: string
+          media_url?: string | null
+          message?: string | null
+          title?: string
+          updated_at?: string
+          visible_to?: string[]
         }
         Relationships: []
       }
