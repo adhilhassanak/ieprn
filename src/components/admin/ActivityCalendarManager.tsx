@@ -43,6 +43,17 @@ export const ActivityCalendarManager = () => {
   const [form, setForm] = useState<typeof EMPTY>(EMPTY);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("ALL");
+  const [volunteerInput, setVolunteerInput] = useState("");
+
+  const addManualVolunteer = () => {
+    const name = volunteerInput.trim();
+    if (!name) return;
+    const list = form.volunteers || [];
+    if (list.includes(name)) return setVolunteerInput("");
+    if (list.length >= 20) return toast({ title: "Maximum 20 volunteers", variant: "destructive" });
+    setForm({ ...form, volunteers: [...list, name] });
+    setVolunteerInput("");
+  };
 
   const load = async () => {
     const { data } = await (supabase as any)
@@ -82,6 +93,7 @@ export const ActivityCalendarManager = () => {
       know_more_link: form.know_more_link,
       button_text: form.button_text,
       coordinators: form.coordinators ?? [],
+      volunteers: form.volunteers ?? [],
     };
 
     const { error } = editingId
@@ -104,6 +116,7 @@ export const ActivityCalendarManager = () => {
       know_more_link: e.know_more_link || "",
       button_text: e.button_text || "Know More",
       coordinators: e.coordinators ?? [],
+      volunteers: e.volunteers ?? [],
       whatsapp_group_link: e.whatsapp_group_link || "",
 
     });
@@ -240,6 +253,74 @@ export const ActivityCalendarManager = () => {
         </div>
 
         <div>
+          <Label>Volunteers (Maximum 20)</Label>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {execomMembers.map((member) => {
+              const selected = form.volunteers?.includes(member.full_name);
+              return (
+                <button
+                  key={`vol-${member.full_name}`}
+                  type="button"
+                  disabled={!selected && (form.volunteers?.length || 0) >= 20}
+                  onClick={() => {
+                    const list = form.volunteers || [];
+                    setForm({
+                      ...form,
+                      volunteers: selected
+                        ? list.filter((n) => n !== member.full_name)
+                        : [...list, member.full_name],
+                    });
+                  }}
+                  className={`px-3 py-1 rounded-full border text-xs transition-smooth ${
+                    selected
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border hover:border-primary/60"
+                  }`}
+                >
+                  {member.full_name}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex gap-2 mt-3">
+            <Input
+              placeholder="Type a volunteer name (non-execom)"
+              value={volunteerInput}
+              onChange={(ev) => setVolunteerInput(ev.target.value)}
+              onKeyDown={(ev) => {
+                if (ev.key === "Enter") {
+                  ev.preventDefault();
+                  addManualVolunteer();
+                }
+              }}
+            />
+            <Button type="button" variant="outline" onClick={addManualVolunteer}>
+              <Plus className="h-4 w-4 mr-1" />Add
+            </Button>
+          </div>
+
+          {(form.volunteers?.length || 0) > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {form.volunteers.map((n) => (
+                <Badge key={`sel-vol-${n}`} variant="secondary" className="gap-1">
+                  {n}
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, volunteers: form.volunteers.filter((x) => x !== n) })}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+              <span className="text-[11px] text-muted-foreground self-center">
+                {form.volunteers.length}/20 selected
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div>
           <Label className="mb-2 block">Visible to communities (multi-select)</Label>
           <div className="flex flex-wrap gap-2">
             {COMMUNITY_LIST.map((c) => {
@@ -298,6 +379,7 @@ export const ActivityCalendarManager = () => {
                   <th className="p-2">Event</th>
                   <th className="p-2">Date</th>
                   <th className="p-2">Coordinators</th>
+                  <th className="p-2">Volunteers</th>
                   <th className="p-2">Visible To</th>
                   <th className="p-2">Link</th>
                   <th className="p-2"></th>
@@ -324,6 +406,19 @@ export const ActivityCalendarManager = () => {
                               variant="secondary"
                               className="block w-fit text-[11px]"
                             >
+                              {name}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
+                    <td className="p-2">
+                      {e.volunteers?.length ? (
+                        <div className="flex flex-wrap gap-1 max-w-[220px]">
+                          {e.volunteers.map((name) => (
+                            <Badge key={`${e.id}-vol-${name}`} variant="outline" className="text-[10px]">
                               {name}
                             </Badge>
                           ))}
