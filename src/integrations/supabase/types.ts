@@ -218,6 +218,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          is_public: boolean
           media_type: string
           media_url: string | null
           message: string | null
@@ -230,6 +231,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          is_public?: boolean
           media_type?: string
           media_url?: string | null
           message?: string | null
@@ -242,6 +244,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          is_public?: boolean
           media_type?: string
           media_url?: string | null
           message?: string | null
@@ -882,6 +885,7 @@ export type Database = {
           current_position: string
           full_name: string
           id: string
+          parent_head: string
           photo_url: string
         }[]
       }
