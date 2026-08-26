@@ -22,6 +22,8 @@ import Admin from "./pages/Admin";
 import Gallery from "./pages/Gallery";
 import Profile from "./pages/Profile";
 import CommunityLogos from "./pages/CommunityLogos";
+import PastEvents from "./pages/PastEvents";
+import UpdatePassword from "./pages/UpdatePassword";
 import Trust from "./pages/Trust";
 import ExecomCommunity from "./pages/ExecomCommunity";
 import NotFound from "./pages/NotFound";
@@ -42,6 +44,8 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/gallery" element={<Gallery />} />
+            <Route path="/past-events" element={<PastEvents />} />
+            <Route path="/update-password" element={<ProtectedRoute><UpdatePassword /></ProtectedRoute>} />
             <Route path="/trust" element={<Trust />} />
             <Route path="/execom/:community" element={<ExecomCommunity />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

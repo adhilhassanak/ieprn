@@ -176,8 +176,8 @@ const Index = () => {
                 </h2>
                 <p className="mt-1 text-sm text-muted-foreground">Browse past sessions and their galleries.</p>
               </div>
-              <Button asChild variant="ghost" className="hidden md:inline-flex">
-                <Link to="/gallery">Open gallery <ArrowRight className="ml-1 h-4 w-4" /></Link>
+              <Button asChild variant="outline" className="border-gold/40 hover:border-gold hover:text-gold">
+                <Link to="/past-events">View more <ArrowRight className="ml-1 h-4 w-4" /></Link>
               </Button>
             </div>
             <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
