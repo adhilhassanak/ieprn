@@ -18,6 +18,7 @@ type Popup = {
   media_type: string;
   visible_to: string[];
   active: boolean;
+  is_public: boolean;
   created_at: string;
 };
 
@@ -28,6 +29,7 @@ const EMPTY = {
   media_type: "none",
   visible_to: [] as string[],
   active: true,
+  is_public: false,
 };
 
 const detectType = (name: string) => {
@@ -74,8 +76,12 @@ export const PopupManager = () => {
 
   const submit = async () => {
     if (!form.title.trim()) return toast({ title: "Title is required", variant: "destructive" });
-    if (form.visible_to.length === 0)
-      return toast({ title: "Select at least one community", variant: "destructive" });
+    if (!form.is_public && form.visible_to.length === 0)
+      return toast({
+        title: "Select at least one community",
+        description: "Or turn on \"Public\" to show this popup to everyone.",
+        variant: "destructive",
+      });
 
     const payload = {
       title: form.title.trim(),
@@ -84,6 +90,7 @@ export const PopupManager = () => {
       media_type: form.media_url ? form.media_type : "none",
       visible_to: form.visible_to,
       active: form.active,
+      is_public: form.is_public,
     };
 
     const { error } = editingId
@@ -105,6 +112,7 @@ export const PopupManager = () => {
       media_type: p.media_type || "none",
       visible_to: p.visible_to ?? [],
       active: p.active,
+      is_public: !!p.is_public,
     });
   };
 
@@ -142,11 +150,11 @@ export const PopupManager = () => {
             <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
           </div>
           <div>
-            <Label>Attachment (image / PDF / Excel)</Label>
+            <Label>Attachment (JPG, PNG, PDF, Excel or any file)</Label>
             <div className="flex gap-2">
               <Input
                 type="file"
-                accept="image/*,.pdf,.xlsx,.xls,.csv"
+                accept="*/*"
                 onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
               />
               {uploading && <Upload className="h-4 w-4 animate-pulse self-center text-primary" />}
@@ -174,8 +182,24 @@ export const PopupManager = () => {
           />
         </div>
 
+        <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+          <Switch
+            checked={form.is_public}
+            onCheckedChange={(v) => setForm({ ...form, is_public: v })}
+          />
+          <div>
+            <div className="text-sm font-medium">Public (outsiders)</div>
+            <div className="text-[11px] text-muted-foreground">
+              Show this popup to everyone visiting the site, including guests. Community
+              selection becomes optional.
+            </div>
+          </div>
+        </div>
+
         <div>
-          <Label className="mb-2 block">Show to communities</Label>
+          <Label className="mb-2 block">
+            Show to communities {form.is_public && <span className="text-muted-foreground">(optional)</span>}
+          </Label>
           <div className="flex flex-wrap gap-2">
             {COMMUNITY_LIST.map((c) => {
               const on = form.visible_to.includes(c.short);
@@ -194,7 +218,9 @@ export const PopupManager = () => {
             })}
           </div>
           <p className="text-[11px] text-muted-foreground mt-2">
-            Only approved ExeCom members of the selected communities will see this popup.
+            {form.is_public
+              ? "Public is on — everyone sees this popup. Communities selected here are still included."
+              : "Only approved ExeCom members of the selected communities will see this popup."}
           </p>
         </div>
 
@@ -228,6 +254,7 @@ export const PopupManager = () => {
                       {p.active ? "Active" : "Inactive"}
                     </Badge>
                     {p.media_url && <Badge variant="outline" className="text-[10px]">{p.media_type}</Badge>}
+                    {p.is_public && <Badge className="text-[10px] bg-gold/20 text-gold border-gold/40">Public</Badge>}
                   </div>
                   {p.message && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{p.message}</p>}
                   <div className="flex flex-wrap gap-1 mt-2">

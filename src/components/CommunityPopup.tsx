@@ -16,12 +16,14 @@ type Popup = {
 const seenKey = (id: string) => `popup-seen-${id}`;
 
 export const CommunityPopup = () => {
-  const { user, approved } = useAuth();
+  const { user, approved, loading } = useAuth();
   const [popup, setPopup] = useState<Popup | null>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!user || !approved) return;
+    if (loading) return;
+    // Access rules live in the database: guests and non-ExeCom visitors only ever
+    // receive public popups, approved ExeCom members also get their community ones.
     (async () => {
       const { data } = await (supabase as any)
         .from("community_popups")
@@ -35,7 +37,7 @@ export const CommunityPopup = () => {
         setOpen(true);
       }
     })();
-  }, [user, approved]);
+  }, [user, approved, loading]);
 
   const close = () => {
     if (popup) sessionStorage.setItem(seenKey(popup.id), "1");
