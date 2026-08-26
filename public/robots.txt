@@ -17,4 +17,4 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-Sitemap: https://ieprn.lovable.app/sitemap.xml
+Sitemap: https://ieprn.co.in/sitemap.xml
