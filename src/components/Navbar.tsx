@@ -107,26 +107,16 @@ export const Navbar = () => {
               )}
 
               {isAdmin && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate("/admin")}
-                  >
-                    <ShieldCheck className="h-4 w-4 mr-1" />
-                    Admin
-                  </Button>
-
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate("/admin/community-logos")}
-                  >
-                    <ImageIcon className="h-4 w-4 mr-1" />
-                    Logos
-                  </Button>
-                </>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate("/admin")}
+                >
+                  <ShieldCheck className="h-4 w-4 mr-1" />
+                  Admin
+                </Button>
               )}
+
 
               <Button
                 variant="ghost"
