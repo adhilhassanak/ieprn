@@ -27,6 +27,8 @@ import { FacultyManager } from "@/components/admin/FacultyManager";
 import { PrincipalManager } from "@/components/admin/PrincipalManager";
 import { ActivityCalendarManager } from "@/components/admin/ActivityCalendarManager";
 import { PopupManager } from "@/components/admin/PopupManager";
+import { CommunityLogosPanel } from "@/components/admin/CommunityLogosPanel";
+
 
 const Admin = () => {
   const [regs, setRegs] = useState<any[]>([]);
@@ -201,7 +203,9 @@ const Admin = () => {
             <TabsTrigger value="members">Members</TabsTrigger>
             <TabsTrigger value="principal">Principal</TabsTrigger>
             <TabsTrigger value="faculty">Faculty</TabsTrigger>
+            <TabsTrigger value="logos">Logos</TabsTrigger>
             <TabsTrigger value="storage">Storage</TabsTrigger>
+
             <TabsTrigger value="feedback">Feedback</TabsTrigger>
             <TabsTrigger value="finance">Finance</TabsTrigger>
             <TabsTrigger value="gallery">Gallery Upload</TabsTrigger>
@@ -280,7 +284,27 @@ const Admin = () => {
             </div>
 
             <div>
+              <h3 className="font-semibold mb-3">Co-admins</h3>
+              <div className="grid gap-2">
+                {roles.filter((r) => r.role === "co_admin").map((r) => {
+                  const p = profileMap[r.user_id];
+                  return (
+                    <div key={r.id} className="glass rounded-lg p-3 flex items-center gap-3 border border-primary/30">
+                      <Badge className="bg-gradient-emerald text-primary-foreground">Co-admin</Badge>
+                      <div className="text-sm flex-1">{p?.full_name ?? "—"} <span className="text-muted-foreground">{p?.email}</span> {p?.community && <span className="text-xs text-gold ml-2">({p.community})</span>}</div>
+                      <Button size="icon" variant="ghost" onClick={() => removeRole(r.id)}><Trash2 className="h-4 w-4" /></Button>
+                    </div>
+                  );
+                })}
+                {roles.filter((r) => r.role === "co_admin").length === 0 && (
+                  <div className="text-sm text-muted-foreground">No co-admins assigned yet.</div>
+                )}
+              </div>
+            </div>
+
+            <div>
               <h3 className="font-semibold mb-3">All role assignments</h3>
+
               <div className="grid gap-2">
                 {roles.map((r) => {
                   const p = profileMap[r.user_id];
@@ -367,19 +391,16 @@ const Admin = () => {
             <FacultyManager />
           </TabsContent>
 
+          {/* LOGOS */}
+          <TabsContent value="logos" className="mt-4">
+            <CommunityLogosPanel />
+          </TabsContent>
+
           {/* STORAGE */}
           <TabsContent value="storage" className="mt-4 space-y-8">
-            <div className="glass rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3">
-              <div>
-                <div className="font-semibold">Community Logos</div>
-                <div className="text-sm text-muted-foreground">Upload or replace logos shown across the site.</div>
-              </div>
-              <Button asChild size="sm" className="bg-gradient-emerald text-primary-foreground">
-                <Link to="/admin/community-logos">Manage logos</Link>
-              </Button>
-            </div>
             <StorageMonitor />
           </TabsContent>
+
 
           {/* FEEDBACK */}
           <TabsContent value="feedback" className="mt-4">

@@ -30,7 +30,10 @@ const DOC_HEAD_FORM_URL =
   "https://forms.zohopublic.in/adhilhassanakgm1/form/EventRegistrationForm/formperma/ekOxe5Agecbf8k9eF4-9xbYUWvUlbjxnOPMQAkZry8g";
 
 const Dashboard = () => {
-  const { user, roles, isExecutive, isAdmin, isDocumentationHead: roleDocHead, isFinanceHead: roleFinHead } = useAuth();
+  const { user, roles, isExecutive, isAdmin, isCoAdmin, approved, isDocumentationHead: roleDocHead, isFinanceHead: roleFinHead } = useAuth();
+
+  /** ExeCom role present but approved registration removed → restricted dashboard */
+
 
   const [profile, setProfile] = useState<any>(null);
   const [registrations, setRegistrations] = useState<any[]>([]);
@@ -85,6 +88,21 @@ const Dashboard = () => {
     .map((r) => String(r.current_position ?? "").trim().toLowerCase());
   const isDocumentationHead = roleDocHead || approvedPositions.includes("documentation head");
   const isFinanceHead = roleFinHead || approvedPositions.includes("finance head");
+
+  const execRevoked =
+    roles.includes("executive_member") && !approved && !isCoAdmin && !isAdmin;
+
+  const approvedCommunities = registrations
+    .filter((r) => r.status === "approved")
+    .map((r) => String(r.community ?? "").toLowerCase().replace(/[^a-z0-9]/g, ""));
+
+  const execomCommunities = COMMUNITY_LIST.filter((c) => {
+    if (isAdmin) return true;
+    const keys = [c.key, c.short].map((v) => v.toLowerCase().replace(/[^a-z0-9]/g, ""));
+    return keys.some((k) => approvedCommunities.includes(k));
+  });
+
+
 
   /* --------------------------------------------------
       COMMUNITY MEMBERSHIP DETECTION (ADMIN SEES ALL)
@@ -233,8 +251,18 @@ const Dashboard = () => {
           </div>
         </motion.div>
 
+        {execRevoked && (
+          <div className="mt-8 glass rounded-2xl p-6 border border-destructive/40">
+            <h2 className="text-lg font-semibold">ExeCom access removed</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Your approved ExeCom membership is no longer active, so dashboard tools are hidden.
+              You can still see the events you coordinate and the events you participated in.
+            </p>
+          </div>
+        )}
+
         {/* Stats */}
-        {isExecutive && (
+        {isExecutive && !execRevoked && (
           <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard title="Events Conducted" value={myEvents.length} />
             <StatCard title="Participants Handled" value={totalParticipants} />
@@ -244,7 +272,8 @@ const Dashboard = () => {
         )}
 
       {/* Quick actions */}
-{isExecutive && (
+{isExecutive && !execRevoked && (
+
   <div className="grid gap-3 sm:gap-4 mt-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
     {/* Create Event */}
     <Link
@@ -315,7 +344,7 @@ const Dashboard = () => {
 )}
 
         {/* Role-specific tools */}
-        {(isDocumentationHead || isFinanceHead) && (
+        {(isDocumentationHead || isFinanceHead) && !execRevoked && (
           <section className="mt-6 grid gap-3 md:grid-cols-2">
             {isDocumentationHead && (
               <div className="glass rounded-xl p-5 flex items-center gap-4">
@@ -354,7 +383,7 @@ const Dashboard = () => {
         )}
 
         {/* ExeCom Registration Section */}
-        {availableCommunities.length > 0 && (
+        {availableCommunities.length > 0 && !execRevoked && (
           <section className="mt-8">
             <div className="glass rounded-2xl p-6">
               <h2 className="text-xl font-semibold">
@@ -384,13 +413,15 @@ const Dashboard = () => {
           </section>
         )}
 
-        {isExecutive && <ActivityCalendarView />}
+        {isExecutive && !execRevoked && <ActivityCalendarView />}
 
         {/* Already Applied */}
+        {!execRevoked && (
         <section className="mt-10">
           <h2 className="text-xl font-semibold mb-4">
             Your ExeCom Applications
           </h2>
+
 
           {registrations.length === 0 ? (
             <div className="glass rounded-2xl p-8 text-center text-muted-foreground">
@@ -431,6 +462,8 @@ const Dashboard = () => {
             </div>
           )}
         </section>
+        )}
+
 
         {/* Events You Coordinate (creator + assigned coordinator, deduped) */}
         {(() => {
@@ -474,19 +507,31 @@ const Dashboard = () => {
 <StudentTabs />
 
         {/* ExeCom Members */}
-        {isExecutive && (
+        {isExecutive && !execRevoked && (
           <section className="mt-12">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
               ExeCom Members
-              {!isAdmin && profile?.community
-                ? ` · ${profile.community}`
-                : ""}
             </h2>
 
-            <ExecomMembers />
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {execomCommunities.map((c) => (
+                <Button
+                  key={c.key}
+                  asChild
+                  variant="outline"
+                  className="justify-between border-primary/30 hover:border-primary hover:text-primary"
+                >
+                  <Link to={`/execom/${c.key}`}>
+                    {c.short} Members
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              ))}
+            </div>
           </section>
         )}
+
       </div>
     </Layout>
   );
