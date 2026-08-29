@@ -474,19 +474,31 @@ const Dashboard = () => {
 <StudentTabs />
 
         {/* ExeCom Members */}
-        {isExecutive && (
+        {isExecutive && !execRevoked && (
           <section className="mt-12">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
               ExeCom Members
-              {!isAdmin && profile?.community
-                ? ` · ${profile.community}`
-                : ""}
             </h2>
 
-            <ExecomMembers />
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {execomCommunities.map((c) => (
+                <Button
+                  key={c.key}
+                  asChild
+                  variant="outline"
+                  className="justify-between border-primary/30 hover:border-primary hover:text-primary"
+                >
+                  <Link to={`/execom/${c.key}`}>
+                    {c.short} Members
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              ))}
+            </div>
           </section>
         )}
+
       </div>
     </Layout>
   );
