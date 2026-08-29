@@ -89,6 +89,21 @@ const Dashboard = () => {
   const isDocumentationHead = roleDocHead || approvedPositions.includes("documentation head");
   const isFinanceHead = roleFinHead || approvedPositions.includes("finance head");
 
+  const execRevoked =
+    roles.includes("executive_member") && !approved && !isCoAdmin && !isAdmin;
+
+  const approvedCommunities = registrations
+    .filter((r) => r.status === "approved")
+    .map((r) => String(r.community ?? "").toLowerCase().replace(/[^a-z0-9]/g, ""));
+
+  const execomCommunities = COMMUNITY_LIST.filter((c) => {
+    if (isAdmin) return true;
+    const keys = [c.key, c.short].map((v) => v.toLowerCase().replace(/[^a-z0-9]/g, ""));
+    return keys.some((k) => approvedCommunities.includes(k));
+  });
+
+
+
   /* --------------------------------------------------
       COMMUNITY MEMBERSHIP DETECTION (ADMIN SEES ALL)
   -------------------------------------------------- */
