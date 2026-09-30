@@ -1,0 +1,2 @@
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS registration_questions jsonb NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE public.event_participants ADD COLUMN IF NOT EXISTS answers jsonb NOT NULL DEFAULT '{}'::jsonb;

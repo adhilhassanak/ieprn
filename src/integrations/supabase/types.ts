@@ -374,6 +374,7 @@ export type Database = {
       }
       event_participants: {
         Row: {
+          answers: Json
           created_at: string
           event_id: string
           full_name: string
@@ -384,6 +385,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          answers?: Json
           created_at?: string
           event_id: string
           full_name: string
@@ -394,6 +396,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          answers?: Json
           created_at?: string
           event_id?: string
           full_name?: string
@@ -437,6 +440,7 @@ export type Database = {
           poster_url: string | null
           registration_mode: string
           registration_open: boolean
+          registration_questions: Json
           slug: string | null
           status: Database["public"]["Enums"]["event_status"]
           venue: string | null
@@ -467,6 +471,7 @@ export type Database = {
           poster_url?: string | null
           registration_mode?: string
           registration_open?: boolean
+          registration_questions?: Json
           slug?: string | null
           status?: Database["public"]["Enums"]["event_status"]
           venue?: string | null
@@ -497,6 +502,7 @@ export type Database = {
           poster_url?: string | null
           registration_mode?: string
           registration_open?: boolean
+          registration_questions?: Json
           slug?: string | null
           status?: Database["public"]["Enums"]["event_status"]
           venue?: string | null
