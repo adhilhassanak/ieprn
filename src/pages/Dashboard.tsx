@@ -22,7 +22,6 @@ import {
   Trophy,
 } from "lucide-react";
 import { StudentTabs } from "@/components/dashboard/StudentTabs";
-import { ExecomMembers } from "@/components/dashboard/ExecomMembers";
 import { ActivityCalendarView } from "@/components/dashboard/ActivityCalendarView";
 import { FinancePanel } from "@/components/admin/FinancePanel";
 
