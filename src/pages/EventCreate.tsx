@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { COMMUNITY_LIST } from "@/lib/communities";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Upload, X, Plus, FileText } from "lucide-react";
+import { QuestionBuilder, type Question } from "@/components/events/RegistrationQuestions";
 
 const POSTER_MAX = 500 * 1024;
 const PDF_MAX = 1024 * 1024;
@@ -44,6 +45,7 @@ const EventCreate = () => {
   const [manualCoords, setManualCoords] = useState<Array<{ name: string; gmail: string; phone: string }>>([]);
   const [collaborators, setCollaborators] = useState<string[]>([]);
   const [visibleTo, setVisibleTo] = useState<string[]>(["IIC"]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -152,6 +154,9 @@ const EventCreate = () => {
         external_form_url: form.registration_mode === "external" ? form.external_form_url.trim() : null,
         collaborators: collaborators.map((c) => c.trim()).filter(Boolean).slice(0, 5),
         visible_to: Array.from(new Set([form.community, ...visibleTo])),
+        registration_questions: form.registration_mode === "internal"
+          ? questions.filter((q) => q.label.trim()).map((q) => ({ ...q, options: q.options.filter((o) => o.trim()) }))
+          : [],
       };
       const { data, error } = await supabase.from("events").insert(payload).select().single();
       if (error) throw error;
@@ -224,6 +229,12 @@ const EventCreate = () => {
                 </SelectContent>
               </Select>
             </div>
+            {form.registration_mode === "internal" && (
+              <div className="col-span-2">
+                <Label>Registration questions <span className="text-muted-foreground text-xs">(asked in addition to name, gmail, phone, semester)</span></Label>
+                <div className="mt-2"><QuestionBuilder value={questions} onChange={setQuestions} /></div>
+              </div>
+            )}
             {form.registration_mode === "external" && (
               <div className="col-span-2">
                 <Label>Google Form link</Label>

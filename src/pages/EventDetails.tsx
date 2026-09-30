@@ -13,6 +13,7 @@ import { toast } from "@/hooks/use-toast";
 import { Calendar, MapPin, Clock, Users, CheckCircle2, Instagram, Linkedin, Facebook, FileText, UserCircle2, MessageCircle, Mail, Phone } from "lucide-react";
 import { COMMUNITY_LIST } from "@/lib/communities";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
+import { QuestionFields, validateAnswers, type Question } from "@/components/events/RegistrationQuestions";
 
 // UUID v4 pattern (case-insensitive)
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -31,6 +32,7 @@ const EventDetails = () => {
   const [event, setEvent] = useState<any>(null);
   const [participantCount, setParticipantCount] = useState(0);
   const [form, setForm] = useState({ full_name: "", gmail: "", phone: "", semester: "" });
+  const [answers, setAnswers] = useState<Record<string, any>>({});
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -79,6 +81,7 @@ const EventDetails = () => {
   if (!event) return <Layout><div className="container py-20 text-center text-muted-foreground">Loading…</div></Layout>;
 
   const community = COMMUNITY_LIST.find((c) => c.short === event.community);
+  const questions: Question[] = Array.isArray(event.registration_questions) ? event.registration_questions : [];
   const globalOpen = settings?.registration_open_global ?? true;
   const canRegister = event.status === "published" && event.registration_open && globalOpen;
 
@@ -86,9 +89,11 @@ const EventDetails = () => {
     e.preventDefault();
     const parsed = schema.safeParse(form);
     if (!parsed.success) return toast({ title: "Check inputs", description: parsed.error.issues[0].message, variant: "destructive" });
+    const qErr = validateAnswers(questions, answers);
+    if (qErr) return toast({ title: "Check inputs", description: qErr, variant: "destructive" });
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
-    const { error } = await supabase.from("event_participants").insert({ event_id: event.id, user_id: user?.id ?? null, ...parsed.data } as any);
+    const { error } = await supabase.from("event_participants").insert({ event_id: event.id, user_id: user?.id ?? null, ...parsed.data, answers } as any);
     setLoading(false);
     if (error) return toast({ title: "Registration failed", description: error.message, variant: "destructive" });
     setSubmitted(true);
@@ -231,6 +236,7 @@ const EventDetails = () => {
               <div><Label>Gmail</Label><Input type="email" value={form.gmail} onChange={(e) => setForm({ ...form, gmail: e.target.value })} required /></div>
               <div><Label>Phone</Label><Input inputMode="numeric" maxLength={10} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required /></div>
               <div><Label>Semester</Label><Input value={form.semester} onChange={(e) => setForm({ ...form, semester: e.target.value })} required /></div>
+              <QuestionFields questions={questions} answers={answers} onChange={setAnswers} />
               <Button type="submit" disabled={loading} className="md:col-span-2 bg-gradient-emerald text-primary-foreground shadow-glow-emerald">
                 {loading ? "Submitting…" : "Register for event"}
               </Button>
