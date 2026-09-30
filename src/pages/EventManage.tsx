@@ -12,8 +12,9 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { Trash2, UserPlus, Save, ExternalLink, Plus, X, CheckCircle2, Circle, Upload, FileText, Image as ImageIcon } from "lucide-react";
+import { Trash2, UserPlus, Save, ExternalLink, Plus, X, CheckCircle2, Circle, Upload, FileText, Image as ImageIcon, Download } from "lucide-react";
 import { COMMUNITY_LIST } from "@/lib/communities";
+import { QuestionBuilder, type Question } from "@/components/events/RegistrationQuestions";
 
 const EventManage = () => {
   const { id } = useParams();
@@ -29,6 +30,7 @@ const EventManage = () => {
   const [secondaryId, setSecondaryId] = useState<string>("");
   const [editingCount, setEditingCount] = useState(false);
   const [countDraft, setCountDraft] = useState<string>("");
+  const [questions, setQuestions] = useState<Question[]>([]);
 
   const load = async () => {
     if (!id) return;
@@ -40,6 +42,7 @@ const EventManage = () => {
       supabase.from("registrations").select("user_id, full_name, community").eq("status", "approved").order("full_name"),
     ]);
     setEvent(ev);
+    setQuestions(Array.isArray((ev as any)?.registration_questions) ? (ev as any).registration_questions : []);
     setCoordinators(cs ?? []);
     setParticipants(ps ?? []);
     setExecList((ex ?? []) as any);
@@ -59,6 +62,27 @@ const EventManage = () => {
   const canEdit = isAdmin || isOwnerCoAdmin || event.created_by === user?.id || isAssignedCoordinator;
   const canDelete = isAdmin || isOwnerCoAdmin || event.created_by === user?.id;
 
+  const saveQuestions = async () => {
+    const clean = questions.filter((q) => q.label.trim()).map((q) => ({ ...q, options: q.options.filter((o) => o.trim()) }));
+    const { error } = await supabase.from("events").update({ registration_questions: clean } as any).eq("id", event.id);
+    if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
+    toast({ title: "Questions saved" });
+  };
+
+  const downloadCsv = () => {
+    const esc = (v: any) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const head = ["Name", "Gmail", "Phone", "Semester", ...questions.map((q) => q.label), "Present", "Registered at"];
+    const rows = participants.map((p) => [
+      p.full_name, p.gmail, p.phone, p.semester,
+      ...questions.map((q) => { const v = p.answers?.[q.id]; return Array.isArray(v) ? v.join("; ") : v; }),
+      attendance[p.gmail] ? "Yes" : "No", new Date(p.created_at).toLocaleString(),
+    ]);
+    const csv = "\uFEFF" + [head, ...rows].map((r) => r.map(esc).join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    a.download = `${event.slug || event.name}-registrations.csv`;
+    a.click();
+  };
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
@@ -425,13 +449,25 @@ const EventManage = () => {
           </div>
         </section>
 
+        {canEdit && (event.registration_mode ?? "internal") === "internal" && (
+          <section className="mt-8 glass rounded-2xl p-6">
+            <h2 className="text-lg font-semibold">Registration questions</h2>
+            <p className="text-xs text-muted-foreground mb-3">If you add questions, people registering see only these questions.</p>
+            <QuestionBuilder value={questions} onChange={setQuestions} />
+            <Button className="mt-3" size="sm" onClick={saveQuestions}><Save className="h-4 w-4 mr-1" /> Save questions</Button>
+          </section>
+        )}
+
         {/* Participants + attendance */}
         <section className="mt-8 glass rounded-2xl p-6">
-          <h2 className="text-lg font-semibold">Participants & attendance ({participants.length})</h2>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <h2 className="text-lg font-semibold">Participants & attendance ({participants.length})</h2>
+            <Button size="sm" variant="outline" disabled={participants.length === 0} onClick={downloadCsv}><Download className="h-4 w-4 mr-1" /> Download CSV</Button>
+          </div>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-left text-xs uppercase text-muted-foreground border-b border-border">
-                <tr><th className="py-2">Name</th><th>Gmail</th><th>Phone</th><th>Sem</th><th>Present</th></tr>
+                <tr><th className="py-2">Name</th><th>Gmail</th><th>Phone</th><th>Sem</th>{questions.map((q) => <th key={q.id} className="px-2">{q.label}</th>)}<th>Present</th></tr>
               </thead>
               <tbody>
                 {participants.map((p) => (
@@ -440,6 +476,10 @@ const EventManage = () => {
                     <td>{p.gmail}</td>
                     <td>{p.phone}</td>
                     <td>{p.semester}</td>
+                    {questions.map((q) => {
+                      const v = p.answers?.[q.id];
+                      return <td key={q.id} className="px-2">{q.type === "file" && v ? <a href={v} target="_blank" rel="noreferrer" className="text-primary underline">View</a> : Array.isArray(v) ? v.join(", ") : v ?? ""}</td>;
+                    })}
                     <td>
                       <button type="button" onClick={() => toggleAttendance(p)} className="hover:scale-110 transition-smooth">
                         {attendance[p.gmail] ? <CheckCircle2 className="h-5 w-5 text-primary" /> : <Circle className="h-5 w-5 text-muted-foreground" />}
