@@ -38,6 +38,7 @@
 
     --destructive: 0 75% 55%;
     --destructive-foreground: 210 40% 96%;
+    --vivid-foreground: 0 0% 100%;
 
     --border: 222 25% 16%;
     --input: 222 30% 12%;
@@ -115,6 +116,7 @@
 
     --destructive: 0 75% 50%;
     --destructive-foreground: 0 0% 100%;
+    --vivid-foreground: 0 0% 100%;
 
     --border: 220 20% 86%;
     --input: 220 20% 90%;
@@ -143,10 +145,26 @@
 
   html.light .glass-strong {
     background: hsl(0 0% 100% / calc(var(--glass-alpha) + 0.35));
+    color: hsl(var(--foreground));
+  }
+  html.light .glass {
+    color: hsl(var(--foreground));
   }
   html.light .glass-card {
     background: hsl(0 0% 100% / 0.7);
     border-color: hsl(222 30% 30% / 0.10);
+    color: hsl(var(--foreground));
+  }
+  html.light .text-gradient,
+  html.light .text-gradient-emerald {
+    background: none;
+    color: hsl(var(--primary));
+    -webkit-text-fill-color: currentColor;
+  }
+  html.light input,
+  html.light textarea,
+  html.light select {
+    color: hsl(var(--foreground));
   }
 }
 

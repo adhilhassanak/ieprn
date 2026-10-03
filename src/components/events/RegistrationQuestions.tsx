@@ -119,7 +119,13 @@ export const QuestionFields = ({ questions, answers, onChange }: { questions: Qu
       {questions.map((q) => (
         <div key={q.id} className="md:col-span-2 space-y-2">
           <Label>{q.label}{q.required && <span className="text-destructive"> *</span>}</Label>
-          {q.image_url && <img src={q.image_url} alt="" className="max-h-64 rounded-lg" />}
+          {q.image_url && (
+            <img
+              src={q.image_url}
+              alt={`Reference for ${q.label || "registration question"}`}
+              className="h-auto max-h-80 w-full rounded-lg border border-border object-contain bg-card"
+            />
+          )}
           {q.type === "short" && <Input value={answers[q.id] ?? ""} onChange={(e) => set(q.id, e.target.value)} maxLength={500} />}
           {q.type === "paragraph" && <Textarea rows={3} value={answers[q.id] ?? ""} onChange={(e) => set(q.id, e.target.value)} maxLength={3000} />}
           {q.type === "date" && <Input type="date" value={answers[q.id] ?? ""} onChange={(e) => set(q.id, e.target.value)} />}
