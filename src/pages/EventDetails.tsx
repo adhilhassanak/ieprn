@@ -4,8 +4,6 @@ import { motion } from "framer-motion";
 import { Layout } from "@/components/Layout";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -232,7 +230,7 @@ const EventDetails = () => {
                 <CheckCircle2 className="h-5 w-5" /> You're registered! See you there.
               </div>
               {event.whatsapp_link && (
-                <Button asChild className="bg-[#25D366] hover:bg-[#1ebe57] text-white">
+                <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
                   <a href={event.whatsapp_link} target="_blank" rel="noreferrer">
                     <MessageCircle className="h-4 w-4 mr-2" /> Join our WhatsApp Group
                   </a>

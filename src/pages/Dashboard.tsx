@@ -136,7 +136,7 @@ const Dashboard = () => {
       external: true,
       label: "NEC LOGIN",
       classes:
-        "bg-gradient-to-br from-amber-600 to-amber-900 text-primary-foreground ring-2 ring-amber-500/50",
+        "bg-gradient-to-br from-amber-600 to-amber-900 text-vivid-foreground ring-2 ring-amber-500/50",
       labelClass: "text-amber-200",
     },
     {
@@ -152,7 +152,7 @@ const Dashboard = () => {
       to: "/cep/iic",
       label: "IIC CEP Task",
       classes:
-        "bg-gradient-to-br from-emerald-400 to-emerald-700 text-primary-foreground ring-2 ring-emerald-500/60",
+        "bg-gradient-to-br from-emerald-400 to-emerald-700 text-vivid-foreground ring-2 ring-emerald-500/60",
       labelClass: "text-emerald-100",
     },
     {
@@ -160,7 +160,7 @@ const Dashboard = () => {
       to: "/cep/edclub",
       label: "ED CEP Task",
       classes:
-        "bg-gradient-to-br from-violet-400 to-violet-700 text-primary-foreground ring-2 ring-violet-500/60",
+        "bg-gradient-to-br from-violet-400 to-violet-700 text-vivid-foreground ring-2 ring-violet-500/60",
       labelClass: "text-violet-100",
     },
     {
@@ -168,7 +168,7 @@ const Dashboard = () => {
       to: "/cep/rndclub",
       label: "R&D CEP Task",
       classes:
-        "bg-gradient-to-br from-purple-400 to-fuchsia-700 text-primary-foreground ring-2 ring-purple-500/60",
+        "bg-gradient-to-br from-purple-400 to-fuchsia-700 text-vivid-foreground ring-2 ring-purple-500/60",
       labelClass: "text-purple-100",
     },
   ];

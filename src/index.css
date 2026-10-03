@@ -38,6 +38,7 @@
 
     --destructive: 0 75% 55%;
     --destructive-foreground: 210 40% 96%;
+    --vivid-foreground: 0 0% 100%;
 
     --border: 222 25% 16%;
     --input: 222 30% 12%;
@@ -115,6 +116,7 @@
 
     --destructive: 0 75% 50%;
     --destructive-foreground: 0 0% 100%;
+    --vivid-foreground: 0 0% 100%;
 
     --border: 220 20% 86%;
     --input: 220 20% 90%;
