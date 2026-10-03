@@ -1,7 +1,6 @@
 import { useEffect, useState, FormEvent } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { z } from "zod";
 import { Layout } from "@/components/Layout";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -18,20 +17,12 @@ import { QuestionFields, validateAnswers, type Question } from "@/components/eve
 // UUID v4 pattern (case-insensitive)
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const schema = z.object({
-  full_name: z.string().trim().min(2).max(100),
-  gmail: z.string().trim().email().max(255),
-  phone: z.string().trim().regex(/^\d{10}$/, "Phone must be 10 digits"),
-  semester: z.string().trim().min(1).max(20),
-});
-
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { settings } = useAdminSettings();
   const [event, setEvent] = useState<any>(null);
   const [participantCount, setParticipantCount] = useState(0);
-  const [form, setForm] = useState({ full_name: "", gmail: "", phone: "", semester: "" });
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -87,13 +78,31 @@ const EventDetails = () => {
 
   const register = async (e: FormEvent) => {
     e.preventDefault();
-    const parsed = schema.safeParse(form);
-    if (!parsed.success) return toast({ title: "Check inputs", description: parsed.error.issues[0].message, variant: "destructive" });
     const qErr = validateAnswers(questions, answers);
     if (qErr) return toast({ title: "Check inputs", description: qErr, variant: "destructive" });
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
-    const { error } = await supabase.from("event_participants").insert({ event_id: event.id, user_id: user?.id ?? null, ...parsed.data, answers } as any);
+    const answerFor = (labels: RegExp) => {
+      const question = questions.find((q) => labels.test(q.label.trim()));
+      const value = question ? answers[question.id] : undefined;
+      return typeof value === "string" ? value.trim() : "";
+    };
+    const fullName = answerFor(/^(full\s*name|name)$/i)
+      || String(user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? "").trim()
+      || user?.email?.split("@")[0]
+      || "Participant";
+    const gmail = answerFor(/^(gmail|e-?mail|email\s*address)$/i) || user?.email || "";
+    const phone = answerFor(/^(phone|mobile|phone\s*number|mobile\s*number|contact\s*number)$/i);
+    const semester = answerFor(/^(semester|sem)$/i);
+    const { error } = await supabase.from("event_participants").insert({
+      event_id: event.id,
+      user_id: user?.id ?? null,
+      full_name: fullName,
+      gmail,
+      phone,
+      semester: semester || null,
+      answers,
+    } as any);
     setLoading(false);
     if (error) return toast({ title: "Registration failed", description: error.message, variant: "destructive" });
     setSubmitted(true);
@@ -232,10 +241,6 @@ const EventDetails = () => {
             </div>
           ) : (
             <form onSubmit={register} className="mt-4 grid gap-4 md:grid-cols-2">
-              <div><Label>Full name</Label><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required /></div>
-              <div><Label>Gmail</Label><Input type="email" value={form.gmail} onChange={(e) => setForm({ ...form, gmail: e.target.value })} required /></div>
-              <div><Label>Phone</Label><Input inputMode="numeric" maxLength={10} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required /></div>
-              <div><Label>Semester</Label><Input value={form.semester} onChange={(e) => setForm({ ...form, semester: e.target.value })} required /></div>
               <QuestionFields questions={questions} answers={answers} onChange={setAnswers} />
               <Button type="submit" disabled={loading} className="md:col-span-2 bg-gradient-emerald text-primary-foreground shadow-glow-emerald">
                 {loading ? "Submitting…" : "Register for event"}
