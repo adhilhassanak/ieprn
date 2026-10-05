@@ -22,6 +22,7 @@ const EventDetails = () => {
   const [event, setEvent] = useState<any>(null);
   const [participantCount, setParticipantCount] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [dbContacts, setDbContacts] = useState<{ name: string; gmail: string | null; phone: string | null }[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -51,6 +52,10 @@ const EventDetails = () => {
 
       const { count } = await supabase.from("event_participants").select("*", { count: "exact", head: true }).eq("event_id", data.id);
       setParticipantCount(count ?? 0);
+
+      // Pull coordinator phone/Gmail from their approved ExeCom records
+      const { data: contacts } = await supabase.rpc("get_event_coordinator_contacts", { _event_id: data.id } as any);
+      setDbContacts((contacts ?? []) as any);
 
       // check existing registration by current user's email (if logged in)
       const { data: auth } = await supabase.auth.getUser();
@@ -145,7 +150,11 @@ const EventDetails = () => {
               const namesFromArray: Coord[] = (event.coordinator_names ?? [])
                 .filter((n: string) => !contacts.some((c) => c.name === n))
                 .map((n: string) => ({ name: n }));
-              const all = [...contacts, ...namesFromArray].filter((c) => c.name);
+              const all = [...contacts, ...namesFromArray].filter((c) => c.name).map((c) => {
+                // Fill missing phone/Gmail from the coordinator's approved ExeCom record
+                const match = dbContacts.find((d) => d.name.trim().toLowerCase() === c.name.trim().toLowerCase());
+                return match ? { ...c, gmail: c.gmail || match.gmail || undefined, phone: c.phone || match.phone || undefined } : c;
+              });
               if (all.length === 0) return null;
               return (
                 <div className="mt-6">

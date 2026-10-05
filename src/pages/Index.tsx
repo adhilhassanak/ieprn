@@ -22,7 +22,6 @@ type EventRow = {
   poster_url: string | null;
   status: string;
   collaborators: string[] | null;
-  coordinator_contacts: any;
 };
 
 type Stat = { label: string; value: number | null; icon: any; suffix?: string; dynamic?: "events" };
@@ -66,17 +65,6 @@ const EventCard = ({ e, faded = false, i = 0 }: { e: EventRow; faded?: boolean; 
           {e.venue && <> · <MapPin className="h-3 w-3" /> {e.venue}</>}
         </p>
       )}
-      {Array.isArray(e.coordinator_contacts) && e.coordinator_contacts.filter((c: any) => c?.name || c?.phone || c?.gmail).length > 0 && (
-        <div className="mt-2 space-y-1 text-xs">
-          {e.coordinator_contacts.filter((c: any) => c?.name || c?.phone || c?.gmail).map((c: any, idx: number) => (
-            <div key={idx} className="rounded-md bg-secondary/50 px-2 py-1">
-              {c.name && <div className="font-medium text-foreground">{c.name}</div>}
-              {c.phone && <a href={`tel:${c.phone}`} className="block text-primary hover:underline">{c.phone}</a>}
-              {c.gmail && <a href={`mailto:${c.gmail}`} className="block text-muted-foreground hover:text-primary break-all">{c.gmail}</a>}
-            </div>
-          ))}
-        </div>
-      )}
       <Button asChild size="sm" className={`mt-3 ${faded ? "" : "bg-gradient-emerald text-primary-foreground shadow-glow-emerald"}`} variant={faded ? "outline" : "default"}>
         <Link to={`/events/${e.slug ?? e.id}`}>{faded ? "Register / View" : "Register / View"} <ArrowRight className="ml-1 h-3 w-3" /></Link>
       </Button>
@@ -91,7 +79,7 @@ const Index = () => {
     (async () => {
       const { data } = await supabase
         .from("events")
-        .select("id, slug, name, community, event_date, venue, poster_url, status, collaborators, coordinator_contacts")
+        .select("id, slug, name, community, event_date, venue, poster_url, status, collaborators")
         .in("status", ["published", "completed"])
         .order("event_date", { ascending: false })
         .limit(24);
