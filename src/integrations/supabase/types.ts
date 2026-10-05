@@ -920,6 +920,14 @@ export type Database = {
     Functions: {
       delete_old_events: { Args: { _days: number }; Returns: number }
       generate_event_slug: { Args: { _name: string }; Returns: string }
+      get_event_coordinator_contacts: {
+        Args: { _event_id: string }
+        Returns: {
+          gmail: string
+          name: string
+          phone: string
+        }[]
+      }
       get_public_execom: {
         Args: never
         Returns: {

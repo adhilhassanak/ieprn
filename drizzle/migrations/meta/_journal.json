@@ -15,6 +15,13 @@
       "when": 1791161902637,
       "tag": "0001_custom_communities",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791162241083,
+      "tag": "0002_event_coordinator_contacts",
+      "breakpoints": true
     }
   ]
 }
