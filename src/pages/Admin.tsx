@@ -28,6 +28,7 @@ import { PrincipalManager } from "@/components/admin/PrincipalManager";
 import { ActivityCalendarManager } from "@/components/admin/ActivityCalendarManager";
 import { PopupManager } from "@/components/admin/PopupManager";
 import { CommunityLogosPanel } from "@/components/admin/CommunityLogosPanel";
+import { CommunitiesManager } from "@/components/admin/CommunitiesManager";
 
 
 const Admin = () => {
@@ -203,6 +204,7 @@ const Admin = () => {
             <TabsTrigger value="members">Members</TabsTrigger>
             <TabsTrigger value="principal">Principal</TabsTrigger>
             <TabsTrigger value="faculty">Faculty</TabsTrigger>
+            <TabsTrigger value="communities">Communities</TabsTrigger>
             <TabsTrigger value="logos">Logos</TabsTrigger>
             <TabsTrigger value="storage">Storage</TabsTrigger>
 
@@ -389,6 +391,10 @@ const Admin = () => {
           {/* FACULTY */}
           <TabsContent value="faculty" className="mt-4">
             <FacultyManager />
+          </TabsContent>
+
+          <TabsContent value="communities" className="mt-4">
+            <CommunitiesManager />
           </TabsContent>
 
           {/* LOGOS */}

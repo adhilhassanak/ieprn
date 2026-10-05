@@ -375,7 +375,7 @@ const Dashboard = () => {
           </section>
         )}
 
-        {isFinanceHead && !isAdmin && (
+        {isFinanceHead && !isAdmin && !execRevoked && (
           <section className="mt-6">
             <FinancePanel />
           </section>

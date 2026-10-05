@@ -281,6 +281,42 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_communities: {
+        Row: {
+          accent: string
+          created_at: string
+          facebook: string | null
+          instagram: string | null
+          key: string
+          linkedin: string | null
+          name: string
+          short: string
+          tagline: string
+        }
+        Insert: {
+          accent?: string
+          created_at?: string
+          facebook?: string | null
+          instagram?: string | null
+          key: string
+          linkedin?: string | null
+          name: string
+          short: string
+          tagline?: string
+        }
+        Update: {
+          accent?: string
+          created_at?: string
+          facebook?: string | null
+          instagram?: string | null
+          key?: string
+          linkedin?: string | null
+          name?: string
+          short?: string
+          tagline?: string
+        }
+        Relationships: []
+      }
       dashboard_links: {
         Row: {
           button_link: string

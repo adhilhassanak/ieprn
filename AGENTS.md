@@ -1,0 +1,1 @@
+- Communities: built-ins live in src/lib/communities.ts; admin-added ones come from the custom_communities table and are merged in at startup (main.tsx) — so every page reads one list.
