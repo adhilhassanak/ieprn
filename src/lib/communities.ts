@@ -1,4 +1,4 @@
-export type CommunityKey = "iic" | "ecell" | "edclub" | "rndclub";
+export type CommunityKey = string;
 
 export interface Community {
   key: CommunityKey;
@@ -13,7 +13,7 @@ export interface Community {
   };
 }
 
-export const COMMUNITIES: Record<CommunityKey, Community> = {
+export const COMMUNITIES: Record<string, Community> = {
   iic: {
     key: "iic",
     name: "Institution's Innovation Council",
@@ -70,4 +70,29 @@ export function findCommunityByShortOrKey(value: string | null | undefined): Com
   if (!value) return undefined;
   const v = value.trim().toLowerCase();
   return COMMUNITY_LIST.find((c) => c.short.toLowerCase() === v || c.key.toLowerCase() === v);
+}
+
+const ACCENTS = ["emerald", "gold", "violet", "purple"] as const;
+
+/** Load admin-added communities from the database and merge them into the lists above. */
+export async function loadCustomCommunities(): Promise<void> {
+  try {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data } = await supabase.from("custom_communities").select("*").order("created_at");
+    for (const r of data ?? []) {
+      const c: Community = {
+        key: r.key,
+        name: r.name,
+        short: r.short,
+        tagline: r.tagline ?? "",
+        accent: (ACCENTS as readonly string[]).includes(r.accent) ? (r.accent as Community["accent"]) : "emerald",
+        social: { instagram: r.instagram ?? undefined, facebook: r.facebook ?? undefined, linkedin: r.linkedin ?? undefined },
+      };
+      if (!COMMUNITIES[c.key]) COMMUNITY_LIST.push(c);
+      else Object.assign(COMMUNITY_LIST.find((x) => x.key === c.key)!, c);
+      COMMUNITIES[c.key] = c;
+    }
+  } catch (e) {
+    console.warn("Could not load custom communities", e);
+  }
 }
