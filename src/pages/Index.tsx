@@ -22,7 +22,6 @@ type EventRow = {
   poster_url: string | null;
   status: string;
   collaborators: string[] | null;
-  coordinator_contacts: any;
 };
 
 type Stat = { label: string; value: number | null; icon: any; suffix?: string; dynamic?: "events" };
@@ -80,7 +79,7 @@ const Index = () => {
     (async () => {
       const { data } = await supabase
         .from("events")
-        .select("id, slug, name, community, event_date, venue, poster_url, status, collaborators, coordinator_contacts")
+        .select("id, slug, name, community, event_date, venue, poster_url, status, collaborators")
         .in("status", ["published", "completed"])
         .order("event_date", { ascending: false })
         .limit(24);
