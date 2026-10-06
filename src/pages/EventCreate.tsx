@@ -392,10 +392,15 @@ const EventCreate = () => {
             </button>
           </div>
 
-          <Button type="submit" disabled={loading || !isApprovedExecutive} className="w-full bg-gradient-emerald text-primary-foreground shadow-glow-emerald">
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Create event
-          </Button>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Button type="submit" onClick={() => { buildSiteRef.current = false; }} disabled={loading || !isApprovedExecutive} className="w-full bg-gradient-emerald text-primary-foreground shadow-glow-emerald">
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Create event
+            </Button>
+            <Button type="submit" variant="outline" onClick={() => { buildSiteRef.current = true; }} disabled={loading || !isApprovedExecutive} className="w-full">
+              Create & build event website (code or AI)
+            </Button>
+          </div>
         </form>
       </div>
     </Layout>

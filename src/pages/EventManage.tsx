@@ -212,7 +212,10 @@ const EventManage = () => {
               )}
             </div>
           </div>
-          <Button asChild variant="outline" size="sm"><Link to={`/events/${event.slug ?? event.id}`}><ExternalLink className="h-3.5 w-3.5 mr-1" />Public page</Link></Button>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline" size="sm"><Link to={`/events/${event.slug ?? event.id}`}><ExternalLink className="h-3.5 w-3.5 mr-1" />Public page</Link></Button>
+            <Button asChild size="sm" className="bg-gradient-emerald text-primary-foreground"><Link to={`/events/${event.id}/website`}>Build event website</Link></Button>
+          </div>
         </div>
 
         {canEdit && (

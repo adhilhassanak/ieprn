@@ -26,6 +26,8 @@ import PastEvents from "./pages/PastEvents";
 import UpdatePassword from "./pages/UpdatePassword";
 import Trust from "./pages/Trust";
 import ExecomCommunity from "./pages/ExecomCommunity";
+import EventWebsite from "./pages/EventWebsite";
+import EventSite from "./pages/EventSite";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,6 +75,8 @@ const App = () => (
     </ProtectedRoute>
   }
 />
+            <Route path="/events/:id/website" element={<ProtectedRoute requireRole={["executive_member", "co_admin", "admin"]}><EventWebsite /></ProtectedRoute>} />
+            <Route path="/site/:id" element={<EventSite />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
