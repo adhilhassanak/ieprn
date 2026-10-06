@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { COMMUNITY_LIST } from "@/lib/communities";
+import { COMMUNITY_LIST, BUILT_IN_KEYS } from "@/lib/communities";
 import { Plus, Trash2 } from "lucide-react";
 
 type Row = { key: string; name: string; short: string; tagline: string; accent: string; instagram: string | null; facebook: string | null; linkedin: string | null };
@@ -42,10 +42,32 @@ export function CommunitiesManager() {
     load();
   };
 
-  const remove = async (key: string) => {
-    if (!confirm("Remove this community? Existing events and members stay saved.")) return;
+  const confirmDelete = (label: string) => {
+    if (!confirm(`Warning 1 of 3: Delete the community "${label}"?`)) return false;
+    if (!confirm(`Warning 2 of 3: "${label}" will disappear from the home page, menus, registration and event forms for everyone. Continue?`)) return false;
+    const typed = prompt(`Final warning 3 of 3: type ${label} to permanently delete it.`);
+    if ((typed ?? "").trim().toLowerCase() !== label.toLowerCase()) {
+      toast({ title: "Deletion cancelled", description: "The name did not match." });
+      return false;
+    }
+    return true;
+  };
+
+  const remove = async (key: string, label: string) => {
+    if (!confirmDelete(label)) return;
+    // Built-in communities are hidden with a "deleted" marker; custom ones are removed.
+    const { error } = BUILT_IN_KEYS.includes(key)
+      ? await supabase.from("custom_communities").upsert({ key, name: label, short: label, tagline: "", accent: "deleted" })
+      : await supabase.from("custom_communities").delete().eq("key", key);
+    if (error) return toast({ title: "Could not delete", description: error.message, variant: "destructive" });
+    toast({ title: "Community deleted", description: "Reload the page to see the change everywhere. Existing events and members stay saved." });
+    load();
+  };
+
+  const restore = async (key: string) => {
     const { error } = await supabase.from("custom_communities").delete().eq("key", key);
-    if (error) return toast({ title: "Could not remove", description: error.message, variant: "destructive" });
+    if (error) return toast({ title: "Could not restore", description: error.message, variant: "destructive" });
+    toast({ title: "Community restored", description: "Reload the page to see it again." });
     load();
   };
 
@@ -84,14 +106,21 @@ export function CommunitiesManager() {
           {COMMUNITY_LIST.filter((c) => !rows.some((r) => r.key === c.key)).map((c) => (
             <div key={c.key} className="flex items-center justify-between rounded-lg border border-border p-3">
               <div><div className="font-medium">{c.short}</div><div className="text-xs text-muted-foreground">{c.name} · built-in</div></div>
+              <Button size="sm" variant="destructive" onClick={() => remove(c.key, c.short)}><Trash2 className="h-4 w-4" /></Button>
             </div>
           ))}
-          {rows.map((r) => (
+          {rows.filter((r) => r.accent === "deleted").map((r) => (
+            <div key={r.key} className="flex items-center justify-between rounded-lg border border-dashed border-border p-3 opacity-70">
+              <div><div className="font-medium line-through">{r.short}</div><div className="text-xs text-muted-foreground">deleted</div></div>
+              <Button size="sm" variant="outline" onClick={() => restore(r.key)}>Restore</Button>
+            </div>
+          ))}
+          {rows.filter((r) => r.accent !== "deleted").map((r) => (
             <div key={r.key} className="flex items-center justify-between rounded-lg border border-border p-3">
               <div><div className="font-medium">{r.short}</div><div className="text-xs text-muted-foreground">{r.name} · /{r.key}</div></div>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => setForm({ ...empty, ...r, instagram: r.instagram ?? "", facebook: r.facebook ?? "", linkedin: r.linkedin ?? "" })}>Edit</Button>
-                <Button size="sm" variant="destructive" onClick={() => remove(r.key)}><Trash2 className="h-4 w-4" /></Button>
+                <Button size="sm" variant="destructive" onClick={() => remove(r.key, r.short)}><Trash2 className="h-4 w-4" /></Button>
               </div>
             </div>
           ))}

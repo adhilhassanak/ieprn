@@ -59,6 +59,8 @@ export const COMMUNITIES: Record<string, Community> = {
 };
 
 export const COMMUNITY_LIST = Object.values(COMMUNITIES);
+/** Keys of communities that ship with the app (before admin edits). */
+export const BUILT_IN_KEYS = Object.keys(COMMUNITIES);
 
 export function getCommunity(key: string | undefined): Community | undefined {
   if (!key) return undefined;
@@ -80,6 +82,12 @@ export async function loadCustomCommunities(): Promise<void> {
     const { supabase } = await import("@/integrations/supabase/client");
     const { data } = await supabase.from("custom_communities").select("*").order("created_at");
     for (const r of data ?? []) {
+      if (r.accent === "deleted") {
+        const i = COMMUNITY_LIST.findIndex((x) => x.key === r.key);
+        if (i >= 0) COMMUNITY_LIST.splice(i, 1);
+        delete COMMUNITIES[r.key];
+        continue;
+      }
       const c: Community = {
         key: r.key,
         name: r.name,
