@@ -1,1 +1,3 @@
 - Communities: built-ins live in src/lib/communities.ts; admin-added ones come from the custom_communities table and are merged in at startup (main.tsx) — so every page reads one list.
+- Event websites are single HTML files in the event-posters storage bucket at `{created_by}/sites/{event_id}.html` (src/lib/eventSite.ts) — user asked that no extra database be used.
+- Deleting a built-in community writes a custom_communities row with accent "deleted", which the loader treats as hidden — built-ins live in code and can't be removed otherwise.
