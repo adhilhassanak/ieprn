@@ -172,6 +172,24 @@ const Dashboard = () => {
       labelClass: "text-purple-100",
     },
   ];
+  // Every other community (e.g. FOSS or any admin-added one) gets its own CEP task button too.
+  const accentCls: Record<string, string> = {
+    emerald: "bg-gradient-to-br from-teal-400 to-cyan-700 text-vivid-foreground ring-2 ring-teal-500/60",
+    gold: "bg-gradient-to-br from-orange-300 to-orange-600 text-vivid-foreground ring-2 ring-orange-500/60",
+    violet: "bg-gradient-to-br from-indigo-400 to-indigo-700 text-vivid-foreground ring-2 ring-indigo-500/60",
+    purple: "bg-gradient-to-br from-pink-400 to-rose-700 text-vivid-foreground ring-2 ring-pink-500/60",
+  };
+  const handled = ["ecell", "iic", "edclub", "rndclub"];
+  for (const c of COMMUNITY_LIST) {
+    if (handled.includes(c.key)) continue;
+    cepButtons.push({
+      show: memberOf([norm(c.key), norm(c.short)]),
+      to: `/cep/${c.key}`,
+      label: `${c.short} CEP Task`,
+      classes: accentCls[c.accent] ?? accentCls.emerald,
+      labelClass: "opacity-90",
+    });
+  }
   const visibleCep = cepButtons.filter((b) => b.show);
 
   const statusBadge = (status: string) => {
