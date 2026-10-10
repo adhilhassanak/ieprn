@@ -11,9 +11,9 @@ export default function EventSite() {
   useEffect(() => {
     (async () => {
       const isUuid = /^[0-9a-f-]{36}$/i.test(id ?? "");
-      const { data } = await supabase.from("events").select("id, created_by, title").eq(isUuid ? "id" : "slug", id!).maybeSingle();
+      const { data } = await supabase.from("events").select("id, created_by, name").eq(isUuid ? "id" : "slug", id!).maybeSingle();
       if (!data) return setHtml(null);
-      document.title = data.title;
+      document.title = data.name;
       setHtml(await loadSiteHtml(data.created_by, data.id));
     })();
   }, [id]);
