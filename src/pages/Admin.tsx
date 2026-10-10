@@ -206,7 +206,7 @@ const Admin = () => {
             <TabsTrigger value="principal">Principal</TabsTrigger>
             <TabsTrigger value="faculty">Faculty</TabsTrigger>
             <TabsTrigger value="communities">Communities</TabsTrigger>
-            {isAdmin && <TabsTrigger value="ai">AI Assistant</TabsTrigger>}
+            <TabsTrigger value="ai">AI Assistant</TabsTrigger>
             <TabsTrigger value="logos">Logos</TabsTrigger>
             <TabsTrigger value="storage">Storage</TabsTrigger>
 
