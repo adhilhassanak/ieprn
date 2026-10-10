@@ -9,6 +9,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ThemeBootstrap } from "@/components/ThemeBootstrap";
 import { CommunityPopup } from "@/components/CommunityPopup";
+import { AiAssistant } from "@/components/AiAssistant";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -41,6 +42,7 @@ const App = () => (
         <AuthProvider>
           <ThemeBootstrap />
           <CommunityPopup />
+          <AiAssistant />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />

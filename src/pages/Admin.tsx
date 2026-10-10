@@ -29,6 +29,7 @@ import { ActivityCalendarManager } from "@/components/admin/ActivityCalendarMana
 import { PopupManager } from "@/components/admin/PopupManager";
 import { CommunityLogosPanel } from "@/components/admin/CommunityLogosPanel";
 import { CommunitiesManager } from "@/components/admin/CommunitiesManager";
+import { AiTrainingManager } from "@/components/admin/AiTrainingManager";
 
 
 const Admin = () => {
@@ -205,6 +206,7 @@ const Admin = () => {
             <TabsTrigger value="principal">Principal</TabsTrigger>
             <TabsTrigger value="faculty">Faculty</TabsTrigger>
             <TabsTrigger value="communities">Communities</TabsTrigger>
+            {isAdmin && <TabsTrigger value="ai">AI Assistant</TabsTrigger>}
             <TabsTrigger value="logos">Logos</TabsTrigger>
             <TabsTrigger value="storage">Storage</TabsTrigger>
 
@@ -395,6 +397,10 @@ const Admin = () => {
 
           <TabsContent value="communities" className="mt-4">
             <CommunitiesManager />
+          </TabsContent>
+
+          <TabsContent value="ai" className="mt-4">
+            <AiTrainingManager />
           </TabsContent>
 
           {/* LOGOS */}
