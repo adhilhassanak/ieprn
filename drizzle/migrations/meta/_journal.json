@@ -22,6 +22,13 @@
       "when": 1791162241083,
       "tag": "0002_event_coordinator_contacts",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791647322590,
+      "tag": "0003_ai_assistant_and_coordinators",
+      "breakpoints": true
     }
   ]
 }

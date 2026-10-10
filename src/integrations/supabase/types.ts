@@ -107,6 +107,27 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_assistant_settings: {
+        Row: {
+          id: number
+          instructions: string
+          request_templates: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          instructions?: string
+          request_templates?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          instructions?: string
+          request_templates?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           active: boolean
@@ -918,6 +939,10 @@ export type Database = {
       }
     }
     Functions: {
+      assign_event_coordinator: {
+        Args: { _event_id: string; _user_id: string }
+        Returns: undefined
+      }
       delete_old_events: { Args: { _days: number }; Returns: number }
       generate_event_slug: { Args: { _name: string }; Returns: string }
       get_event_coordinator_contacts: {
@@ -981,6 +1006,14 @@ export type Database = {
       is_event_coordinator: {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
+      }
+      list_approved_execom: {
+        Args: never
+        Returns: {
+          community: string
+          full_name: string
+          user_id: string
+        }[]
       }
     }
     Enums: {
