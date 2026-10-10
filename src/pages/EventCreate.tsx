@@ -72,12 +72,8 @@ const EventCreate = () => {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("registrations")
-        .select("user_id, full_name, community")
-        .eq("status", "approved")
-        .order("full_name");
-      setExecList((data ?? []) as any);
+      const { data } = await supabase.rpc("list_approved_execom");
+      setExecList(((data ?? []) as any[]).sort((a, b) => String(a.full_name).localeCompare(String(b.full_name))));
     })();
   }, []);
 
@@ -163,8 +159,8 @@ const EventCreate = () => {
 
       // Grant edit access to selected executive coordinators
       for (const c of coordRecords) {
-        await supabase.from("event_coordinators").insert({ event_id: data.id, user_id: c.user_id });
-        await supabase.from("user_roles").insert({ user_id: c.user_id, role: "coordinator" });
+        const { error: ce } = await supabase.rpc("assign_event_coordinator", { _event_id: data.id, _user_id: c.user_id });
+        if (ce) toast({ title: `Could not add ${c.full_name} as coordinator`, description: ce.message, variant: "destructive" });
       }
 
       toast({ title: "Event created" });
@@ -278,7 +274,7 @@ const EventCreate = () => {
 
           {/* Coordinators — must be approved executive members (1 required, max 2) */}
           <div>
-            <Label>Coordinators <span className="text-muted-foreground text-xs">(approved executives only — 1 required, max 2)</span></Label>
+            <Label>Coordinators <span className="text-muted-foreground text-xs">(any approved ExeCom member from any community — 1 required, max 2)</span></Label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
               <div>
                 <Label className="text-xs text-muted-foreground">Primary coordinator *</Label>
@@ -392,15 +388,10 @@ const EventCreate = () => {
             </button>
           </div>
 
-          <div className="grid gap-2 sm:grid-cols-2">
-            <Button type="submit" onClick={() => { buildSiteRef.current = false; }} disabled={loading || !isApprovedExecutive} className="w-full bg-gradient-emerald text-primary-foreground shadow-glow-emerald">
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create event
-            </Button>
-            <Button type="submit" variant="outline" onClick={() => { buildSiteRef.current = true; }} disabled={loading || !isApprovedExecutive} className="w-full">
-              Create & build event website (code or AI)
-            </Button>
-          </div>
+          <Button type="submit" disabled={loading || !isApprovedExecutive} className="w-full bg-gradient-emerald text-primary-foreground shadow-glow-emerald">
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Create event
+          </Button>
         </form>
       </div>
     </Layout>
