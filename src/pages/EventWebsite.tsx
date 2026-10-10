@@ -12,7 +12,7 @@ import { ExternalLink, Loader2, Save, Sparkles, Trash2, Wand2 } from "lucide-rea
 
 const starter = (e: any, registerUrl: string) => `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>${e.title ?? "Event"}</title>
+<title>${e.name ?? "Event"}</title>
 <style>
 body{margin:0;font-family:system-ui,sans-serif;background:#0b1220;color:#f1f5f9}
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem}
@@ -23,7 +23,7 @@ img{max-width:320px;width:100%;border-radius:16px;margin-bottom:1rem}
 </style></head><body>
 <section class="hero">
 ${e.poster_url ? `<img src="${e.poster_url}" alt="poster"/>` : ""}
-<h1>${e.title ?? "Your Event"}</h1>
+<h1>${e.name ?? "Your Event"}</h1>
 <p>${(e.description ?? "").slice(0, 400)}</p>
 <p>${e.event_date ?? ""} ${e.venue ? "· " + e.venue : ""}</p>
 <a class="btn" href="${registerUrl}" target="_top">Register now</a>
@@ -72,7 +72,7 @@ export default function EventWebsite() {
         prompt,
         currentHtml: html,
         event: {
-          title: event.title, description: event.description, event_date: event.event_date, venue: event.venue,
+          title: event.name, description: event.description, event_date: event.event_date, venue: event.venue,
           community: event.community, poster_url: event.poster_url, coordinators: event.coordinator_names,
           collaborators: event.collaborators, REGISTER_URL: registerUrl,
         },
@@ -112,7 +112,7 @@ export default function EventWebsite() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold">Event website builder</h1>
-            <p className="text-sm text-muted-foreground">{event.title}</p>
+            <p className="text-sm text-muted-foreground">{event.name}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="outline" size="sm"><Link to={`/events/${event.slug ?? event.id}/manage`}>Back to manage</Link></Button>
