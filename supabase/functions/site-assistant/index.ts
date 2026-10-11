@@ -53,10 +53,17 @@ Deno.serve(async (req) => {
     fetch: runIdFetch.fetch,
   });
 
+  // Share public, published event info so the assistant can answer about events.
+  const { data: evs } = await sb.from("events").select("name, community, event_date, venue, slug, registration_open")
+    .in("status", ["published"]).order("event_date", { ascending: true }).limit(30);
+  const eventsCtx = (evs ?? []).map((e: any) => `- ${e.name} (${e.community}) ${e.event_date ?? ""} ${e.venue ?? ""} · ${e.registration_open ? "registration open" : "registration closed"} · /events/${e.slug}`).join("\n");
+
+  let streamError: any = null;
   try {
     const result = streamText({
+      onError: ({ error }) => { streamError = error; },
       model: provider.responses("openai/gpt-6-astra"),
-      system: `${BASE}\n\nUser is ${signedIn ? "signed in" : "not signed in"} and is on page ${page}.${training}`,
+      system: `${BASE}\n\nUser is ${signedIn ? "signed in" : "not signed in"} and is on page ${page}.\n\nCURRENT PUBLISHED EVENTS:\n${eventsCtx || "none"}${training}`,
       messages,
       abortSignal: req.signal,
       providerOptions: {
@@ -69,12 +76,14 @@ Deno.serve(async (req) => {
         },
       },
     });
-    const reply = (await result.text).trim();
+    let reply = "";
+    try { reply = (await result.text).trim(); } catch (e) { streamError = streamError ?? e; }
+    if (streamError) throw streamError;
     if (!reply) return json({ error: "The assistant could not answer that. Please try asking differently." }, 502);
     return json({ reply });
   } catch (e: any) {
-    const status = e?.statusCode ?? e?.status ?? 500;
-    const msg = status === 402 ? "AI credits are used up. Please contact the admin."
+    const status = e?.statusCode ?? e?.status ?? e?.cause?.statusCode ?? 500;
+    const msg = status === 402 ? "The website's AI credits have run out. The admin needs to add AI credits in the workspace billing settings, then the assistant will work again."
       : status === 429 ? "Too many requests, please wait a moment and try again."
       : e?.message ?? "AI failed";
     return json({ error: msg }, [400, 402, 403, 429].includes(status) ? status : 500);
