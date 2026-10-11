@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { buildSystemPrompt, chatLocal, deviceSupportsLocalAi, getEngine } from "@/lib/localAi";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Bot, Download, Loader2, Send, X } from "lucide-react";
@@ -50,6 +50,7 @@ export function AiAssistant() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [loadingText, setLoadingText] = useState("");
   const { pathname } = useLocation();
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -64,14 +65,30 @@ export function AiAssistant() {
     setMsgs(next);
     setInput("");
     setBusy(true);
-    const { data, error } = await supabase.functions.invoke("site-assistant", { body: { messages: next.slice(-20), page: pathname } });
-    let msg = (data as any)?.error;
-    if (error && !msg) {
-      try { msg = (await (error as any).context?.json())?.error; } catch { /* ignore */ }
-      msg = msg ?? "Something went wrong.";
+    if (!deviceSupportsLocalAi()) {
+      setBusy(false);
+      setMsgs([...next, { role: "assistant", content: "⚠️ This device or browser can't run the free on-device AI. Please open the site in the latest Chrome or Edge on a laptop/desktop (or a newer Android phone)." }]);
+      return;
     }
-    setBusy(false);
-    setMsgs([...next, { role: "assistant", content: msg ? `⚠️ ${msg}` : (data as any).reply }]);
+    try {
+      const [engine, system] = await Promise.all([
+        getEngine((txt, pct) => setLoadingText(pct < 1 ? `Downloading AI to your device (first time only)… ${Math.round(pct * 100)}%` : txt)),
+        buildSystemPrompt(pathname),
+      ]);
+      setLoadingText("");
+      let out = "";
+      setMsgs([...next, { role: "assistant", content: "" }]);
+      for await (const d of chatLocal(engine, system, next.slice(-10))) {
+        out += d;
+        setMsgs([...next, { role: "assistant", content: out }]);
+      }
+      if (!out.trim()) setMsgs([...next, { role: "assistant", content: "⚠️ No answer, please try asking differently." }]);
+    } catch (e: any) {
+      setMsgs([...next, { role: "assistant", content: `⚠️ The on-device AI could not start: ${e?.message ?? "unknown error"}. Try the latest Chrome or Edge.` }]);
+    } finally {
+      setBusy(false);
+      setLoadingText("");
+    }
   };
 
   return (
@@ -94,14 +111,14 @@ export function AiAssistant() {
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
             {msgs.length === 0 && (
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Hi! I can help you use this website and write requests (download as PDF).</p>
+                <p className="text-sm text-muted-foreground">Hi! I can help you use this website and write requests (download as PDF). I run free on your own device — the first message downloads the AI once (about 1 GB).</p>
                 {QUICK.map((q) => (
                   <button key={q} onClick={() => send(q)} className="block w-full text-left text-xs rounded-lg border border-border px-3 py-2 hover:bg-muted">{q}</button>
                 ))}
               </div>
             )}
             {msgs.map((m, i) => <Bubble key={i} m={m} />)}
-            {busy && <div className="text-xs text-muted-foreground flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" />Thinking…</div>}
+            {busy && <div className="text-xs text-muted-foreground flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" />{loadingText || "Thinking…"}</div>}
             <div ref={endRef} />
           </div>
           <div className="p-2 border-t border-border flex gap-2">
