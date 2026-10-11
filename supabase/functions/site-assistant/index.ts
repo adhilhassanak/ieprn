@@ -86,6 +86,7 @@ Deno.serve(async (req) => {
     const msg = status === 402 ? "The website's AI credits have run out. The admin needs to add AI credits in the workspace billing settings, then the assistant will work again."
       : status === 429 ? "Too many requests, please wait a moment and try again."
       : e?.message ?? "AI failed";
-    return json({ error: msg }, [400, 402, 403, 429].includes(status) ? status : 500);
+    // Handled AI errors return 200 with an error message so the app shows it in the chat instead of crashing.
+    return json({ error: msg, status });
   }
 });
