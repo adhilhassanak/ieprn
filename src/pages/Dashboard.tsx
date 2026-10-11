@@ -109,11 +109,8 @@ const Dashboard = () => {
   const norm = (s: unknown) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
   const memberOf = (keys: string[]) => {
     if (isAdmin) return true;
-    const values = [
-      ...registrations.map((r) => norm(r.community)),
-      norm(profile?.community),
-      ...roles.map((r) => norm(r)),
-    ];
+    // Only communities where the member's ExeCom registration is approved.
+    const values = registrations.filter((r) => r.status === "approved").map((r) => norm(r.community));
     return keys.some((k) => values.includes(k));
   };
 
