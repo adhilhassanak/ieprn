@@ -30,6 +30,7 @@ import { PopupManager } from "@/components/admin/PopupManager";
 import { CommunityLogosPanel } from "@/components/admin/CommunityLogosPanel";
 import { CommunitiesManager } from "@/components/admin/CommunitiesManager";
 import { AiTrainingManager } from "@/components/admin/AiTrainingManager";
+import { isEventRegistrationOpen } from "@/lib/eventRegistration";
 
 
 const Admin = () => {
@@ -254,7 +255,7 @@ const Admin = () => {
                 <div key={e.id} className="glass rounded-xl p-4 flex flex-wrap items-center gap-3">
                   {e.poster_url && <img src={e.poster_url} alt="" className="h-14 w-14 rounded-lg object-cover" />}
                   <div className="flex-1 min-w-[200px]">
-                    <div className="font-medium">{e.name} <Badge variant="outline" className="ml-2 text-xs">{e.community}</Badge> <Badge variant="outline" className="ml-1 text-xs capitalize">{e.status}</Badge>{e.registration_open && <Badge className="ml-1 text-xs bg-primary/20 text-primary border-primary/40">reg open</Badge>}</div>
+                    <div className="font-medium">{e.name} <Badge variant="outline" className="ml-2 text-xs">{e.community}</Badge> <Badge variant="outline" className="ml-1 text-xs capitalize">{e.status}</Badge>{isEventRegistrationOpen(e) && <Badge className="ml-1 text-xs bg-primary/20 text-primary border-primary/40">reg open</Badge>}</div>
                     <div className="text-xs text-muted-foreground">{e.event_date ? new Date(e.event_date).toLocaleDateString() : "no date"} · {e.venue ?? "—"} · {e.coordinator_names?.length ?? 0} coordinators</div>
                   </div>
                   {e.status !== "published" && e.status !== "completed" && (
@@ -555,8 +556,8 @@ const Admin = () => {
 
                 <div className="flex items-center justify-between rounded-lg border border-border p-3">
                   <div>
-                    <div className="font-medium">Global registrations</div>
-                    <div className="text-xs text-muted-foreground">Master switch for all event registrations</div>
+                    <div className="font-medium">Global ExeCom applications</div>
+                    <div className="text-xs text-muted-foreground">Event registrations are controlled separately in each event.</div>
                   </div>
                   <Switch checked={settings.registration_open_global} onCheckedChange={(v) => setSettings({ ...settings, registration_open_global: v })} />
                 </div>

@@ -2,3 +2,4 @@
 - Event websites are single HTML files in the event-posters storage bucket at `{created_by}/sites/{event_id}.html` (src/lib/eventSite.ts) — user asked that no extra database be used.
 - Deleting a built-in community writes a custom_communities row with accent "deleted", which the loader treats as hidden — built-ins live in code and can't be removed otherwise.
 - The site AI assistant runs fully in the browser (src/lib/localAi.ts, on-device model via WebGPU) — user wanted no credits; the site-assistant server function is no longer used by the app.
+- Event registration uses the shared isEventRegistrationOpen helper (published status plus the event's own switch); global/community application settings apply only to ExeCom, preventing unrelated application closures from blocking opened events.

@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Calendar, MapPin, Clock, Users, CheckCircle2, Instagram, Linkedin, Facebook, FileText, UserCircle2, MessageCircle, Mail, Phone } from "lucide-react";
 import { COMMUNITY_LIST } from "@/lib/communities";
-import { useAdminSettings } from "@/hooks/useAdminSettings";
+import { isEventRegistrationOpen } from "@/lib/eventRegistration";
 import { QuestionFields, validateAnswers, type Question } from "@/components/events/RegistrationQuestions";
 
 // UUID v4 pattern (case-insensitive)
@@ -18,7 +18,6 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { settings } = useAdminSettings();
   const [event, setEvent] = useState<any>(null);
   const [participantCount, setParticipantCount] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
@@ -28,7 +27,7 @@ const EventDetails = () => {
 
   useEffect(() => {
     if (!id) return;
-    (async () => {
+    const loadEvent = async () => {
       const param = String(id);
       const isUuid = UUID_RE.test(param);
 
@@ -67,23 +66,41 @@ const EventDetails = () => {
           .eq("event_id", data.id)
           .eq("gmail", email)
           .maybeSingle();
-        if (existing) setSubmitted(true);
+        setSubmitted(Boolean(existing));
       }
-    })();
+    };
+    void loadEvent();
+    const refresh = () => { void loadEvent(); };
+    window.addEventListener("focus", refresh);
+    const timer = window.setInterval(refresh, 30000);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      window.clearInterval(timer);
+    };
   }, [id, navigate]);
 
   if (!event) return <Layout><div className="container py-20 text-center text-muted-foreground">Loading…</div></Layout>;
 
   const community = COMMUNITY_LIST.find((c) => c.short === event.community);
   const questions: Question[] = Array.isArray(event.registration_questions) ? event.registration_questions : [];
-  const globalOpen = settings?.registration_open_global ?? true;
-  const canRegister = event.status === "published" && event.registration_open && globalOpen;
+  const canRegister = isEventRegistrationOpen(event);
 
   const register = async (e: FormEvent) => {
     e.preventDefault();
     const qErr = validateAnswers(questions, answers);
     if (qErr) return toast({ title: "Check inputs", description: qErr, variant: "destructive" });
     setLoading(true);
+    const { data: currentEvent, error: statusError } = await supabase.from("events")
+      .select("status, registration_open").eq("id", event.id).maybeSingle();
+    if (statusError || !currentEvent) {
+      setLoading(false);
+      return toast({ title: "Unable to check registration", description: "Please try again.", variant: "destructive" });
+    }
+    if (!isEventRegistrationOpen(currentEvent)) {
+      setEvent({ ...event, ...currentEvent });
+      setLoading(false);
+      return toast({ title: "Registration is closed for this event.", variant: "destructive" });
+    }
     const { data: { user } } = await supabase.auth.getUser();
     const answerFor = (labels: RegExp) => {
       const question = questions.find((q) => labels.test(q.label.trim()));
@@ -220,7 +237,7 @@ const EventDetails = () => {
           </h2>
           {!canRegister ? (
             <p className="mt-2 text-sm text-muted-foreground">
-              {!globalOpen ? "Registrations are temporarily disabled by the admin." : "Registration is closed for this event."}
+              Registration is closed for this event.
             </p>
           ) : event.registration_mode === "external" && event.external_form_url ? (
             <div className="mt-4">

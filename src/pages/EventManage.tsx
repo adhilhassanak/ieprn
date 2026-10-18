@@ -15,6 +15,7 @@ import { toast } from "@/hooks/use-toast";
 import { Trash2, UserPlus, Save, ExternalLink, Plus, X, CheckCircle2, Circle, Upload, FileText, Image as ImageIcon, Download } from "lucide-react";
 import { COMMUNITY_LIST } from "@/lib/communities";
 import { QuestionBuilder, type Question } from "@/components/events/RegistrationQuestions";
+import { isEventRegistrationOpen } from "@/lib/eventRegistration";
 
 const EventManage = () => {
   const { id } = useParams();
@@ -205,7 +206,7 @@ const EventManage = () => {
             <div className="mt-2 flex gap-2 items-center flex-wrap">
               <Badge variant="outline" className="border-gold/40 text-gold">{event.community}</Badge>
               <Badge variant="outline" className="capitalize">{event.status}</Badge>
-              {event.registration_open ? (
+              {isEventRegistrationOpen(event) ? (
                 <Badge className="bg-primary/20 text-primary border-primary/40">Registrations open</Badge>
               ) : (
                 <Badge variant="outline">Registrations closed</Badge>
