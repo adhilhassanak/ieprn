@@ -312,6 +312,7 @@ export type Database = {
           linkedin: string | null
           name: string
           short: string
+          site_url: string | null
           tagline: string
         }
         Insert: {
@@ -323,6 +324,7 @@ export type Database = {
           linkedin?: string | null
           name: string
           short: string
+          site_url?: string | null
           tagline?: string
         }
         Update: {
@@ -334,6 +336,7 @@ export type Database = {
           linkedin?: string | null
           name?: string
           short?: string
+          site_url?: string | null
           tagline?: string
         }
         Relationships: []

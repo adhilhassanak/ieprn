@@ -29,6 +29,13 @@
       "when": 1791647322590,
       "tag": "0003_ai_assistant_and_coordinators",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793727562314,
+      "tag": "0004_add_custom_community_site_url",
+      "breakpoints": true
     }
   ]
 }

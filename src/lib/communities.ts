@@ -6,6 +6,8 @@ export interface Community {
   short: string;
   tagline: string;
   accent: "emerald" | "gold" | "violet" | "purple";
+  /** Optional external website (e.g. https://foss.ieprn.co.in). When set, apply/CEP buttons open it. */
+  site_url?: string;
   social: {
     instagram?: string;
     facebook?: string;
@@ -94,6 +96,7 @@ export async function loadCustomCommunities(): Promise<void> {
         short: r.short,
         tagline: r.tagline ?? "",
         accent: (ACCENTS as readonly string[]).includes(r.accent) ? (r.accent as Community["accent"]) : "emerald",
+        site_url: r.site_url ?? undefined,
         social: { instagram: r.instagram ?? undefined, facebook: r.facebook ?? undefined, linkedin: r.linkedin ?? undefined },
       };
       if (!COMMUNITIES[c.key]) COMMUNITY_LIST.push(c);

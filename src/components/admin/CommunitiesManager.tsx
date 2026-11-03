@@ -8,8 +8,8 @@ import { toast } from "@/hooks/use-toast";
 import { COMMUNITY_LIST, BUILT_IN_KEYS } from "@/lib/communities";
 import { Plus, Trash2 } from "lucide-react";
 
-type Row = { key: string; name: string; short: string; tagline: string; accent: string; instagram: string | null; facebook: string | null; linkedin: string | null };
-const empty = { key: "", name: "", short: "", tagline: "", accent: "emerald", instagram: "", facebook: "", linkedin: "" };
+type Row = { key: string; name: string; short: string; tagline: string; accent: string; site_url: string | null; instagram: string | null; facebook: string | null; linkedin: string | null };
+const empty = { key: "", name: "", short: "", tagline: "", accent: "emerald", site_url: "", instagram: "", facebook: "", linkedin: "" };
 
 export function CommunitiesManager() {
   const [rows, setRows] = useState<Row[]>([]);
@@ -33,6 +33,7 @@ export function CommunitiesManager() {
     setBusy(true);
     const { error } = await supabase.from("custom_communities").upsert({
       key, name: form.name.trim(), short: form.short.trim(), tagline: form.tagline.trim(), accent: form.accent,
+      site_url: form.site_url.trim() || null,
       instagram: form.instagram || null, facebook: form.facebook || null, linkedin: form.linkedin || null,
     });
     setBusy(false);
@@ -94,6 +95,7 @@ export function CommunitiesManager() {
           <div><Label>Instagram link</Label><Input value={form.instagram} onChange={set("instagram")} /></div>
           <div><Label>Facebook link</Label><Input value={form.facebook} onChange={set("facebook")} /></div>
           <div><Label>LinkedIn link</Label><Input value={form.linkedin} onChange={set("linkedin")} /></div>
+          <div className="md:col-span-2"><Label>Community website (optional — its Apply and CEP buttons open this site)</Label><Input value={form.site_url} onChange={set("site_url")} placeholder="https://foss.ieprn.co.in" /></div>
         </div>
         <Button onClick={add} disabled={busy} className="mt-4 bg-gradient-emerald text-primary-foreground">
           <Plus className="h-4 w-4 mr-1" /> Save community
@@ -119,7 +121,7 @@ export function CommunitiesManager() {
             <div key={r.key} className="flex items-center justify-between rounded-lg border border-border p-3">
               <div><div className="font-medium">{r.short}</div><div className="text-xs text-muted-foreground">{r.name} · /{r.key}</div></div>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => setForm({ ...empty, ...r, instagram: r.instagram ?? "", facebook: r.facebook ?? "", linkedin: r.linkedin ?? "" })}>Edit</Button>
+                <Button size="sm" variant="outline" onClick={() => setForm({ ...empty, ...r, site_url: r.site_url ?? "", instagram: r.instagram ?? "", facebook: r.facebook ?? "", linkedin: r.linkedin ?? "" })}>Edit</Button>
                 <Button size="sm" variant="destructive" onClick={() => remove(r.key, r.short)}><Trash2 className="h-4 w-4" /></Button>
               </div>
             </div>

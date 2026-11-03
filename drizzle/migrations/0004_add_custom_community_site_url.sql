@@ -1,0 +1,1 @@
+ALTER TABLE public.custom_communities ADD COLUMN IF NOT EXISTS site_url TEXT;
