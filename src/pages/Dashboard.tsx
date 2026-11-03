@@ -124,6 +124,8 @@ const Dashboard = () => {
     to: string;
     label: string;
     external?: boolean;
+    tag?: string;
+    icon?: any;
     classes: string;
     labelClass?: string;
   }[] = [
@@ -179,10 +181,14 @@ const Dashboard = () => {
   const handled = ["ecell", "iic", "edclub", "rndclub"];
   for (const c of COMMUNITY_LIST) {
     if (handled.includes(c.key)) continue;
+    // Communities with their own website (e.g. FOSS) open that site instead of /cep.
     cepButtons.push({
       show: memberOf([norm(c.key), norm(c.short)]),
-      to: `/cep/${c.key}`,
+      to: c.site_url ?? `/cep/${c.key}`,
       label: `${c.short} CEP Task`,
+      external: Boolean(c.site_url),
+      tag: c.site_url ? "CEP Task" : undefined,
+      icon: c.site_url ? Calendar : undefined,
       classes: accentCls[c.accent] ?? accentCls.emerald,
       labelClass: "opacity-90",
     });
@@ -316,8 +322,8 @@ const Dashboard = () => {
           className={`relative overflow-hidden rounded-2xl p-4 sm:p-5 cursor-pointer block shadow-md hover:scale-[1.02] transition-smooth ${b.classes}`}
         >
           <div className={`flex items-center gap-1 text-[10px] sm:text-xs uppercase tracking-wider ${b.labelClass ?? "opacity-90"}`}>
-            <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-            Exclusive
+            {b.icon ? <b.icon className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> : <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />}
+            {b.tag ?? "Exclusive"}
           </div>
           <h3 className="mt-1.5 text-sm sm:text-base font-bold flex items-center gap-1 leading-tight">
             {b.label}
@@ -416,10 +422,17 @@ const Dashboard = () => {
                     variant="outline"
                     className="border-primary/30 hover:border-primary hover:text-primary"
                   >
-                    <Link to={`/register/${c.key}`}>
-                      Apply for {c.short}
-                      <ArrowRight className="ml-1 h-3 w-3" />
-                    </Link>
+                    {c.site_url ? (
+                      <a href={c.site_url} target="_blank" rel="noreferrer">
+                        Apply for {c.short}
+                        <ExternalLink className="ml-1 h-3 w-3" />
+                      </a>
+                    ) : (
+                      <Link to={`/register/${c.key}`}>
+                        Apply for {c.short}
+                        <ArrowRight className="ml-1 h-3 w-3" />
+                      </Link>
+                    )}
                   </Button>
                 ))}
               </div>

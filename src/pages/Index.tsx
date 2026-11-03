@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { COMMUNITY_LIST } from "@/lib/communities";
-import { Sparkles, Rocket, Users, Calendar, ArrowRight, Instagram, Facebook, Linkedin, MapPin } from "lucide-react";
+import { Sparkles, Rocket, Users, Calendar, ArrowRight, Instagram, Facebook, Linkedin, MapPin, ExternalLink } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
@@ -254,7 +254,11 @@ const Index = () => {
                 <p className="text-sm text-muted-foreground">{c.name}</p>
                 <p className="mt-3 text-sm">{c.tagline}</p>
                 <Button asChild variant="ghost" className="mt-5 -ml-3 group-hover:text-primary">
-                  <Link to={`/register/${c.key}`}>Apply for ExeCom <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                  {c.site_url ? (
+                    <a href={c.site_url} target="_blank" rel="noreferrer">Apply for ExeCom <ExternalLink className="ml-1 h-4 w-4" /></a>
+                  ) : (
+                    <Link to={`/register/${c.key}`}>Apply for ExeCom <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                  )}
                 </Button>
               </motion.div>
             ))}
