@@ -204,7 +204,7 @@
   }
 
   .glass-strong {
-    background: hsl(222 40% 8% / calc(var(--glass-alpha) + 0.25));
+    background: hsl(var(--card) / calc(var(--glass-alpha) + 0.25));
     backdrop-filter: blur(calc(var(--glass-blur) + 8px));
     -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 8px));
     border: 1px solid var(--glass-border);
@@ -240,20 +240,20 @@
   }
 
   .glass-card {
-    background: hsl(255 100% 100% / 0.04);
+    background: hsl(var(--card) / 0.68);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid hsl(255 100% 100% / 0.08);
-    border-radius: 16px;
-    transition: all 0.3s var(--transition-smooth);
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    transition: transform 0.2s var(--transition-smooth), border-color 0.2s var(--transition-smooth), background-color 0.2s var(--transition-smooth);
   }
   .glass-card:hover {
-    border-color: hsl(255 100% 100% / 0.2);
+    border-color: hsl(var(--primary) / 0.38);
     transform: translateY(-2px);
   }
 
   .text-gradient {
-    background: linear-gradient(to right, hsl(217 91% 70%), hsl(258 90% 73%));
+    background: linear-gradient(to right, hsl(var(--primary-glow)), hsl(var(--gold)));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;

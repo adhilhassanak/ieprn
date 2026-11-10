@@ -9,10 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { CheckCircle2, XCircle, Clock, Trash2, Search, Plus, ShieldPlus, Save, Pencil } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Trash2, Search, Plus, ShieldPlus, Save, Pencil, ClipboardList, CalendarDays, Shield, Briefcase, Users, Crown, GraduationCap, Network, Sparkles, Image, HardDrive, MessageSquare, IndianRupee, Images, Settings } from "lucide-react";
 import { EditApplicationDialog } from "@/components/admin/EditApplicationDialog";
 import { COMMUNITY_LIST } from "@/lib/communities";
 import { applyTheme, THEME_PRESETS, type ThemePresetKey, loadGlassPrefs, saveGlassPrefs, applyThemeMode } from "@/hooks/useAdminSettings";
@@ -32,6 +32,47 @@ import { CommunitiesManager } from "@/components/admin/CommunitiesManager";
 import { AiTrainingManager } from "@/components/admin/AiTrainingManager";
 import { isEventRegistrationOpen } from "@/lib/eventRegistration";
 
+type AdminTabKey = "regs" | "events" | "roles" | "positions" | "members" | "principal" | "faculty" | "communities" | "ai" | "logos" | "storage" | "feedback" | "finance" | "gallery" | "calendar" | "popups" | "settings";
+
+const ADMIN_NAV_GROUPS = [
+  {
+    label: "Members",
+    items: [
+      { value: "regs", label: "Applications", icon: ClipboardList },
+      { value: "roles", label: "Roles & Co-admins", icon: Shield },
+      { value: "positions", label: "Positions", icon: Briefcase },
+      { value: "members", label: "Members", icon: Users },
+    ],
+  },
+  {
+    label: "Events & Calendar",
+    items: [
+      { value: "events", label: "Events", icon: CalendarDays },
+      { value: "calendar", label: "Activity Calendar", icon: CalendarDays },
+      { value: "popups", label: "Popup Messages", icon: MessageSquare },
+    ],
+  },
+  {
+    label: "Content",
+    items: [
+      { value: "principal", label: "Principal", icon: Crown },
+      { value: "faculty", label: "Faculty", icon: GraduationCap },
+      { value: "communities", label: "Communities", icon: Network },
+      { value: "logos", label: "Logos", icon: Image },
+      { value: "gallery", label: "Gallery Upload", icon: Images },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { value: "ai", label: "AI Assistant", icon: Sparkles },
+      { value: "storage", label: "Storage", icon: HardDrive },
+      { value: "feedback", label: "Feedback", icon: MessageSquare },
+      { value: "finance", label: "Finance", icon: IndianRupee },
+      { value: "settings", label: "Settings", icon: Settings },
+    ],
+  },
+] satisfies { label: string; items: { value: AdminTabKey; label: string; icon: typeof ClipboardList }[] }[];
 
 const Admin = () => {
   const [regs, setRegs] = useState<any[]>([]);
@@ -47,6 +88,7 @@ const Admin = () => {
   const [glass, setGlass] = useState(() => loadGlassPrefs());
   const [editing, setEditing] = useState<any>(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<AdminTabKey>("regs");
 
   const load = async () => {
     const [{ data: r }, { data: e }, { data: p }, { data: prof }, { data: rl }, { data: s }] = await Promise.all([
@@ -197,27 +239,37 @@ const Admin = () => {
           <Stat label="₹ Funds" value={totalFunds} />
         </div>
 
-        <Tabs defaultValue="regs" className="mt-8">
-          <TabsList className="glass flex-wrap h-auto">
-            <TabsTrigger value="regs">Applications</TabsTrigger>
-            <TabsTrigger value="events">Events</TabsTrigger>
-            <TabsTrigger value="roles">Roles & Co-admins</TabsTrigger>
-            <TabsTrigger value="positions">Positions</TabsTrigger>
-            <TabsTrigger value="members">Members</TabsTrigger>
-            <TabsTrigger value="principal">Principal</TabsTrigger>
-            <TabsTrigger value="faculty">Faculty</TabsTrigger>
-            <TabsTrigger value="communities">Communities</TabsTrigger>
-            <TabsTrigger value="ai">AI Assistant</TabsTrigger>
-            <TabsTrigger value="logos">Logos</TabsTrigger>
-            <TabsTrigger value="storage">Storage</TabsTrigger>
-
-            <TabsTrigger value="feedback">Feedback</TabsTrigger>
-            <TabsTrigger value="finance">Finance</TabsTrigger>
-            <TabsTrigger value="gallery">Gallery Upload</TabsTrigger>
-            <TabsTrigger value="calendar">Activity Calendar</TabsTrigger>
-            <TabsTrigger value="popups">Popup Messages</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as AdminTabKey)} className="mt-8">
+          <div className="grid items-start gap-5 lg:grid-cols-[15rem_minmax(0,1fr)]">
+            <nav aria-label="Admin sections" className="glass sticky top-16 z-20 rounded-xl p-2 lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
+              <div className="flex gap-4 overflow-x-auto pb-1 lg:flex-col lg:gap-3 lg:overflow-x-visible lg:pb-0">
+                {ADMIN_NAV_GROUPS.map((group) => (
+                  <div key={group.label} className="flex shrink-0 flex-col gap-1">
+                    <div className="px-3 py-1 text-[10px] font-semibold uppercase text-muted-foreground">{group.label}</div>
+                    <div className="flex gap-1 lg:flex-col">
+                      {group.items.map((item) => {
+                        const Icon = item.icon;
+                        const selected = activeTab === item.value;
+                        return (
+                          <Button
+                            key={item.value}
+                            type="button"
+                            variant="ghost"
+                            aria-pressed={selected}
+                            onClick={() => setActiveTab(item.value)}
+                            className={`h-9 w-max justify-start gap-2.5 px-3 text-left text-xs font-medium lg:w-full ${selected ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                          >
+                            <Icon className="h-4 w-4 shrink-0" />
+                            <span>{item.label}</span>
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </nav>
+            <section aria-label="Selected admin section" className="min-w-0">
 
           {/* APPLICATIONS */}
           <TabsContent value="regs" className="mt-4">
@@ -584,6 +636,8 @@ const Admin = () => {
               </div>
             )}
           </TabsContent>
+            </section>
+          </div>
         </Tabs>
       </div>
 
