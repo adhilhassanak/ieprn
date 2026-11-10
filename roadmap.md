@@ -1,0 +1,3 @@
+- [x] Replace Admin's horizontal tab strip with a grouped, sticky navigation that adapts to mobile.
+- [x] Polish the Dashboard welcome area, summary cards, and quick actions.
+- [x] Refine shared glass surfaces with theme-aware design tokens.

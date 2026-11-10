@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Layout } from "@/components/Layout";
@@ -20,6 +20,9 @@ import {
   IndianRupee,
   ExternalLink,
   Trophy,
+  CalendarCheck,
+  ClipboardList,
+  FileText,
 } from "lucide-react";
 import { StudentTabs } from "@/components/dashboard/StudentTabs";
 import { ActivityCalendarView } from "@/components/dashboard/ActivityCalendarView";
@@ -251,23 +254,23 @@ const Dashboard = () => {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
+          className="border-b border-border pb-6"
         >
-          <h1 className="text-4xl md:text-5xl font-bold">
-            Welcome,{" "}
-            <span className="text-gradient">
-              {profile?.full_name || user?.email}
-            </span>
-          </h1>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-muted-foreground">Your IE-Prn workspace</p>
+              <h1 className="mt-1 break-words text-3xl font-bold md:text-4xl">
+                Welcome, <span className="text-gradient">{profile?.full_name || user?.email}</span>
+              </h1>
+            </div>
 
-          <div className="mt-3 flex flex-wrap gap-2">
-            {roles.map((role) => (
-              <span
-                key={role}
-                className="px-3 py-1 text-xs rounded-full bg-primary/15 border border-primary/30 capitalize text-primary"
-              >
-                {role.replace("_", " ")}
-              </span>
-            ))}
+            <div className="flex flex-wrap gap-2 sm:justify-end">
+              {roles.map((role) => (
+                <span key={role} className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs capitalize text-primary">
+                  {role.replace("_", " ")}
+                </span>
+              ))}
+            </div>
           </div>
         </motion.div>
 
@@ -283,31 +286,31 @@ const Dashboard = () => {
 
         {/* Stats */}
         {isExecutive && !execRevoked && (
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            <StatCard title="Events Conducted" value={myEvents.length} />
-            <StatCard title="Participants Handled" value={totalParticipants} />
-            <StatCard title="Documents Uploaded" value={docsCount} />
-            <StatCard title="Events Coordinated" value={coordinatorsCount} />
+        <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+            <StatCard title="Events Conducted" value={myEvents.length} icon={<CalendarCheck className="h-5 w-5" />} />
+            <StatCard title="Participants Handled" value={totalParticipants} icon={<Users className="h-5 w-5" />} />
+            <StatCard title="Documents Uploaded" value={docsCount} icon={<FileText className="h-5 w-5" />} />
+            <StatCard title="Events Coordinated" value={coordinatorsCount} icon={<ClipboardList className="h-5 w-5" />} />
           </div>
         )}
 
       {/* Quick actions */}
 {isExecutive && !execRevoked && (
 
-  <div className="grid gap-3 sm:gap-4 mt-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+  <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
     {/* Create Event */}
     <Link
       to="/events/new"
-      className="relative overflow-hidden rounded-2xl p-4 sm:p-5 cursor-pointer block bg-gradient-gold text-gold-foreground shadow-glow-gold hover:scale-[1.02] transition-smooth ring-2 ring-gold/60"
+      className="glass-card group relative block min-h-28 cursor-pointer overflow-hidden rounded-xl border-gold/40 p-4 transition-smooth hover:-translate-y-0.5 hover:border-gold sm:p-5"
     >
-      <div className="flex items-center gap-1 text-[10px] sm:text-xs uppercase tracking-wider opacity-90">
-        <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-        Primary
+      <div className="flex items-center gap-2 text-xs font-medium text-gold">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gold/15"><Plus className="h-4 w-4" /></span>
+        Quick action
       </div>
-      <h3 className="mt-1.5 text-sm sm:text-base font-bold leading-tight">
+      <h3 className="mt-3 text-sm font-semibold leading-tight text-foreground sm:text-base">
         Create New Event
       </h3>
-      <p className="hidden sm:block text-xs opacity-90 mt-1">
+      <p className="mt-1 text-xs text-muted-foreground">
         Schedule a new event.
       </p>
     </Link>
@@ -351,12 +354,13 @@ const Dashboard = () => {
     {/* My Events */}
     <a
       href="#my-events"
-      className="glass-card p-4 sm:p-5 cursor-pointer block"
+      className="glass-card group block min-h-28 cursor-pointer rounded-xl p-4 transition-smooth hover:-translate-y-0.5 sm:p-5"
     >
-      <div className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground">
+      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary"><Calendar className="h-4 w-4" /></span>
         Manage
       </div>
-      <h3 className="mt-1.5 text-sm sm:text-base font-semibold leading-tight">
+      <h3 className="mt-3 text-sm font-semibold leading-tight text-foreground sm:text-base">
         My Events
       </h3>
     </a>
@@ -642,10 +646,13 @@ const EventCard = ({
   );
 };
 
-const StatCard = ({ title, value }: { title: string; value: number }) => (
-  <div className="glass-card p-5 sm:p-6 min-w-0">
-    <div className="text-3xl font-bold text-gradient">{value}</div>
-    <div className="text-sm text-muted-foreground mt-2">{title}</div>
+const StatCard = ({ title, value, icon }: { title: string; value: number; icon: ReactNode }) => (
+  <div className="glass-card min-w-0 rounded-xl p-4 sm:p-5">
+    <div className="flex items-start justify-between gap-2">
+      <div className="min-w-0 break-words text-2xl font-bold text-gradient sm:text-3xl">{value}</div>
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">{icon}</div>
+    </div>
+    <div className="mt-2 text-xs leading-snug text-muted-foreground sm:text-sm">{title}</div>
   </div>
 );
 
