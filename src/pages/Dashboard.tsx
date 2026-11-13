@@ -254,19 +254,21 @@ const Dashboard = () => {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="border-b border-border pb-6"
+          className="relative overflow-hidden border-b border-border pb-7"
         >
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-muted-foreground">Your IE-Prn workspace</p>
-              <h1 className="mt-1 break-words text-3xl font-bold md:text-4xl">
+          <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/3 portal-atmosphere opacity-70 md:block" />
+          <div className="relative flex flex-wrap items-end justify-between gap-5">
+            <div className="min-w-0 border-l-2 border-primary pl-4 sm:pl-5">
+              <p className="text-xs font-semibold uppercase text-primary">Your IE-Prn workspace</p>
+              <h1 className="mt-2 break-words text-3xl font-bold md:text-4xl">
                 Welcome, <span className="text-gradient">{profile?.full_name || user?.email}</span>
               </h1>
+              <p className="mt-2 text-sm text-muted-foreground">Your events, communities, and work in one place.</p>
             </div>
 
             <div className="flex flex-wrap gap-2 sm:justify-end">
               {roles.map((role) => (
-                <span key={role} className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs capitalize text-primary">
+                <span key={role} className="rounded-md border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs capitalize text-primary">
                   {role.replace("_", " ")}
                 </span>
               ))}
@@ -507,7 +509,7 @@ const Dashboard = () => {
           });
           if (!isExecutive && unique.length === 0) return null;
           return (
-            <section id="my-events" className="mt-12">
+          <section id="my-events" className="mt-12 border-t border-border/70 pt-7">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">Events You Coordinate</h2>
                 {isExecutive && (
@@ -539,7 +541,7 @@ const Dashboard = () => {
 
         {/* ExeCom Members */}
         {isExecutive && !execRevoked && (
-          <section className="mt-12">
+          <section className="mt-12 border-t border-border/70 pt-7">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
               ExeCom Members
@@ -578,13 +580,13 @@ const EventCard = ({
   coord?: boolean;
 }) => {
   return (
-    <div className="glass rounded-xl p-5 hover:border-primary/40 transition-smooth">
+    <div className="glass-card rounded-lg p-4 sm:p-5">
       <div className="flex gap-3">
         {e.poster_url ? (
           <img
             src={e.poster_url}
             alt={e.name}
-            className="h-16 w-16 rounded-lg object-cover border border-border/50 flex-shrink-0"
+            className="h-16 w-16 rounded-md object-cover border border-border/50 flex-shrink-0"
           />
         ) : (
           <div className="h-16 w-16 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
@@ -647,10 +649,10 @@ const EventCard = ({
 };
 
 const StatCard = ({ title, value, icon }: { title: string; value: number; icon: ReactNode }) => (
-  <div className="glass-card min-w-0 rounded-xl p-4 sm:p-5">
+  <div className="glass-card min-w-0 rounded-lg p-4 sm:p-5">
     <div className="flex items-start justify-between gap-2">
-      <div className="min-w-0 break-words text-2xl font-bold text-gradient sm:text-3xl">{value}</div>
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">{icon}</div>
+      <div className="min-w-0 break-words text-3xl font-bold text-foreground sm:text-4xl">{value}</div>
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-primary">{icon}</div>
     </div>
     <div className="mt-2 text-xs leading-snug text-muted-foreground sm:text-sm">{title}</div>
   </div>
