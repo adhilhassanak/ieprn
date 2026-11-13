@@ -1,3 +1,4 @@
+
 import SEO from "@/components/SEO";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -188,6 +189,12 @@ const Index = () => {
 
   return (
     <Layout>
+      <SEO
+        title="Innovation & Entrepreneurship"
+        description="IEprn is the Innovation and Entrepreneurship platform of College of Engineering Perumon, Kollam, Kerala. Explore IIC, IEDC, E-Cell activities, student innovations, startup events and campus initiatives."
+        path="/"
+      />
+
       <AnnouncementBanner />
 
       {/* HERO - SEO OPTIMISED */}
