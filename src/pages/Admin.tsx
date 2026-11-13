@@ -227,11 +227,17 @@ const Admin = () => {
 
   return (
     <Layout>
-      <div className="container py-10">
+      <div className="container py-8 md:py-10">
         <BackButton />
-        <h1 className="text-3xl md:text-4xl font-bold">Admin <span className="text-gradient-emerald">control panel</span></h1>
+        <div className="mt-4 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
+          <div>
+            <p className="text-xs font-semibold uppercase text-primary">IE-Prn · Administration</p>
+            <h1 className="mt-2 text-3xl font-bold md:text-4xl">Admin <span className="text-gradient-emerald">control panel</span></h1>
+          </div>
+          <p className="max-w-sm text-sm text-muted-foreground">Manage members, events, and site settings.</p>
+        </div>
 
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-5 md:gap-4">
           <Stat label="Apps" value={regs.length} />
           <Stat label="Pending" value={stat("pending")} accent="gold" />
           <Stat label="Approved" value={stat("approved")} accent="emerald" />
@@ -240,12 +246,12 @@ const Admin = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as AdminTabKey)} className="mt-8">
-          <div className="grid items-start gap-5 lg:grid-cols-[15rem_minmax(0,1fr)]">
-            <nav aria-label="Admin sections" className="glass sticky top-16 z-20 rounded-xl p-2 lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
+          <div className="grid items-start gap-5 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-7">
+            <nav aria-label="Admin sections" className="glass sticky top-16 z-20 rounded-lg p-2.5 lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
               <div className="flex gap-4 overflow-x-auto pb-1 lg:flex-col lg:gap-3 lg:overflow-x-visible lg:pb-0">
                 {ADMIN_NAV_GROUPS.map((group) => (
                   <div key={group.label} className="flex shrink-0 flex-col gap-1">
-                    <div className="px-3 py-1 text-[10px] font-semibold uppercase text-muted-foreground">{group.label}</div>
+                    <div className="px-3 py-1.5 text-[10px] font-semibold uppercase text-muted-foreground">{group.label}</div>
                     <div className="flex gap-1 lg:flex-col">
                       {group.items.map((item) => {
                         const Icon = item.icon;
@@ -257,7 +263,7 @@ const Admin = () => {
                             variant="ghost"
                             aria-pressed={selected}
                             onClick={() => setActiveTab(item.value)}
-                            className={`h-9 w-max justify-start gap-2.5 px-3 text-left text-xs font-medium lg:w-full ${selected ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                            className={`h-10 w-max justify-start gap-2.5 rounded-md px-3 text-left text-xs font-medium lg:w-full ${selected ? "bg-primary text-primary-foreground shadow-glow-emerald hover:bg-primary/90 hover:text-primary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
                           >
                             <Icon className="h-4 w-4 shrink-0" />
                             <span>{item.label}</span>
@@ -269,7 +275,7 @@ const Admin = () => {
                 ))}
               </div>
             </nav>
-            <section aria-label="Selected admin section" className="min-w-0">
+            <section aria-label="Selected admin section" className="min-w-0 border-t border-border/70 pt-2 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
 
           {/* APPLICATIONS */}
           <TabsContent value="regs" className="mt-4">
@@ -652,9 +658,9 @@ const Admin = () => {
 };
 
 const Stat = ({ label, value, accent }: { label: string; value: number; accent?: "gold" | "emerald" }) => (
-  <div className="glass rounded-xl p-4">
-    <div className={`text-2xl font-bold ${accent === "gold" ? "text-gradient-gold" : accent === "emerald" ? "text-gradient-emerald" : ""}`}>{value}</div>
-    <div className="text-xs text-muted-foreground mt-1">{label}</div>
+  <div className="glass-card min-w-0 rounded-lg p-4 md:p-5">
+    <div className={`text-2xl font-bold ${accent === "gold" ? "text-gradient-gold" : accent === "emerald" ? "text-gradient-emerald" : "text-foreground"}`}>{value}</div>
+    <div className="mt-1 text-xs text-muted-foreground">{label}</div>
   </div>
 );
 
