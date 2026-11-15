@@ -10,11 +10,9 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { CheckCircle2, XCircle, Clock, Trash2, Search, Plus, ShieldPlus, Save, Pencil, ClipboardList, CalendarDays, Shield, Briefcase, Users, Crown, GraduationCap, Network, Sparkles, Image, HardDrive, MessageSquare, IndianRupee, Images, Settings, Menu, PanelLeftClose, PanelLeftOpen, ChevronDown } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Trash2, Search, Plus, ShieldPlus, Save, Pencil, ClipboardList, CalendarDays, Shield, Briefcase, Users, Crown, GraduationCap, Network, Sparkles, Image, HardDrive, MessageSquare, IndianRupee, Images, Settings } from "lucide-react";
 import { EditApplicationDialog } from "@/components/admin/EditApplicationDialog";
 import { COMMUNITY_LIST } from "@/lib/communities";
 import { applyTheme, THEME_PRESETS, type ThemePresetKey, loadGlassPrefs, saveGlassPrefs, applyThemeMode } from "@/hooks/useAdminSettings";
@@ -91,8 +89,6 @@ const Admin = () => {
   const [editing, setEditing] = useState<any>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTabKey>("regs");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const load = async () => {
     const [{ data: r }, { data: e }, { data: p }, { data: prof }, { data: rl }, { data: s }] = await Promise.all([
@@ -250,49 +246,35 @@ const Admin = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as AdminTabKey)} className="mt-8">
-          <div className="mb-4 flex items-center justify-between gap-3 lg:hidden">
-            <div className="min-w-0">
-              <p className="text-xs font-medium text-muted-foreground">Admin section</p>
-              <p className="truncate font-semibold text-foreground">
-                {ADMIN_NAV_GROUPS.flatMap((group) => group.items).find((item) => item.value === activeTab)?.label}
-              </p>
-            </div>
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm" aria-label="Open admin menu">
-                  <Menu className="h-4 w-4" /> Menu
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[min(88vw,20rem)] overflow-y-auto p-4">
-                <SheetHeader className="mb-5 text-left">
-                  <SheetTitle>Admin menu</SheetTitle>
-                  <SheetDescription>Choose a section to manage.</SheetDescription>
-                </SheetHeader>
-                <AdminNavigation activeTab={activeTab} collapsed={false} onSelect={(tab) => {
-                  setActiveTab(tab);
-                  setMobileMenuOpen(false);
-                }} />
-              </SheetContent>
-            </Sheet>
-          </div>
-          <div className={`grid items-start gap-5 lg:gap-7 ${sidebarCollapsed ? "lg:grid-cols-[4.25rem_minmax(0,1fr)]" : "lg:grid-cols-[16rem_minmax(0,1fr)]"}`}>
-            <aside className="sticky top-20 z-20 hidden self-start lg:block lg:top-24">
-              <div className="mb-2 flex justify-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  aria-label={sidebarCollapsed ? "Expand admin menu" : "Minimize admin menu"}
-                  title={sidebarCollapsed ? "Expand menu" : "Minimize menu"}
-                  onClick={() => setSidebarCollapsed((collapsed) => !collapsed)}
-                >
-                  {sidebarCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-                </Button>
+          <div className="grid items-start gap-5 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-7">
+            <nav aria-label="Admin sections" className="glass sticky top-16 z-20 rounded-lg p-2.5 lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
+              <div className="flex gap-4 overflow-x-auto pb-1 lg:flex-col lg:gap-3 lg:overflow-x-visible lg:pb-0">
+                {ADMIN_NAV_GROUPS.map((group) => (
+                  <div key={group.label} className="flex shrink-0 flex-col gap-1">
+                    <div className="px-3 py-1.5 text-[10px] font-semibold uppercase text-muted-foreground">{group.label}</div>
+                    <div className="flex gap-1 lg:flex-col">
+                      {group.items.map((item) => {
+                        const Icon = item.icon;
+                        const selected = activeTab === item.value;
+                        return (
+                          <Button
+                            key={item.value}
+                            type="button"
+                            variant="ghost"
+                            aria-pressed={selected}
+                            onClick={() => setActiveTab(item.value)}
+                            className={`h-10 w-max justify-start gap-2.5 rounded-md px-3 text-left text-xs font-medium lg:w-full ${selected ? "bg-primary text-primary-foreground shadow-glow-emerald hover:bg-primary/90 hover:text-primary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                          >
+                            <Icon className="h-4 w-4 shrink-0" />
+                            <span>{item.label}</span>
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
-              <nav aria-label="Admin sections" className="glass max-h-[calc(100vh-9rem)] overflow-y-auto rounded-lg p-2.5">
-                <AdminNavigation activeTab={activeTab} collapsed={sidebarCollapsed} onSelect={setActiveTab} />
-              </nav>
-            </aside>
+            </nav>
             <section aria-label="Selected admin section" className="min-w-0 border-t border-border/70 pt-2 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
 
           {/* APPLICATIONS */}
