@@ -277,7 +277,7 @@ const Admin = () => {
                   {adminMenuOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
                 </Button>
               </div>
-              <div className={`${adminMenuOpen ? "flex" : "hidden lg:flex"} max-h-[calc(100vh-9rem)] flex-col gap-3 overflow-y-auto pb-1 lg:max-h-none lg:overflow-visible lg:pb-0`}>
+              <div className={`${adminMenuOpen ? "flex" : "hidden lg:flex"} max-h-[calc(100vh-9rem)] flex-col gap-3 overflow-y-auto pb-16 lg:max-h-none lg:overflow-visible lg:pb-0`}>
                 {ADMIN_NAV_GROUPS.map((group) => (
                   <div key={group.label} className="flex flex-col gap-1">
                     {adminMenuOpen && <div className="px-3 py-1.5 text-[10px] font-semibold uppercase text-muted-foreground">{group.label}</div>}
@@ -292,7 +292,10 @@ const Admin = () => {
                             variant="ghost"
                             aria-pressed={selected}
                             title={!adminMenuOpen ? item.label : undefined}
-                            onClick={() => setActiveTab(item.value)}
+                            onClick={() => {
+                              setActiveTab(item.value);
+                              if (window.matchMedia("(max-width: 1023px)").matches) setAdminMenuOpen(false);
+                            }}
                             className={`h-10 ${adminMenuOpen ? "w-full justify-start gap-2.5 px-3" : "w-10 justify-center px-0"} rounded-md text-left text-xs font-medium ${selected ? "bg-primary text-primary-foreground shadow-glow-emerald hover:bg-primary/90 hover:text-primary-foreground" : "text-foreground hover:bg-secondary"}`}
                           >
                             <Icon className="h-4 w-4 shrink-0" />
