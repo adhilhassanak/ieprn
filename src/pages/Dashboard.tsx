@@ -138,48 +138,48 @@ const Dashboard = () => {
       external: true,
       label: "NEC LOGIN",
       classes:
-        "bg-gradient-to-br from-amber-600 to-amber-900 text-vivid-foreground ring-2 ring-amber-500/50",
-      labelClass: "text-amber-200",
+        "bg-gradient-to-br from-amber-700 to-amber-950 text-primary-foreground ring-2 ring-amber-500/50",
+      labelClass: "text-primary-foreground",
     },
     {
       show: isEcellMember,
       to: "/cep/ecell",
       label: "E-Cell CEP Task",
       classes:
-        "bg-gradient-to-br from-yellow-300 to-amber-400 text-amber-950 ring-2 ring-yellow-500/70",
-      labelClass: "text-amber-800",
+        "bg-gradient-to-br from-amber-700 to-amber-900 text-primary-foreground ring-2 ring-amber-500/70",
+      labelClass: "text-primary-foreground",
     },
     {
       show: isIicMember,
       to: "/cep/iic",
       label: "IIC CEP Task",
       classes:
-        "bg-gradient-to-br from-emerald-400 to-emerald-700 text-vivid-foreground ring-2 ring-emerald-500/60",
-      labelClass: "text-emerald-100",
+        "bg-gradient-to-br from-emerald-600 to-emerald-900 text-primary-foreground ring-2 ring-emerald-500/60",
+      labelClass: "text-primary-foreground",
     },
     {
       show: isEdMember,
       to: "/cep/edclub",
       label: "ED CEP Task",
       classes:
-        "bg-gradient-to-br from-violet-400 to-violet-700 text-vivid-foreground ring-2 ring-violet-500/60",
-      labelClass: "text-violet-100",
+        "bg-gradient-to-br from-violet-600 to-violet-900 text-primary-foreground ring-2 ring-violet-500/60",
+      labelClass: "text-primary-foreground",
     },
     {
       show: isRndMember,
       to: "/cep/rndclub",
       label: "R&D CEP Task",
       classes:
-        "bg-gradient-to-br from-purple-400 to-fuchsia-700 text-vivid-foreground ring-2 ring-purple-500/60",
-      labelClass: "text-purple-100",
+        "bg-gradient-to-br from-purple-700 to-fuchsia-950 text-primary-foreground ring-2 ring-purple-500/60",
+      labelClass: "text-primary-foreground",
     },
   ];
   // Every other community (e.g. FOSS or any admin-added one) gets its own CEP task button too.
   const accentCls: Record<string, string> = {
-    emerald: "bg-gradient-to-br from-teal-400 to-cyan-700 text-vivid-foreground ring-2 ring-teal-500/60",
-    gold: "bg-gradient-to-br from-orange-300 to-orange-600 text-vivid-foreground ring-2 ring-orange-500/60",
-    violet: "bg-gradient-to-br from-indigo-400 to-indigo-700 text-vivid-foreground ring-2 ring-indigo-500/60",
-    purple: "bg-gradient-to-br from-pink-400 to-rose-700 text-vivid-foreground ring-2 ring-pink-500/60",
+    emerald: "bg-gradient-to-br from-teal-600 to-cyan-900 text-primary-foreground ring-2 ring-teal-500/60",
+    gold: "bg-gradient-to-br from-orange-600 to-orange-900 text-primary-foreground ring-2 ring-orange-500/60",
+    violet: "bg-gradient-to-br from-indigo-600 to-indigo-900 text-primary-foreground ring-2 ring-indigo-500/60",
+    purple: "bg-gradient-to-br from-pink-700 to-rose-950 text-primary-foreground ring-2 ring-pink-500/60",
   };
   const handled = ["ecell", "iic", "edclub", "rndclub"];
   for (const c of COMMUNITY_LIST) {

@@ -149,7 +149,8 @@
     color: hsl(var(--foreground));
   }
   html.light .text-gradient,
-  html.light .text-gradient-emerald {
+  html.light .text-gradient-emerald,
+  html.light .text-gradient-gold {
     background: none;
     color: hsl(var(--primary));
     -webkit-text-fill-color: currentColor;
