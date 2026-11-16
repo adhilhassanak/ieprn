@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { CheckCircle2, XCircle, Clock, Trash2, Search, Plus, ShieldPlus, Save, Pencil, ClipboardList, CalendarDays, Shield, Briefcase, Users, Crown, GraduationCap, Network, Sparkles, Image, HardDrive, MessageSquare, IndianRupee, Images, Settings } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Trash2, Search, Plus, ShieldPlus, Save, Pencil, ClipboardList, CalendarDays, Shield, Briefcase, Users, Crown, GraduationCap, Network, Sparkles, Image, HardDrive, MessageSquare, IndianRupee, Images, Settings, PanelLeftClose, PanelLeftOpen, Menu, type LucideIcon } from "lucide-react";
 import { EditApplicationDialog } from "@/components/admin/EditApplicationDialog";
 import { COMMUNITY_LIST } from "@/lib/communities";
 import { applyTheme, THEME_PRESETS, type ThemePresetKey, loadGlassPrefs, saveGlassPrefs, applyThemeMode } from "@/hooks/useAdminSettings";
@@ -34,7 +34,7 @@ import { isEventRegistrationOpen } from "@/lib/eventRegistration";
 
 type AdminTabKey = "regs" | "events" | "roles" | "positions" | "members" | "principal" | "faculty" | "communities" | "ai" | "logos" | "storage" | "feedback" | "finance" | "gallery" | "calendar" | "popups" | "settings";
 
-const ADMIN_NAV_GROUPS = [
+const ADMIN_NAV_GROUPS: { label: string; items: { value: AdminTabKey; label: string; icon: LucideIcon }[] }[] = [
   {
     label: "Members",
     items: [
@@ -72,7 +72,7 @@ const ADMIN_NAV_GROUPS = [
       { value: "settings", label: "Settings", icon: Settings },
     ],
   },
-] satisfies { label: string; items: { value: AdminTabKey; label: string; icon: typeof ClipboardList }[] }[];
+];
 
 const Admin = () => {
   const [regs, setRegs] = useState<any[]>([]);
@@ -89,6 +89,8 @@ const Admin = () => {
   const [editing, setEditing] = useState<any>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTabKey>("regs");
+  const [adminMenuOpen, setAdminMenuOpen] = useState(() => window.matchMedia("(min-width: 1024px)").matches);
+  const activeTabLabel = ADMIN_NAV_GROUPS.flatMap((group) => group.items).find((item) => item.value === activeTab)?.label ?? "Admin menu";
 
   const load = async () => {
     const [{ data: r }, { data: e }, { data: p }, { data: prof }, { data: rl }, { data: s }] = await Promise.all([
@@ -246,13 +248,40 @@ const Admin = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as AdminTabKey)} className="mt-8">
-          <div className="grid items-start gap-5 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-7">
+          <div className={`grid items-start gap-4 lg:gap-7 ${adminMenuOpen ? "lg:grid-cols-[16rem_minmax(0,1fr)]" : "lg:grid-cols-[4rem_minmax(0,1fr)]"}`}>
             <nav aria-label="Admin sections" className="glass sticky top-16 z-20 rounded-lg p-2.5 lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
-              <div className="flex gap-4 overflow-x-auto pb-1 lg:flex-col lg:gap-3 lg:overflow-x-visible lg:pb-0">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="min-w-0 truncate px-1 text-xs font-semibold text-foreground lg:hidden">{activeTabLabel}</span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  aria-expanded={adminMenuOpen}
+                  aria-label={adminMenuOpen ? "Close admin menu" : "Open admin menu"}
+                  onClick={() => setAdminMenuOpen((open) => !open)}
+                  className="h-9 w-full justify-start gap-2 lg:hidden"
+                >
+                  {adminMenuOpen ? <PanelLeftClose className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+                  <span>{adminMenuOpen ? "Close menu" : "Admin menu"}</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-expanded={adminMenuOpen}
+                  aria-label={adminMenuOpen ? "Minimize admin menu" : "Expand admin menu"}
+                  title={adminMenuOpen ? "Minimize admin menu" : "Expand admin menu"}
+                  onClick={() => setAdminMenuOpen((open) => !open)}
+                  className="hidden shrink-0 lg:inline-flex"
+                >
+                  {adminMenuOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+                </Button>
+              </div>
+              <div className={`${adminMenuOpen ? "flex" : "hidden lg:flex"} max-h-[calc(100vh-9rem)] flex-col gap-3 overflow-y-auto pb-16 lg:max-h-none lg:overflow-visible lg:pb-0`}>
                 {ADMIN_NAV_GROUPS.map((group) => (
-                  <div key={group.label} className="flex shrink-0 flex-col gap-1">
-                    <div className="px-3 py-1.5 text-[10px] font-semibold uppercase text-muted-foreground">{group.label}</div>
-                    <div className="flex gap-1 lg:flex-col">
+                  <div key={group.label} className="flex flex-col gap-1">
+                    {adminMenuOpen && <div className="px-3 py-1.5 text-[10px] font-semibold uppercase text-muted-foreground">{group.label}</div>}
+                    <div className="flex flex-col gap-1">
                       {group.items.map((item) => {
                         const Icon = item.icon;
                         const selected = activeTab === item.value;
@@ -262,11 +291,15 @@ const Admin = () => {
                             type="button"
                             variant="ghost"
                             aria-pressed={selected}
-                            onClick={() => setActiveTab(item.value)}
-                            className={`h-10 w-max justify-start gap-2.5 rounded-md px-3 text-left text-xs font-medium lg:w-full ${selected ? "bg-primary text-primary-foreground shadow-glow-emerald hover:bg-primary/90 hover:text-primary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                            title={!adminMenuOpen ? item.label : undefined}
+                            onClick={() => {
+                              setActiveTab(item.value);
+                              if (window.matchMedia("(max-width: 1023px)").matches) setAdminMenuOpen(false);
+                            }}
+                            className={`h-10 ${adminMenuOpen ? "w-full justify-start gap-2.5 px-3" : "w-10 justify-center px-0"} rounded-md text-left text-xs font-medium ${selected ? "bg-primary text-primary-foreground shadow-glow-emerald hover:bg-primary/90 hover:text-primary-foreground" : "text-foreground hover:bg-secondary"}`}
                           >
                             <Icon className="h-4 w-4 shrink-0" />
-                            <span>{item.label}</span>
+                            <span className={adminMenuOpen ? "" : "sr-only"}>{item.label}</span>
                           </Button>
                         );
                       })}

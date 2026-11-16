@@ -190,8 +190,8 @@ const Index = () => {
   return (
     <Layout>
       <SEO
-        title="Innovation & Entrepreneurship"
-        description="IEprn is the Innovation and Entrepreneurship platform of College of Engineering Perumon, Kollam, Kerala. Explore IIC, IEDC, E-Cell activities, student innovations, startup events and campus initiatives."
+        title="College of Engineering Perumon Innovation & Entrepreneurship"
+        description="Official IEprn innovation and entrepreneurship community portal of College of Engineering Perumon (CEP), Kollam, Kerala. Find campus events, IIC, IEDC, E-Cell, ED Club and R&D activities."
         path="/"
       />
 

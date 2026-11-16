@@ -6,16 +6,4 @@ Disallow: /profile
 Disallow: /reset-password
 Disallow: /update-password
 
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 Sitemap: https://ieprn.co.in/sitemap.xml
